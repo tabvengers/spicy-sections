@@ -2,9 +2,9 @@ spicy-sections
 =================
 
 Spicy Sections: An experiement/demonstration
-This glitch is an experiment, attempting think about (and demonstrate for discussion) an idea in which "good old well supported HTML" can be conditionally presented with different affordances: As a tab set, i ndependent or exlcusive disclosures.
+This glitch is an experiment, attempting think about (and demonstrate for discussion) an idea in which "good old well supported HTML" can be conditionally presented with different affordances: As a tab set, or with independent or exlcusive collapses ('disclosure widgets' and 'accordions').
 
-If you want to cut to the chase and see something working, [check out this demonstration](https://spicy-sections.glitch.me/just-demos.html) and resize your browser window to see the afforances change.
+If you want to cut to the chase and see something working, [check out this demonstration](https://codepen.io/bkardell/pen/VwpJGGL?editors=1100) and resize your browser window to see the afforances change.
 
 This is using a custom element wrapper (`<spicy-sections>` which just wraps and progressively enhances heading and content pairs like...
 
@@ -51,6 +51,8 @@ spicy-sections {
 This custom element isn't itself a proposal. It is something which we can use to roughly evaluate the concept an element which could conditionally present different interaction affordances, in much the same way scroll panes do in the web platform today.
 
 There are many efforts happening in parallel discussing precisely how this should (and shouldn't or can and can't) work, but we'd love feedback about the crux of the idea itself. Please check it out: Play with it. Build something useful. Ask questions, show us your uses, [give us feedback](https://github.com/tabvengers/spicy-sections/issues) about what you like or don't.
+
+[Read more](https://bkardell.com/blog/SpicySections)
 
 ### Note
 This element really builds on progressive enhancement.  The resolution of module scripts is 
