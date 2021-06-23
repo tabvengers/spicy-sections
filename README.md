@@ -64,10 +64,10 @@ like this...
 ```   
 let ss = document.createElement("style");
 
-    ss.innerHTML = `html:not(.lldelay) :not(:defined) { visibility: hidden; }`;
-    document.head.appendChild(ss);
+ss.innerHTML = `html:not(.lldelay) :not(:defined) { visibility: hidden; }`;
+document.head.appendChild(ss);
 
-    setTimeout(() => {
-      document.documentElement.classList.add("lldelay");
-    }, 1000);
+setTimeout(() => {
+  document.documentElement.classList.add("lldelay");
+}, 1000);
  ```
