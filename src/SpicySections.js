@@ -1,5 +1,5 @@
 //import { MediaAffordancesElement } from "./MediaAffordancesElement.js";
-export class MediaAffordancesElement extends HTMLElement {
+class MediaAffordancesElement extends HTMLElement {
   constructor() {
     super();
     // todo: this should be a private field
@@ -54,7 +54,7 @@ export class MediaAffordancesElement extends HTMLElement {
     if (newValue.trim().length === 0) {
       return;
     }
-    
+
     newValue.split("|").forEach(segment => {
       let mq = segment.trim().match(/\[([^\]]*)/)[1];
       let names = segment
@@ -105,14 +105,10 @@ export class MediaAffordancesElement extends HTMLElement {
     return label.shadowRoot.querySelector("button");
   };
 
- 
+
   let style = document.createElement('style')
   style.innerHTML = `
-    :where(spicy-sections > [affordance*="collapse"][aria-expanded="true"])::before, 
-    :where(spicy-sections > [affordance*="collapse"][aria-expanded="true"])::after {
-      transform: rotate(180deg);
-    }
-      
+
     :where(spicy-sections > [affordance*="collapse"])::before { 
       content: ' ';
       display: inline-block;
@@ -122,10 +118,15 @@ export class MediaAffordancesElement extends HTMLElement {
       transform: rotate(90deg);
       background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='10px' height='10px' viewBox='0 0 270 240' enable-background='new 0 0 270 240' xml:space='preserve'%3e%3cpolygon fill='black' points='5,235 135,10 265,235 '/%3e%3c/svg%3e ");
       background-size: 100% 100%;
+    } 
+
+    :where(spicy-sections > [affordance*="collapse"][aria-expanded="true"])::before, 
+    :where(spicy-sections > [affordance*="collapse"][aria-expanded="true"])::after {
+      transform: rotate(180deg);
     }
   `
   document.head.prepend(style)
-  
+
   const template = `
         <style>
           :root {
@@ -136,7 +137,7 @@ export class MediaAffordancesElement extends HTMLElement {
           ::slotted([hidden]) {
             display: none;
           }
-          
+
           ::slotted(h1),
           ::slotted(h2),
           ::slotted(h3),
@@ -145,11 +146,11 @@ export class MediaAffordancesElement extends HTMLElement {
           ::slotted(h6) {
              margin-right: 1rem;
           }
-          
+
           tab-bar ::slotted([tabindex="0"]) {
             border-bottom: 1px solid blue;
           }
-          
+
           tab-list { 
             display: flex; 
             overflow: hidden;
@@ -393,7 +394,7 @@ export class MediaAffordancesElement extends HTMLElement {
         }
       }
     };
-    
+
     __childListObserver = new MutationObserver(mutationList => {
       // we have to wire up new elements
       let labelEls = getLabels(this);
@@ -469,7 +470,7 @@ export class MediaAffordancesElement extends HTMLElement {
       super.connectedCallback();
 
       //TODO: check whether there is a hash/handle selection
-      
+
       // If you append a fragment with a pair, it should work
       this.__childListObserver.observe(this, { childList: true });
     }
