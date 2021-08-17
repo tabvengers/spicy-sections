@@ -460,6 +460,9 @@ class MediaAffordancesElement extends HTMLElement {
             } else if (evt.keyCode == 39 || evt.keyCode == 40) {
               labels[next].affordanceState.activate();
             }
+          } else if (evt.keyCode == 32 && this.affordanceState.current === 'collapse') {
+            evt.target.closest('[affordance]').affordanceState.activate()
+            evt.preventDefault()
           }
         },
         false
