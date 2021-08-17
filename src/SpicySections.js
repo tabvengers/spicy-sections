@@ -474,6 +474,7 @@ class MediaAffordancesElement extends HTMLElement {
             evt.preventDefault()
           }
         }
+      );
     }
 
     connectedCallback() {
