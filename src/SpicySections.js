@@ -454,7 +454,7 @@ class MediaAffordancesElement extends HTMLElement {
           if (
             this.affordanceState.current === "tab-bar" ||
             this.affordanceState.current === "exclusive-collapse"
-          ) { 
+          ) {
             if (evt.keyCode == 37 || evt.keyCode == 38) {
               labels[prev].affordanceState.activate();
             } else if (evt.keyCode == 39 || evt.keyCode == 40) {
