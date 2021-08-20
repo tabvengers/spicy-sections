@@ -1,41 +1,43 @@
-spicy-sections
-=================
+# spicy-sections
 
-Spicy Sections: An experiement/demonstration
-This glitch is an experiment, attempting think about (and demonstrate for discussion) an idea in which "good old well supported HTML" can be conditionally presented with different affordances: As a tab set, or with independent or exlcusive collapses ('disclosure widgets' and 'accordions').
+**Spicy Sections** is an experiment in which "_good ol’ well supported HTML_" is conditionally presented with [different affordances](https://bkardell.com/blog/DesignAffordanceControls.html);
+either as a tab set, or with independent collapses ("_disclosure widgets_") or exclusive collapses ("_accordions_").
 
-If you want to cut to the chase and see something working, [check out this demonstration](https://codepen.io/bkardell/pen/VwpJGGL?editors=1100) and resize your browser window to see the afforances change.
+**Spicy Sections** uses a custom element wrapper (`<spicy-sections>`) to wrap and progressively enhance heading and content pairs.
 
-This is using a custom element wrapper (`<spicy-sections>` which just wraps and progressively enhances heading and content pairs like...
+If you want to see something working, [check out this demonstration](https://codepen.io/bkardell/pen/VwpJGGL?editors=1100) and resize your browser window to see how the afforances change.
 
-You can import the custom element like...
-```
+## Usage
+
+Import the custom element.
+
+```html
 <script type="module" src="/SpicySections.js"></script>
 ```
 
-And then mark up sections by wrapping Good Old HTML with the `<spicy-sections>`  element like...
+Markup sections by wrapping _good ol’ HTML_ with the `<spicy-sections>` element.
 
-```
+```html
 <spicy-sections>
-  <!-- any heading here, followed by an element containing content --!>
+  <!-- any heading here, followed by an element containing content -->
   <h2>Ingredients</h2>
   <div>A list of ingredients</div>
 
-  <!-- repeat the pattern... --!>
+  <!-- repeat the pattern... -->
   <h2>Instructions</h2>
   <div>A list of instructions</div>
 </spicy-sections>
 ```
 
-Spicy sections allow authors to express when different affordances should be presented. This can be via an attribute, or a CSS Custom Property (though, this is read only once). To present these on a smaller screen as a series of collapses (as if they were summary/details like), this would look like...
+## Affordances
 
-```
-[screen and (max-width: 800px)] collapse
-```
+**Spicy Sections** lets authors to express when affordances should be presented;
+using either an attribute or a CSS Custom Property.
+The available affordancs are `collapse` (_summary/details like_) or `tab-bar` (_tabs like_).
 
-The demo uses the following rule in its CSS:
+To present an afforance of `collapse` on a smaller screen, you might use `[screen and (max-width: 800px)] collapse`.
 
-```
+```pcss
 spicy-sections {
   --const-mq-affordances:
     [screen and (max-width: 40em) ] collapse |
@@ -48,28 +50,35 @@ spicy-sections {
 }
 ```
 
-This custom element isn't itself a proposal. It is something which we can use to roughly evaluate the concept an element which could conditionally present different interaction affordances, in much the same way scroll panes do in the web platform today.
+_Note: The CSS Custom Property is only read only._
 
-There are many efforts happening in parallel discussing precisely how this should (and shouldn't or can and can't) work, but we'd love feedback about the crux of the idea itself. Please check it out: Play with it. Build something useful. Ask questions, show us your uses, [give us feedback](https://github.com/tabvengers/spicy-sections/issues) about what you like or don't.
+---
+
+This custom element isn't itself a proposal.
+It is something which we can use to roughly evaluate the concept an element which could conditionally present different interaction affordances, in much the same way scroll panes do in the web platform today.
+
+There are many efforts happening in parallel discussing precisely how this should (and shouldn't or can and can't) work, but we'd love feedback about the crux of the idea itself.
+Please check it out: Play with it. Build something useful. Ask questions, show us your uses, [give us feedback](https://github.com/tabvengers/spicy-sections/issues) about what you like or don't.
 
 [Read more](https://bkardell.com/blog/SpicySections)
 
-### Note
-This element really builds on progressive enhancement.  The resolution of module scripts is 
-non-blocking and the display of different affordances can be quite different. It is appealing
-then to minimize FOUC, and the one instrument that custom elements and CSS currently provide is 
-`:not(:defined)`. However, using this to hide the content would sacrifice the progressive 
-enhancement qualities if script failed to load or execute.  This is an [known issue](see https://github.com/whatwg/html/issues/6231).  You can create a slightly better experience 
-with a simple script which only hides if script is enabled and "races" the definition or a timeout, 
-like this...
+## Note
 
-```   
-let ss = document.createElement("style");
+This element builds on progressive enhancement.
+The resolution of module scripts is non-blocking and the display of different affordances can be quite different.
+It is appealing then to minimize FOUC, and the one instrument that custom elements and CSS currently provide is `:not(:defined)`.
 
-ss.innerHTML = `html:not(.lldelay) :not(:defined) { visibility: hidden; }`;
-document.head.appendChild(ss);
+Unfortunately, using `:not(:defined)` to hide content fails to progressively enhance if the script fails to either load or execute;
+this is an [known issue](see https://github.com/whatwg/html/issues/6231).
+For now, you can improve the experience by hiding the content when the script is enabled, and then _race_ the definition.
 
-setTimeout(() => {
-  document.documentElement.classList.add("lldelay");
-}, 1000);
- ```
+```js
+// dynamically inject styles to hide the content
+let style = document.head.appendChild(
+  Object.assign(document.createElement('style'), {
+    textContent: 'spicy-sections:not(:defined) { visibility: hidden; }'
+  })
+);
+
+setTimeout(() => style.remove(), 1000);
+```
