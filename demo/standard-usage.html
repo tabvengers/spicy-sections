@@ -1,0 +1,85 @@
+
+<!doctype html>
+<html lang="en-US">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<title>Spicy Sections</title>
+	<script type="module">
+	import '../src/SpicySections.js'
+	</script>
+	<style>
+	spicy-sections {
+		--const-mq-affordances:
+			[ screen and (max-width: 40em) ] collapse |
+			[ screen and (min-width: 60em) ] tab-bar
+		;
+		display: block;
+		box-shadow:
+			inset 0 calc(1em / 3) 0 0 CurrentColor,
+			inset 0 calc(1em / -3) 0 0 CurrentColor
+		;
+		padding: 1em;
+	}
+	</style>
+</head>
+
+<body>
+	<h1>Spicy Sections</h1>
+
+	<spicy-sections id="demos">
+		<h2>Tabs</h2>
+		<div>
+			<p>
+				The <code>tab-bar</code> affordance
+				can use shadow-dom to establish
+				a styleable tab-bar and panels.
+				The required parts can be exposed for styling
+				with consistent pseudo-elements.
+			</p>
+			<p>
+				In a tab state, we likely want to style:
+			</p>
+			<ul>
+				<li>The outer box</li>
+				<li>The tab bar</li>
+				<li>The tabs themselves</li>
+				<li>The selected tab</li>
+				<li>The tab panel area</li>
+			</ul>
+		</div>
+
+		<h2>Collapse</h2>
+		<div>
+			<p>
+				The accordion-like <code>collapse</code> affordance
+				also uses shadow-dom to establish
+				summary-details like behavior for each section,
+				with an option to make the toggle-states
+				<code>exclusive-collapse</code>.
+			</p>
+			<p>
+				In an accordion state, we likely want to style:
+			</p>
+			<ul>
+				<li>The outer box</li>
+				<li>The section headings/buttons</li>
+				<li>The open/closed marker</li>
+				<li>Open and closed heading styles</li>
+				<li>Open and closed content styles</li>
+			</ul>
+		</div>
+
+		<h2>Structured Content</h2>
+		<div>
+			<p>
+				The fallback state is simply structured HTML,
+				without any show/hide affordances.
+				This does not require any special styling.
+			</p>
+		</div>
+	</spicy-sections>
+</body>
+
+</html>
