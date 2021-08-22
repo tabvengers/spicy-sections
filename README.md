@@ -33,7 +33,7 @@ Markup sections by wrapping _good ol’ HTML_ with the `<spicy-sections>` elemen
 
 **Spicy Sections** lets authors to express when affordances should be presented;
 using either an attribute or a CSS Custom Property.
-The available affordancs are `collapse` (_summary/details like_) or `tab-bar` (_tabs like_).
+The available affordancs are `collapse` (_summary/details like_), `tab-bar` (_tabs like_) and `exclusive-collapse` (_single select accordion like).
 
 To present an afforance of `collapse` on a smaller screen, you might use `[screen and (max-width: 800px)] collapse`.
 
@@ -55,9 +55,11 @@ _Note: The CSS Custom Property is only read only._
 ---
 
 This custom element isn't itself a proposal.
+
 It is something which we can use to roughly evaluate the concept an element which could conditionally present different interaction affordances, in much the same way scroll panes do in the web platform today.
 
 There are many efforts happening in parallel discussing precisely how this should (and shouldn't or can and can't) work, but we'd love feedback about the crux of the idea itself.
+
 Please check it out: Play with it. Build something useful. Ask questions, show us your uses, [give us feedback](https://github.com/tabvengers/spicy-sections/issues) about what you like or don't.
 
 [Read more](https://bkardell.com/blog/SpicySections)
