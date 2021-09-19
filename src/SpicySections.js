@@ -227,13 +227,13 @@ class MediaAffordancesElement extends HTMLElement {
             let relatedContent = sibLabel.nextElementSibling;
             sibLabel.tabIndex = -1;
             relatedContent.style.display = "none";
-            sibLabel.setAttribute("aria-expanded", "false");
+            sibLabel.setAttribute("aria-selected", "false");
             sibLabel.affordanceState.exclusiveExpanded = false;
           });
           label.tabIndex = 0;
           label.parentElement.affordanceState.exclusiveSelection.index = index;
           label.nextElementSibling.style.display = "block";
-          label.setAttribute("aria-expanded", "true");
+          label.setAttribute("aria-selected", "true");
           label.affordanceState.exclusiveExpanded = true;
           label.focus();
         }
