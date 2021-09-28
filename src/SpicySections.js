@@ -120,6 +120,10 @@ class MediaAffordancesElement extends HTMLElement {
       background-size: 100% 100%;
     } 
 
+    :where(spicy-sections > .hide) {
+      display: none;
+    } 
+  
     :where(spicy-sections > [affordance*="collapse"][aria-expanded="true"])::before, 
     :where(spicy-sections > [affordance*="collapse"][aria-expanded="true"])::after {
       transform: rotate(180deg);
@@ -151,6 +155,8 @@ class MediaAffordancesElement extends HTMLElement {
             border-bottom: 1px solid blue;
           }
 
+          .hide { display: none; }
+          
           tab-list { 
             display: flex; 
             overflow: hidden;
@@ -186,10 +192,10 @@ class MediaAffordancesElement extends HTMLElement {
           label.setAttribute("aria-expanded", state);
           if (state) {
             label.setAttribute("expanded", "");
-            contentEl.style.display = "block";
+            contentEl.classList.remove("hide")
           } else {
             label.removeAttribute("expanded");
-            contentEl.style.display = "none";
+            contentEl.classList.add("hide");
           }
         }
       },
@@ -203,14 +209,14 @@ class MediaAffordancesElement extends HTMLElement {
           siblings.forEach((sibLabel, i) => {
             let relatedContent = sibLabel.nextElementSibling;
             sibLabel.tabIndex = -1;
-            relatedContent.style.display = "none";
+            relatedContent.classList.add("hide");
             label.setAttribute("aria-expanded", "false");
             sibLabel.affordanceState.exclusiveExpanded = false;
           });
           label.tabIndex = 0;
           //nope - todo, fix/remove this?
           label.parentElement.affordanceState.exclusiveSelection.index = index;
-          label.nextElementSibling.style.display = "block";
+          label.nextElementSibling.classList.remove("hide");
           label.setAttribute("aria-expanded", "true");
           label.affordanceState.exclusiveExpanded = true;
           label.focus();
@@ -226,13 +232,13 @@ class MediaAffordancesElement extends HTMLElement {
           siblings.forEach((sibLabel, i) => {
             let relatedContent = sibLabel.nextElementSibling;
             sibLabel.tabIndex = -1;
-            relatedContent.style.display = "none";
+            relatedContent.classList.add("hide");
             sibLabel.setAttribute("aria-selected", "false");
             sibLabel.affordanceState.exclusiveExpanded = false;
           });
           label.tabIndex = 0;
           label.parentElement.affordanceState.exclusiveSelection.index = index;
-          label.nextElementSibling.style.display = "block";
+          label.nextElementSibling.classList.remove("hide");
           label.setAttribute("aria-selected", "true");
           label.affordanceState.exclusiveExpanded = true;
           label.focus();
@@ -281,9 +287,8 @@ class MediaAffordancesElement extends HTMLElement {
             labelEl.setAttribute("aria-controls", contentEl.id);
             labelEl.setAttribute("role", "button");
             labelEl.setAttribute("aria-expanded", isExpanded);
-            labelEl.nextElementSibling.style.display = isExpanded
-              ? "block"
-              : "none";
+            
+            labelEl.nextElementSibling.classList.toggle("hide", !isExpanded)    
           } else if (mode === "exclusive") {
             let isExpanded =
               labelEls.indexOf(labelEl) ===
@@ -293,9 +298,7 @@ class MediaAffordancesElement extends HTMLElement {
             labelEl.setAttribute("role", "button");
             labelEl.setAttribute("aria-expanded", isExpanded);
             labelEl.setAttribute("aria-controls", contentEl.id);
-            labelEl.nextElementSibling.style.display = isExpanded
-              ? "block"
-              : "none";
+            labelEl.nextElementSibling.classList.toggle("hide", !isExpanded)
           } else {
             labelEl.removeAttribute("tabIndex");
             labelEl.removeAttribute("affordance");
@@ -310,8 +313,7 @@ class MediaAffordancesElement extends HTMLElement {
       this.__removeProjections();
       getLabels(this).forEach((tabSource, i) => {
         let selected = false,
-          tabIndex = -1,
-          display = "none";
+          tabIndex = -1;
 
         tabSource.setMode();
         tabSource.slot = "tabListSlot";
@@ -325,11 +327,10 @@ class MediaAffordancesElement extends HTMLElement {
         if (i === this.affordanceState.exclusiveSelection.index) {
           tabIndex = 0;
           selected = true;
-          display = "block";
         }
         tabSource.setAttribute("aria-selected", selected);
         tabSource.tabIndex = tabIndex;
-        contentSource.style.display = display;
+        contentSource.classList.toggle("hide", !selected);
 
         // TODO: aria-orientation :(
       });
@@ -352,7 +353,7 @@ class MediaAffordancesElement extends HTMLElement {
         child.removeAttribute("aria-controls");
         child.removeAttribute("tabindex");
         child.removeAttribute("aria-expanded")
-        child.style.display = "block";
+        child.classList.remove("hide");
       });
     };
 
