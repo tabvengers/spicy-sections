@@ -121,7 +121,7 @@ class MediaAffordancesElement extends HTMLElement {
     } 
 
     :where(spicy-sections > .hide) {
-      display: none;
+      display: none !important;
     } 
   
     :where(spicy-sections > [affordance*="collapse"][aria-expanded="true"])::before, 
@@ -155,7 +155,7 @@ class MediaAffordancesElement extends HTMLElement {
             border-bottom: 1px solid blue;
           }
 
-          .hide { display: none !important; }
+          .hide { display: none; }
           
           tab-list { 
             display: flex; 
