@@ -155,7 +155,7 @@ class MediaAffordancesElement extends HTMLElement {
             border-bottom: 1px solid blue;
           }
 
-          .hide { display: none; }
+          .hide { display: none !important; }
           
           tab-list { 
             display: flex; 
