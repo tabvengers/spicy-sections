@@ -439,7 +439,7 @@ class MediaAffordancesElement extends HTMLElement {
     };
 
     /*
-      Wires up suppored affordances...
+      Wires up supported affordances...
     */
     constructor() {
       super();
