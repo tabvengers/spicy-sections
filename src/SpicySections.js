@@ -417,8 +417,30 @@ class MediaAffordancesElement extends HTMLElement {
       }
     };
 
+    honourFragmentLink = () => {
+      let labels = getLabels(this);
+
+      if (location.hash && this.querySelector(location.hash)) {
+        // try to find a label with this ID, or controlled content
+        // that contains an element with this ID
+        for (let i = 0; i < labels.length; i++) {
+          let relevantContent =
+            labels[i].getAttribute("aria-controls") &&
+            this.querySelector(`#${labels[i].getAttribute("aria-controls")}`);
+
+          if (
+            labels[i] === this.querySelector(location.hash) ||
+            (relevantContent && relevantContent.querySelector(location.hash))
+          ) {
+            labels[i].affordanceState.activate();
+            return;
+          }
+        }
+      }
+    };
+
     /*
-      Wires up suppored affordances...
+      Wires up supported affordances...
     */
     constructor() {
       super();
@@ -482,7 +504,13 @@ class MediaAffordancesElement extends HTMLElement {
     connectedCallback() {
       super.connectedCallback();
 
-      //TODO: check whether there is a hash/handle selection
+      //TODO: handle selection
+
+      if (location.hash) {
+        setTimeout(this.honourFragmentLink, 1);
+      }
+
+      window.addEventListener("hashchange", this.honourFragmentLink);
 
       // If you append a fragment with a pair, it should work
       this.__childListObserver.observe(this, { childList: true });
