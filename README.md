@@ -3,7 +3,7 @@
 **Spicy Sections** is an experiment in which "_good ol’ well supported HTML_" is conditionally presented with [different affordances](https://bkardell.com/blog/DesignAffordanceControls.html);
 either as a tab set, or with independent collapses ("_disclosure widgets_") or exclusive collapses ("_accordions_").
 
-**Spicy Sections** uses a custom element wrapper (`<spicy-sections>`) to wrap and progressively enhance heading and content pairs.
+Developed as part of explorations in Open UI, following some [extensive research toward potentially standardizing "tabs"](https://open-ui.org/components/tabs.research.parts), **Spicy Sections** uses a custom element wrapper (`<spicy-sections>`) to wrap and progressively enhance heading and content pairs so that they can be presented with any of these affordances.
 
 If you want to see something working, [check out this demonstration](https://codepen.io/bkardell/pen/VwpJGGL?editors=1100) and resize your browser window to see how the afforances change.
 
@@ -29,7 +29,8 @@ Markup sections by wrapping _good ol’ HTML_ with the `<spicy-sections>` elemen
 </spicy-sections>
 ```
 
-## Affordances
+
+## Designing with Affordances
 
 **Spicy Sections** lets authors to express when affordances should be presented;
 using either an attribute or a CSS Custom Property.
@@ -52,17 +53,19 @@ spicy-sections {
 
 _Note: The CSS Custom Property is only read only._
 
+### Hash references
+In normal content, markup can contain `id` attributes which will be scrolled to and focus-navigation set to the first matching element when the URL contains a matching `#` (hash).  This element carries this idea forward and will activate tabs accordingly, whether that hash matches the heading, or content within it.
+
 ---
 
-This custom element isn't itself a proposal.
+## Standards Path?
+This work is developed as part of explorations in Open UI, following some [extensive research toward potentially standardizing "tabs"](https://open-ui.org/components/tabs.research.parts). We believe that the concept of an element which could conditionally present different interaction affordances, in much the same way that scroll panes do in the web platform today could be an important new concept allowing us to bring not just tabs, but several UI concepts to the platform.
 
-It is something which we can use to roughly evaluate the concept an element which could conditionally present different interaction affordances, in much the same way scroll panes do in the web platform today.
+However, there is a lot to think about - not the least of which is whether developers will adopt something like this.  This custom element provides a way for us to roughly evaluate the concepts, learn more about the problem and see.
 
-There are many efforts happening in parallel discussing precisely how this should (and shouldn't or can and can't) work, but we'd love feedback about the crux of the idea itself.
+Please check it out: Play with it. Build something useful. Ask questions, show us your uses, [give us feedback](https://github.com/tabvengers/spicy-sections/issues) about what you like or don't.  We'll also be watching the HTTP Archive data for adoption, and adoption is a good signal we've got something right and will help drive furtherance and priority of standards work.
 
-Please check it out: Play with it. Build something useful. Ask questions, show us your uses, [give us feedback](https://github.com/tabvengers/spicy-sections/issues) about what you like or don't.
-
-[Read more](https://bkardell.com/blog/SpicySections)
+There is also a post where you can [read more on the concept](https://bkardell.com/blog/SpicySections)
 
 ## Note
 
