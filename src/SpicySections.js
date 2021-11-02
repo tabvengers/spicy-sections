@@ -492,7 +492,7 @@ class MediaAffordancesElement extends HTMLElement {
             }
           } else if (evt.keyCode == 32 && this.affordanceState.current === 'collapse') {
             evt.preventDefault()
-            evt.stopImmediatePropagation()
+            //evt.stopImmediatePropagation()
           }
         },
         false
