@@ -474,18 +474,25 @@ class MediaAffordancesElement extends HTMLElement {
           let prev = cur === 0 ? size - 1 : cur - 1;
           let next = cur === size - 1 ? 0 : cur + 1;
 
+          // don't trap nested handling
+          if (evt.target.parentElement !== evt.currentTarget) { return }
+          
           if (
             this.affordanceState.current === "tab-bar" ||
             this.affordanceState.current === "exclusive-collapse"
           ) {
             if (evt.keyCode == 37 || evt.keyCode == 38) {
               labels[prev].affordanceState.activate();
+              evt.preventDefault()
+              //evt.stopImmediatePropagation()
             } else if (evt.keyCode == 39 || evt.keyCode == 40) {
               labels[next].affordanceState.activate();
+              evt.preventDefault()
+              //evt.stopImmediatePropagation()
             }
-            evt.preventDefault()
           } else if (evt.keyCode == 32 && this.affordanceState.current === 'collapse') {
             evt.preventDefault()
+            evt.stopImmediatePropagation()
           }
         },
         false
