@@ -210,7 +210,7 @@ class MediaAffordancesElement extends HTMLElement {
             let relatedContent = sibLabel.nextElementSibling;
             sibLabel.tabIndex = -1;
             relatedContent.classList.add("hide");
-            label.setAttribute("aria-expanded", "false");
+            sibLabel.setAttribute("aria-expanded", "false");
             sibLabel.affordanceState.exclusiveExpanded = false;
           });
           label.tabIndex = 0;
