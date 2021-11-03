@@ -1,0 +1,14 @@
+{
+  "name": "spicy-sections-ui-automation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "testcafe firefox sample.tests.js -e"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "testcafe": "^1.17.0"
+  }
+}
