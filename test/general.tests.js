@@ -1,7 +1,14 @@
 import { Selector } from 'testcafe';
 
 fixture `Spicy sections`
-    .page `https://spicy-sections.glitch.me/automation-tests-1.html`;
+    .page `https://spicy-sections.glitch.me/automation-tests-1.html`
+    .beforeEach(async (t) => {
+    // stuff that should happen before each test run
+        await t.maximizeWindow();
+    })
+    .afterEach(async () => {
+        // stuff that should happen after each test run
+    });
 
 const heading = Selector("h1");
 const spicySection = Selector("spicy-sections");
@@ -13,6 +20,7 @@ const BREAKPOINTS = {
     'tab-bar': 1000
 }
 
+// helper
 async function verifyTab(t, tabLabel, selected) {
     let content = await tabLabel.nextSibling()
     let expectedDisplayEquality = !selected ? "eql" : "notEql" 
@@ -36,6 +44,7 @@ async function verifyTab(t, tabLabel, selected) {
         .expect(content.getAttribute('role')).eql('tabpanel')   
         .expect(content.getStyleProperty('display'))[expectedDisplayEquality]("none")
 }
+
 
 
 // helper
@@ -93,21 +102,22 @@ async function verifySimpleCollapseHeading(t, label, selected) {
 
 test('Verify simple affordance updates', async t => {
     await t
-        .maximizeWindow()
-        .expect(heading.innerText).contains("Days")
-        .resizeWindow(BREAKPOINTS['tab-bar'], 1080)
-        .expect(spicySection.getAttribute('affordance')).eql('tab-bar')
+        .resizeWindow(BREAKPOINTS['collapse'], 1080)
+        .expect(spicySection.getAttribute('affordance')).eql('collapse')
         .resizeWindow(BREAKPOINTS['exclusive-collapse'], 1080)
         .expect(spicySection.getAttribute('affordance')).eql('exclusive-collapse')
+        .resizeWindow(BREAKPOINTS['tab-bar'], 1080)
+        .expect(spicySection.getAttribute('affordance')).eql('tab-bar')
+        .resizeWindow(1440, 1080) //no affordance at this breakpoint
         .expect(spicySection.getAttribute('affordance')).notEql('tab-bar')
+        .expect(spicySection.getAttribute('affordance')).notEql('collapse')
+        .expect(spicySection.getAttribute('affordance')).notEql('exclusive-collapse')
 });
 
 
 
 test('Verify tabs accessibility', async t => {
     await t
-        .maximizeWindow()
-        .expect(heading.innerText).contains("Days")
         .resizeWindow(BREAKPOINTS['tab-bar'], 1080)
         .expect(spicySection.getAttribute('affordance')).eql('tab-bar')
     
@@ -119,13 +129,11 @@ test('Verify tabs accessibility', async t => {
     await verifyTab(t, spicyHeadings.nth(4), false)
     await verifyTab(t, spicyHeadings.nth(5), false)
     await verifyTab(t, spicyHeadings.nth(6), false)
-
+    
 });
 
 test('Verify exclusive-collapse accessibility', async t => {
     await t
-        .maximizeWindow()
-        .expect(heading.innerText).contains("Days")
         .resizeWindow(BREAKPOINTS['exclusive-collapse'], 812)
         .expect(spicySection.getAttribute('affordance')).eql('exclusive-collapse')
 
@@ -141,8 +149,6 @@ test('Verify exclusive-collapse accessibility', async t => {
 
 test('Verify non-exclusive collapses accessibility', async t => {
     await t
-        .maximizeWindow()
-        .expect(heading.innerText).contains("Days")
         .resizeWindow(BREAKPOINTS['collapse'], 812)
         .expect(spicySection.getAttribute('affordance')).eql('collapse')
 
@@ -160,11 +166,24 @@ test('Verify affordance on page refresh', async t => {
         .resizeWindow(BREAKPOINTS['tab-bar'], 1080)
         .expect(spicySection.getAttribute('affordance')).eql('tab-bar')
         .resizeWindow(BREAKPOINTS['exclusive-collapse'], 812)
-        .expect(spicySection.getAttribute('affordance')).eql('exclusive-collapse')
         
     await t.eval(() => location.reload(true));
 
     await t
         .wait(2000)    
-        .expect(spicySection.getAttribute('affordance')).eql('exclusive-collapse');
+        .expect(spicySection.getAttribute('affordance')).eql('exclusive-collapse')
+        .resizeWindow(BREAKPOINTS['collapse'], 812)
+
+    await t.eval(() => location.reload(true));
+
+    await t
+        .wait(2000)    
+        .expect(spicySection.getAttribute('affordance')).eql('collapse')
+        .resizeWindow(BREAKPOINTS['tab-bar'], 1080)
+
+    await t.eval(() => location.reload(true));
+
+    await t
+        .wait(2000)    
+        .expect(spicySection.getAttribute('affordance')).eql('tab-bar');
 });
