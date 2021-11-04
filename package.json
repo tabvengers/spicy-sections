@@ -4,7 +4,7 @@
   "description": "A custom element that allows authors to employ tabs, accordions and summary+detail like UI affordances via CSS over otherwise good semantic content",
   "main": "index.js",
   "scripts": {
-    "test": "testcafe firefox test/sample.tests.js -e"
+    "test": "testcafe firefox test/general.tests.js -e"
   },
   "author": "Brian Kardell <bkardell@igalia.com>",
   "contributors": [
