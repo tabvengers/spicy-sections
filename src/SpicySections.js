@@ -2,8 +2,6 @@
  * This work is licensed under the W3C Software and Document License
  * (http://www.w3.org/Consortium/Legal/2015/copyright-software-and-document).
  */
-
-//import { MediaAffordancesElement } from "./MediaAffordancesElement.js";
 class MediaAffordancesElement extends HTMLElement {
   constructor() {
     super();
@@ -19,7 +17,6 @@ class MediaAffordancesElement extends HTMLElement {
 
   notifyChange() {
     let intersection = new Set();
-    console.log('notify!')
     
     for (let elem of this.mqls) {
       if (elem.matches && this.supportedAffordances.has(elem.__affordance)) {
@@ -78,7 +75,6 @@ class MediaAffordancesElement extends HTMLElement {
         .replace(`[${mq}]`, "")
         .trim()
         .split(" ");
-      console.log('names', names)
       let mql = window.matchMedia(mq);
       mql.__affordance = names[0] // one for now
       mql.addEventListener("change", () => {
