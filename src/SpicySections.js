@@ -489,15 +489,12 @@ class MediaAffordancesElement extends HTMLElement {
             if (evt.keyCode == 37 || evt.keyCode == 38) {
               labels[prev].affordanceState.activate();
               evt.preventDefault()
-              //evt.stopImmediatePropagation()
             } else if (evt.keyCode == 39 || evt.keyCode == 40) {
               labels[next].affordanceState.activate();
               evt.preventDefault()
-              //evt.stopImmediatePropagation()
             }
           } else if (evt.keyCode == 32 && this.affordanceState.current === 'collapse') {
             evt.preventDefault()
-            //evt.stopImmediatePropagation()
           }
         },
         false
