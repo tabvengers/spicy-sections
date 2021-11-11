@@ -2,13 +2,9 @@
  * This work is licensed under the W3C Software and Document License
  * (http://www.w3.org/Consortium/Legal/2015/copyright-software-and-document).
  */
-
-//import { MediaAffordancesElement } from "./MediaAffordancesElement.js";
 class MediaAffordancesElement extends HTMLElement {
   constructor() {
     super();
-    // todo: this should be a private field
-    this.__matching = new Set()
     this.mqls = [];
     this.observers = [];
 
@@ -21,19 +17,21 @@ class MediaAffordancesElement extends HTMLElement {
 
   notifyChange() {
     let intersection = new Set();
-    for (let elem of this.__matching) {
-      if (this.supportedAffordances.has(elem)) {
-        intersection.add(elem);
+    
+    for (let elem of this.mqls) {
+      if (elem.matches && this.supportedAffordances.has(elem.__affordance)) {
+        intersection.add(elem.__affordance);
       }
     }
-
-    if (this.__matching.size > 0) {
-      this.setAttribute("mq-matched", [...this.__matching].join(" "));
+    
+    let arr =  [...intersection]
+    
+    if (arr.length > 0) {
+      this.setAttribute("mq-matched", arr.join(" "));
     } else {
       this.removeAttribute("mq-matched");
     }
-    let arr =  [...intersection]
-    let affordance = arr[arr.length - 1];
+    let affordance = arr[0];
     if (affordance) {
       this.setAttribute("affordance", affordance);
     } else {
@@ -59,7 +57,18 @@ class MediaAffordancesElement extends HTMLElement {
     if (newValue.trim().length === 0) {
       return;
     }
-
+    const debounce = (fn, delay) => {
+      let timeOutId;
+      return () => {
+        if(timeOutId) {
+          clearTimeout(timeOutId);
+        }
+        timeOutId = setTimeout(() => {
+          fn.call(this);
+        },delay);
+      }
+    }
+    let fn = debounce(this.notifyChange, 10)
     newValue.split("|").forEach(segment => {
       let mq = segment.trim().match(/\[([^\]]*)/)[1];
       let names = segment
@@ -67,15 +76,11 @@ class MediaAffordancesElement extends HTMLElement {
         .trim()
         .split(" ");
       let mql = window.matchMedia(mq);
-      let mqh = evt => {
-        names.forEach(name => {
-          this.__matching[mql.matches ? "add" : "delete"](name);
-        });
-
-        this.notifyChange();
-      };
-      mqh();
-      mql.addEventListener("change", mqh);
+      mql.__affordance = names[0] // one for now
+      mql.addEventListener("change", () => {
+       fn() 
+      });
+      fn()
       this.mqls.push(mql);
     }, this);
   }
@@ -105,11 +110,6 @@ class MediaAffordancesElement extends HTMLElement {
     el.id = el.id || nextUId();
     return el.id;
   };
-
-  let getDisclosureButton = label => {
-    return label.shadowRoot.querySelector("button");
-  };
-
 
   let style = document.createElement('style')
   style.innerHTML = `
@@ -479,16 +479,20 @@ class MediaAffordancesElement extends HTMLElement {
           let prev = cur === 0 ? size - 1 : cur - 1;
           let next = cur === size - 1 ? 0 : cur + 1;
 
+          // don't trap nested handling
+          if (evt.target.parentElement !== evt.currentTarget) { return }
+          
           if (
             this.affordanceState.current === "tab-bar" ||
             this.affordanceState.current === "exclusive-collapse"
           ) {
             if (evt.keyCode == 37 || evt.keyCode == 38) {
               labels[prev].affordanceState.activate();
+              evt.preventDefault()
             } else if (evt.keyCode == 39 || evt.keyCode == 40) {
               labels[next].affordanceState.activate();
+              evt.preventDefault()
             }
-            evt.preventDefault()
           } else if (evt.keyCode == 32 && this.affordanceState.current === 'collapse') {
             evt.preventDefault()
           }
