@@ -210,3 +210,96 @@ test('verify exclusive collapse click', async t => {
         }
     }
 });
+
+test('verify element focus within each tab', async t => {
+    await t.resizeWindow(BREAKPOINTS['tab-bar'], 1080)
+    let count = await spicyHeadings.count;
+    for (let i = 0; i < count; i++) {
+        await t.click(spicyHeadings.nth(i));
+        let link = await Selector('a').nth(i);
+        // after first tab content area is selected not the link within it
+        await t.pressKey('tab').expect(link.focused).eql(false);
+        await t.pressKey('tab').expect(link.focused).eql(true);
+    }
+});
+
+test('verify element focus within each collapse', async t => {
+    await t.resizeWindow(BREAKPOINTS['collapse'], 812)
+    let count = await spicyHeadings.count;
+    for (let i = 0; i < count; i++) {
+        await t.click(spicyHeadings.nth(i));
+        let link = await Selector('a').nth(i);
+        await t.pressKey('tab').expect(link.focused).eql(true);
+    }
+});
+
+test('verify element focus within each exclusive-collapse', async t => {
+    await t.resizeWindow(BREAKPOINTS['exclusive-collapse'], 812)
+    let count = await spicyHeadings.count;
+    for (let i = 0; i < count; i++) {
+        await t.click(spicyHeadings.nth(i));
+        let link = await Selector('a').nth(i);
+        await t.pressKey('tab').expect(link.focused).eql(true);
+    }
+});
+
+
+test('verify tabs keyboard a11y', async t => {
+    await t.resizeWindow(BREAKPOINTS['tab-bar'], 1080)
+        .expect(spicySection.getAttribute('affordance')).eql('tab-bar')
+
+    let count = await spicyHeadings.count;
+    for (let i = 0; i < count; i++) {
+        let link = await Selector('a').nth(i);
+        if (i == 0) {
+            await t.pressKey('tab');
+            await t.pressKey('tab tab').expect(link.focused).eql(true);
+        } else {
+            await t.pressKey('shift+tab shift+tab right');
+            await t.pressKey('tab tab').expect(link.focused).eql(true);
+        }
+
+        for (let ii = 0; ii < count; ii++) {
+            let expected = i === ii
+            await verifyTab(t, spicyHeadings.nth(ii), expected);
+        }
+    }
+});
+
+test('verify exclusive collapse keyboard a11y', async t => {
+    await t.resizeWindow(BREAKPOINTS['exclusive-collapse'], 812)
+        .expect(spicySection.getAttribute('affordance')).eql('exclusive-collapse')
+
+    let count = await spicyHeadings.count;
+    for (let i = 0; i < count; i++) {
+        let link = await Selector('a').nth(i);
+        if (i == 0) {
+            await t.pressKey('tab');
+            await t.pressKey('tab').expect(link.focused).eql(true);
+        } else {
+            await t.pressKey('shift+tab down');
+            await t.pressKey('tab').expect(link.focused).eql(true);
+
+        }
+        for (let ii = 0; ii < count; ii++) {
+            let expected = i === ii
+            await verifyExclusiveCollapseHeading(t, spicyHeadings.nth(ii), expected);
+        }
+    }
+});
+
+test('verify collapse keyboard a11y', async t => {
+    await t.resizeWindow(BREAKPOINTS['collapse'], 812)
+        .expect(spicySection.getAttribute('affordance')).eql('collapse');
+
+    let count = await spicyHeadings.count;
+    for (let i = 0; i < count; i++) {
+        let link = await Selector('a').nth(i);
+        await t.pressKey('tab space');
+        await t.pressKey('tab').expect(link.focused).eql(true);
+        for (let ii = 0; ii < count; ii++) {
+            let expected = ii <= i
+            await verifySimpleCollapseHeading(t, spicyHeadings.nth(ii), expected);
+        }
+    }
+});
