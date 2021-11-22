@@ -1,5 +1,4 @@
 import { Selector } from 'testcafe';
-import data from './utils/config';
 import Utils from './utils/helpers';
 
 const utils = new Utils();
@@ -8,7 +7,7 @@ const verifySimpleCollapseHeading = utils.verifySimpleCollapseHeading;
 const verifyExclusiveCollapseHeading = utils.verifyExclusiveCollapseHeading;
 
 fixture`Spicy sections - programmatic tests`
-    .page`${data.programmaticURL}`;
+    .page`https://spicy-sections.glitch.me/programatic.html`;
 
 
 const collapseBtn = Selector("button").withText('collapse');
@@ -19,9 +18,9 @@ const spicySection = Selector("spicy-sections");
 const spicyHeadings = Selector("spicy-sections > h2")
 
 const BREAKPOINTS = {
-    'collapse': data.breakpoints.collapse,
-    'exclusive-collapse': data.breakpoints.exclusiveCollapse,
-    'tab-bar': data.breakpoints.tabBar
+    'collapse': 570,
+    'exclusive-collapse': 650,
+    'tab-bar': 1100
 }
 
 test('Verify simple collapse accessibility', async t => {
