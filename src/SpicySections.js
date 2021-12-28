@@ -452,8 +452,7 @@ class MediaAffordancesElement extends HTMLElement {
       this.supportedAffordances.add("tab-bar");
       this.supportedAffordances.add("collapse");
       this.supportedAffordances.add("exclusive-collapse");
-
-      this.observeAffordanceChange((matching, all) => {
+      let checkDefaults = () => {
         if (!this.__defaults) {
           this.__defaults = {
             onMatch: this.hasAttribute("defaults-on-match"),
@@ -462,9 +461,18 @@ class MediaAffordancesElement extends HTMLElement {
             )
           };
         }
+      }
+      this.observeAffordanceChange((matching, all) => {
+        checkDefaults();
         this.affordanceState.current = this.getAttribute("affordance");
         this.__configure();
       });
+      this.setActiveAffordance = (matching, all) => {
+        checkDefaults();
+        this.setAttribute("affordance", matching);
+        this.affordanceState.current = matching;
+        this.__configure();
+      }
 
       this.attachShadow({ mode: "open" });
       this.shadowRoot.innerHTML = template;
