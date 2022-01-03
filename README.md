@@ -29,7 +29,6 @@ Markup sections by wrapping _good ol’ HTML_ with the `<spicy-sections>` elemen
 </spicy-sections>
 ```
 
-
 ## Designing with Affordances
 
 **Spicy Sections** lets authors to express when affordances should be presented;
@@ -55,6 +54,14 @@ _Note: The CSS Custom Property is only read only._
 
 ### Hash references
 In normal content, markup can contain `id` attributes which will be scrolled to and focus-navigation set to the first matching element when the URL contains a matching `#` (hash).  This element carries this idea forward and will activate tabs accordingly, whether that hash matches the heading, or content within it.
+
+
+### Programatically setting the active affordance
+The `<spicy-sections>` element exposes a `setActiveAffordance` method which can be called with any valid affordance name:
+
+```javascript
+element.setActiveAffordance('collapse') /* or tab-bar or exclusive-collapse */
+```
 
 ---
 
