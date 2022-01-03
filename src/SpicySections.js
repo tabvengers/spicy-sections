@@ -99,7 +99,7 @@ class MediaAffordancesElement extends HTMLElement {
   };
 
   let getLabels = regionset => {
-    return [...regionset.children].filter(el => /^H\d$/.test(el.tagName));
+    return [...regionset.children].filter(el => (/^H\d$/.test(el.tagName) || ("SPICY-H" == el.tagName)));
   };
 
   let getContentEls = regionset => {
@@ -146,13 +146,16 @@ class MediaAffordancesElement extends HTMLElement {
           ::slotted([hidden]) {
             display: none;
           }
+          
+          ::slotted(spicy-h) { display: block; }
 
           ::slotted(h1),
           ::slotted(h2),
           ::slotted(h3),
           ::slotted(h4),
           ::slotted(h5),
-          ::slotted(h6) {
+          ::slotted(h6),
+          ::slotted(spicy-h){
              margin-right: 1rem;
           }
 
@@ -463,16 +466,25 @@ class MediaAffordancesElement extends HTMLElement {
         }
       }
       this.observeAffordanceChange((matching, all) => {
-        checkDefaults();
+        if (!this.__defaults) {
+          this.__defaults = {
+            onMatch: this.hasAttribute("defaults-on-match"),
+            defaultActive: getLabels(this).filter(l =>
+              l.hasAttribute("default-activate")
+            )
+          };
+        }
         this.affordanceState.current = this.getAttribute("affordance");
         this.__configure();
       });
+
       this.setActiveAffordance = (matching, all) => {
         checkDefaults();
         this.setAttribute("affordance", matching);
         this.affordanceState.current = matching;
         this.__configure();
       }
+
 
       this.attachShadow({ mode: "open" });
       this.shadowRoot.innerHTML = template;

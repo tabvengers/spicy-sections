@@ -6,12 +6,12 @@ const verifyTab = utils.verifyTab;
 const verifySimpleCollapseHeading = utils.verifySimpleCollapseHeading;
 const verifyExclusiveCollapseHeading = utils.verifyExclusiveCollapseHeading;
 
-fixture`Spicy sections - general tests using headings`
-    .page`https://spicy-sections.glitch.me/automation-tests-1.html`;
+fixture`Spicy sections - general tests using spicy-h`
+    .page`https://spicy-sections.glitch.me/automation-tests-2.html`;
 
 const heading = Selector("h1");
 const spicySection = Selector("spicy-sections");
-const spicyHeadings = Selector("spicy-sections > h2")
+const spicyHeadings = Selector("spicy-sections > spicy-h")
 
 const BREAKPOINTS = {
     'collapse': 570,
