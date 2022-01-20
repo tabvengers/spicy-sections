@@ -52,6 +52,13 @@ spicy-sections {
 
 _Note: The CSS Custom Property is only read only._
 
+### Styling affordance states
+The element manages matching and entering the appropriate affordance states.  Ideally, if custom states are more widely supported, this element would use a custom state to allow you to style when the element was in that affordance state.  However, given existing limitations, the element reflects this affordance state via an `affordance` attribute containing the value of the currently matched affordance (if one exists).  _Note: setting the attribute will not update the *state* at runtime_.  You can use this to style affordances independently - for example, the following would make headings blue if the component were in the `collapse` affordance state (meaning, they are collapsable)
+
+```pcss
+[affordance="collapse"] h2 { color: blue; }
+```
+
 ### Hash references
 In normal content, markup can contain `id` attributes which will be scrolled to and focus-navigation set to the first matching element when the URL contains a matching `#` (hash).  This element carries this idea forward and will activate tabs accordingly, whether that hash matches the heading, or content within it.
 
