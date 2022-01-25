@@ -50,7 +50,7 @@ spicy-sections {
 }
 ```
 
-_Note: The CSS Custom Property is only read only._
+_Note: The CSS Custom Property is read only._
 
 ### Hash references
 In normal content, markup can contain `id` attributes which will be scrolled to and focus-navigation set to the first matching element when the URL contains a matching `#` (hash).  This element carries this idea forward and will activate tabs accordingly, whether that hash matches the heading, or content within it.
