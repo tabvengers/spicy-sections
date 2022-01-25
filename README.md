@@ -31,7 +31,7 @@ Markup sections by wrapping _good ol’ HTML_ with the `<spicy-sections>` elemen
 
 ## Designing with Affordances
 
-**Spicy Sections** lets authors to express when affordances should be presented;
+**Spicy Sections** lets authors express when affordances should be presented;
 using either an attribute or a CSS Custom Property.
 The available affordancs are `collapse` (_summary/details like_), `tab-bar` (_tabs like_) and `exclusive-collapse` (_single select accordion like_).
 
