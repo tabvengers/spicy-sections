@@ -19,7 +19,7 @@ Markup sections by wrapping _good ol’ HTML_ with the `<spicy-sections>` elemen
 
 ```html
 <spicy-sections>
-  <!-- any heading here, followed by an element containing content -->
+  <!-- any heading here, or `<spicy-h>` followed by an element containing content -->
   <h2>Ingredients</h2>
   <div>A list of ingredients</div>
 
