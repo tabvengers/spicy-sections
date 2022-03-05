@@ -160,13 +160,13 @@ class MediaAffordancesElement extends HTMLElement {
             display: none !important;
           }
         </style>
-        <tab-bar part="tab-bar">
+        <div part="tab-bar">
           <!-- The region/tablist should have a label -->
           <tab-list part="tab-list" role="tablist"><slot name="tabListSlot"></slot></tab-list>
-        </tab-bar>
-        <content part="content-panels">
+        </div>
+        <div part="content-panels">
           <slot></slot>
-        </content>
+        </div>
   `;
 
   class RegionSet extends MediaAffordancesElement {
