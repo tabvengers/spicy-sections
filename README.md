@@ -3,6 +3,8 @@
 **Spicy Sections** is an experiment in which "_good ol’ well supported HTML_" is conditionally presented with [different affordances](https://bkardell.com/blog/DesignAffordanceControls.html);
 either as a tab set, or with independent collapses ("_disclosure widgets_") or exclusive collapses ("_accordions_").
 
+<img src="/demo/screenshot-tabset.webp" alt="sections of content presented as a set of tabs" width="50%" /><img src="/demo/screenshot-accordion.webp" alt="sections of content presented as independent collapses" width="50%" />
+
 Developed as part of explorations in Open UI, following some [extensive research toward potentially standardizing "tabs"](https://open-ui.org/components/tabs.research.parts), **Spicy Sections** uses a custom element wrapper (`<spicy-sections>`) to wrap and progressively enhance heading and content pairs so that they can be presented with any of these affordances.
 
 If you want to see something working, [check out this demonstration](https://codepen.io/bkardell/pen/VwpJGGL?editors=1100) and resize your browser window to see how the afforances change.
