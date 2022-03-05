@@ -111,43 +111,15 @@ class MediaAffordancesElement extends HTMLElement {
     return el.id;
   };
 
-  let style = document.createElement('style')
-  style.innerHTML = `
-
-    :where(spicy-sections > [affordance*="collapse"])::before { 
-      content: ' ';
-      display: inline-block;
-      width: 0.5em;
-      height: 0.75em;
-      margin: 0 0.4em 0 0;
-      transform: rotate(90deg);
-      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='10px' height='10px' viewBox='0 0 270 240' enable-background='new 0 0 270 240' xml:space='preserve'%3e%3cpolygon fill='black' points='5,235 135,10 265,235 '/%3e%3c/svg%3e ");
-      background-size: 100% 100%;
-    } 
-
-    :where(spicy-sections > .hide) {
-      display: none !important;
-    } 
-  
-    :where(spicy-sections > [affordance*="collapse"][aria-expanded="true"])::before, 
-    :where(spicy-sections > [affordance*="collapse"][aria-expanded="true"])::after {
-      transform: rotate(180deg);
-    }
-  `
-  document.head.prepend(style)
-
   const template = `
         <style>
-          :root {
-            font-size: 1rem;
+          :host {
+            display: block;
           }
 
-          :host([hidden]),
-          ::slotted([hidden]) {
-            display: none;
+          ::slotted(spicy-h) {
+            display: block;
           }
-          
-          ::slotted(spicy-h) { display: block; }
 
           ::slotted(h1),
           ::slotted(h2),
@@ -155,31 +127,47 @@ class MediaAffordancesElement extends HTMLElement {
           ::slotted(h4),
           ::slotted(h5),
           ::slotted(h6),
-          ::slotted(spicy-h){
-             margin-right: 1rem;
+          ::slotted(spicy-h) {
+            margin-right: 1rem;
           }
 
-          tab-bar ::slotted([tabindex="0"]) {
-            border-bottom: 1px solid blue;
-          }
-
-          .hide { display: none; }
-          
-          tab-list { 
+          [part="tab-list"] {
             display: flex; 
             overflow: hidden;
             white-space: nowrap;
           }
+
+          [part="tab-list"] ::slotted([tabindex="0"]) {
+            border-bottom: 1px solid blue;
+          }
+
+          ::slotted([affordance="collapse"])::before { 
+            content: '';
+            display: inline-block;
+            width: 0.5em;
+            height: 0.75em;
+            margin: 0 0.4em 0 0;
+            transform: rotate(90deg);
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='10px' height='10px' viewBox='0 0 270 240' enable-background='new 0 0 270 240' xml:space='preserve'%3e%3cpolygon fill='black' points='5,235 135,10 265,235 '/%3e%3c/svg%3e ");
+            background-size: 100% 100%;
+          }
+
+          ::slotted([affordance="collapse"][aria-expanded="true"])::before {
+            transform: rotate(180deg);
+          }
+
+          ::slotted(.hide) {
+            display: none !important;
+          }
         </style>
         <tab-bar part="tab-bar">
-          <!-- The region/tablist should have a  label -->
-          <tab-list part="tab-list" role="tablist"
-          ><slot name="tabListSlot"></slot></tab-list>
+          <!-- The region/tablist should have a label -->
+          <tab-list part="tab-list" role="tablist"><slot name="tabListSlot"></slot></tab-list>
         </tab-bar>
         <content part="content-panels">
-          <slot default></slot>
+          <slot></slot>
         </content>
-    `;
+  `;
 
   class RegionSet extends MediaAffordancesElement {
     __defaults;
