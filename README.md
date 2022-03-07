@@ -72,7 +72,7 @@ The element is composed of an internal Shadow DOM containing 2 slots and exposin
   /* default slot */
 ```
 
-By default all contents are slotted into the `::part
+By default all contents are slotted into the default slot.
 The act of changing affordances impacts which internal slots contents are projected into. The `tab-bar` affordance projects headings into the tabListSlot.
 
 #### "Vertical tabs"
