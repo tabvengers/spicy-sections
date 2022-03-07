@@ -61,6 +61,39 @@ The element manages matching and entering the appropriate affordance states.  Id
 [affordance="collapse"] h2 { color: blue; }
 ```
 
+### Shadow Parts for affordances
+The element is composed of an internal Shadow DOM containing 2 slots and exposing several parts which are exposed for author styling.  The structure of these parts is 
+
+```
+::part(tab-bar)
+   ::part(tab-list)
+     /* tabListSlot */
+::part(content-panels)
+  /* default slot */
+```
+
+By default all contents are slotted into the `::part
+The act of changing affordances impacts which internal slots contents are projected into. The `tab-bar` affordance projects headings into the tabListSlot.
+
+#### "Vertical tabs"
+Authors can use the `::part`s above with CSS to achieve several variants and customizations of tabs, for example 'vertical tabs' which pace the `tab-bar` on the left, and content on the right can be achieved very simply with grid via something like 
+```css
+spicy-sections {
+  /* Just to show that it's when tabs are employed */
+  --const-mq-affordances: [screen and (min-width: 5px) ] tab-bar;
+
+  /* 1 col for the tab-bar, one for the content */
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+}
+
+ spicy-sections::part(tab-list) {
+  /* by default tab-list uses flex to display in the inline direction */
+  display: block;
+}
+```
+
+
 ### Hash references
 In normal content, markup can contain `id` attributes which will be scrolled to and focus-navigation set to the first matching element when the URL contains a matching `#` (hash).  This element carries this idea forward and will activate tabs accordingly, whether that hash matches the heading, or content within it.
 
