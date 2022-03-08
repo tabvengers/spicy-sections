@@ -506,14 +506,14 @@ class MediaAffordancesElement extends HTMLElement {
             this.affordanceState.current === "tab-bar" ||
             this.affordanceState.current === "exclusive-collapse"
           ) {
-            if (evt.keyCode == 37 || evt.keyCode == 38) {
+            if (evt.key == 'ArrowLeft' || evt.key == 'ArrowUp') {
               labels[prev].affordanceState.activate();
               evt.preventDefault()
-            } else if (evt.keyCode == 39 || evt.keyCode == 40) {
+            } else if (evt.key == 'ArrowRight' || evt.key == 'ArrowDown') {
               labels[next].affordanceState.activate();
               evt.preventDefault()
             }
-          } else if (evt.keyCode == 32 && this.affordanceState.current === 'collapse') {
+          } else if (evt.key == ' ' && this.affordanceState.current === 'collapse') {
             evt.preventDefault()
           }
         },
@@ -522,7 +522,7 @@ class MediaAffordancesElement extends HTMLElement {
       this.addEventListener(
         "keyup", 
         evt => {
-          if (evt.keyCode == 32 && this.affordanceState.current === 'collapse') {
+          if (evt.key == ' ' && this.affordanceState.current === 'collapse') {
             evt.target.closest('[affordance]').affordanceState.activate()
             evt.preventDefault()
           }
