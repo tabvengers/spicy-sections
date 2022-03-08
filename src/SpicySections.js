@@ -165,7 +165,7 @@ class MediaAffordancesElement extends HTMLElement {
 
           .hide { display: none; }
           
-          tab-list { 
+          [part="tab-list"] { 
             display: flex; 
             overflow: hidden;
             white-space: nowrap;
@@ -173,8 +173,8 @@ class MediaAffordancesElement extends HTMLElement {
         </style>
         <div part="tab-bar">
           <!-- The region/tablist should have a  label -->
-          <tab-list part="tab-list" role="tablist"
-          ><slot name="tabListSlot"></slot></tab-list>
+          <div part="tab-list" role="tablist"
+          ><slot name="tabListSlot"></slot></div>
         </div>
         <content part="content-panels">
           <slot default></slot>
@@ -487,7 +487,7 @@ class MediaAffordancesElement extends HTMLElement {
       this.attachShadow({ mode: "open" });
       this.shadowRoot.innerHTML = template;
 
-      this.__tabListEl = this.shadowRoot.querySelector("tab-list");
+      this.__tabListEl = this.shadowRoot.querySelector("[part='tab-list']");
       this.addEventListener(
         "keydown",
         evt => {
