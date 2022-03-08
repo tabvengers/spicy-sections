@@ -159,7 +159,7 @@ class MediaAffordancesElement extends HTMLElement {
              margin-right: 1rem;
           }
 
-          tab-bar ::slotted([tabindex="0"]) {
+          [part="tab-bar"] ::slotted([tabindex="0"]) {
             border-bottom: 1px solid blue;
           }
 
@@ -171,11 +171,11 @@ class MediaAffordancesElement extends HTMLElement {
             white-space: nowrap;
           }
         </style>
-        <tab-bar part="tab-bar">
+        <div part="tab-bar">
           <!-- The region/tablist should have a  label -->
           <tab-list part="tab-list" role="tablist"
           ><slot name="tabListSlot"></slot></tab-list>
-        </tab-bar>
+        </div>
         <content part="content-panels">
           <slot default></slot>
         </content>
