@@ -57,18 +57,6 @@ class MediaAffordancesElement extends HTMLElement {
     if (newValue.trim().length === 0) {
       return;
     }
-    const debounce = (fn, delay) => {
-      let timeOutId;
-      return () => {
-        if(timeOutId) {
-          clearTimeout(timeOutId);
-        }
-        timeOutId = setTimeout(() => {
-          fn.call(this);
-        },delay);
-      }
-    }
-    let fn = debounce(this.notifyChange, 10)
     newValue.split("|").forEach(segment => {
       let mq = segment.trim().match(/\[([^\]]*)/)[1];
       let names = segment
@@ -77,12 +65,10 @@ class MediaAffordancesElement extends HTMLElement {
         .split(" ");
       let mql = window.matchMedia(mq);
       mql.__affordance = names[0] // one for now
-      mql.addEventListener("change", () => {
-       fn() 
-      });
-      fn()
+      mql.onchange = () => this.notifyChange();
       this.mqls.push(mql);
     }, this);
+    this.notifyChange();
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
