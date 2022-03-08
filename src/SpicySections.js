@@ -389,7 +389,6 @@ class MediaAffordancesElement extends HTMLElement {
 
       // TODO: hmm, these are DOM changes, we could cache them
       let labelEls = getLabels(this);
-      let contentEls = getContentEls(this);
 
       for (let i = 0; i < this.__size; i++) {
         let label = labelEls[i];
