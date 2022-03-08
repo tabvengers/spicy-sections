@@ -387,7 +387,6 @@ class MediaAffordancesElement extends HTMLElement {
         this.__removeProjections();
       }
 
-      let specifiedIndex = this.activeTabIndex || 0;
       // TODO: hmm, these are DOM changes, we could cache them
       let labelEls = getLabels(this);
       let contentEls = getContentEls(this);
