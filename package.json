@@ -14,7 +14,7 @@
     "Hidde de Vries"
   ],
   "license": "W3C",
-  "dependencies": {
+  "devDependencies": {
     "testcafe": "^1.17.0"
   }
 }
