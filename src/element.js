@@ -63,7 +63,7 @@ const assignTabBarAffordance = (
 		const labelSlot = h('slot')
 		const panelSlot = h('slot')
 
-		const labelButton = h('button', { part: 'label tab-bar', onclick(event) {
+		const labelButton = h('button', { part: 'label tab-bar', onclick() {
 			labelButton.part.toggle('open')
 			panelGroup.part.toggle('open')
 		} }, labelSlot)
@@ -84,17 +84,19 @@ const assignCollapseAffordance = (
 	root
 ) => {
 	const panels = getContentPanels(host)
-	const container = root.appendChild(h('div', { part: 'container tab-bar' }))
+	const container = h('div', { part: 'container collapse' })
+
+	root.append(container)
 
 	for (const [ labelNode, ...panelNodes ] of panels) {
 		const labelSlot = h('slot')
 		const panelSlot = h('slot')
 
-		const labelButton = h('button', { part: 'label tab-bar', onclick(event) {
+		const labelButton = h('button', { part: 'label collapse', onclick() {
 			labelButton.part.toggle('open')
 			panelGroup.part.toggle('open')
 		} }, labelSlot)
-		const panelGroup = h('div', { part: 'panel tab-bar' }, panelSlot)
+		const panelGroup = h('div', { part: 'panel collapse' }, panelSlot)
 
 		container.append(labelButton, panelGroup)
 
