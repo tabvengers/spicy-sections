@@ -11,15 +11,35 @@ export class OUIPanelset extends HTMLElement {
 			textContent: (
 				':where([part~="labels"]){display:flex;gap:1em}' +
 				':where([part~="label"]){all:unset;display:block}' +
-				':where([part~="label collapse"]){width:100%}' +
+				':where([part~="label"][part~="collapse"]){width:100%}' +
 				':where([part~="panel"]:not([part~="open"])){display:none}' +
 				':where(:focus){outline:revert}'
 			)
 		})
 	)
 
+	/** @type {'collapse' | 'exclusive-collapse' | 'tab-bar'} */
+	#affordance
+
 	connectedCallback() {
-		assignTabBarAffordance(this, this.#shadow)
+		if (this.#affordance === undefined) {
+			this.affordance = this.affordance
+			this.affordance = /** @type {AffordanceType} */ (this.getAttribute('affordance'))
+		}
+	}
+
+	get affordance() {
+		return this.#affordance || (this.#affordance = 'collapse')
+	}
+
+	set affordance(value) {
+		const normalizedValue = String(value).toLowerCase()
+
+		if (normalizedValue === 'collapse' || normalizedValue === 'exclusive-collapse' || normalizedValue === 'tab-bar') {
+			this.#affordance = normalizedValue
+
+			assignAffordance[normalizedValue](this, this.#shadow)
+		}
 	}
 }
 
@@ -46,63 +66,56 @@ const getContentPanels = ({ childNodes }) => {
 	return panelset
 }
 
-const assignTabBarAffordance = (
-	/** @type {HTMLElement} */
-	host,
-	/** @type {ShadowRoot} */
-	root
-) => {
-	const contents = getContentPanels(host)
-	const labels = h('div', { part: 'labels' })
-	const panels = h('div', { part: 'panels' })
-	const container = h('div', { part: 'container tab-bar' }, labels, panels)
+/** @type {Record<AffordanceType, { (host: HTMLElement, root: ShadowRoot): void  }>} */
+const assignAffordance = {
+	'collapse'(host, root) {
+		const panels = getContentPanels(host)
+		const container = h('div', { part: 'container collapse' })
+	
+		root.append(container)
+	
+		for (const [ labelNode, ...panelNodes ] of panels) {
+			const labelSlot = h('slot')
+			const panelSlot = h('slot')
+	
+			const labelButton = h('button', { part: 'label collapse', onclick() {
+				labelButton.part.toggle('open')
+				panelGroup.part.toggle('open')
+			} }, labelSlot)
+			const panelGroup = h('div', { part: 'panel collapse' }, panelSlot)
+	
+			container.append(labelButton, panelGroup)
+	
+			labelSlot.assign(labelNode)
+			panelSlot.assign(...panelNodes)
+		}
+	},
+	'exclusive-collapse'(host, root) {},
+	'tab-bar'(host, root) {
+		const contents = getContentPanels(host)
+		const labels = h('div', { part: 'labels' })
+		const panels = h('div', { part: 'panels' })
+		const container = h('div', { part: 'container tab-bar' }, labels, panels)
 
-	h(root, null, container)
+		h(root, null, container)
 
-	for (const [ labelNode, ...panelNodes ] of contents) {
-		const labelSlot = h('slot')
-		const panelSlot = h('slot')
+		for (const [ labelNode, ...panelNodes ] of contents) {
+			const labelSlot = h('slot')
+			const panelSlot = h('slot')
 
-		const labelButton = h('button', { part: 'label tab-bar', onclick() {
-			labelButton.part.toggle('open')
-			panelGroup.part.toggle('open')
-		} }, labelSlot)
-		const panelGroup = h('div', { part: 'panel tab-bar' }, panelSlot)
+			const labelButton = h('button', { part: 'label tab-bar', onclick() {
+				labelButton.part.toggle('open')
+				panelGroup.part.toggle('open')
+			} }, labelSlot)
+			const panelGroup = h('div', { part: 'panel tab-bar' }, panelSlot)
 
-		h(labels, null, labelButton)
-		h(panels, null, panelGroup)
+			h(labels, null, labelButton)
+			h(panels, null, panelGroup)
 
-		labelSlot.assign(labelNode)
-		panelSlot.assign(...panelNodes)
-	}
-}
-
-const assignCollapseAffordance = (
-	/** @type {HTMLElement} */
-	host,
-	/** @type {ShadowRoot} */
-	root
-) => {
-	const panels = getContentPanels(host)
-	const container = h('div', { part: 'container collapse' })
-
-	root.append(container)
-
-	for (const [ labelNode, ...panelNodes ] of panels) {
-		const labelSlot = h('slot')
-		const panelSlot = h('slot')
-
-		const labelButton = h('button', { part: 'label collapse', onclick() {
-			labelButton.part.toggle('open')
-			panelGroup.part.toggle('open')
-		} }, labelSlot)
-		const panelGroup = h('div', { part: 'panel collapse' }, panelSlot)
-
-		container.append(labelButton, panelGroup)
-
-		labelSlot.assign(labelNode)
-		panelSlot.assign(...panelNodes)
-	}
+			labelSlot.assign(labelNode)
+			panelSlot.assign(...panelNodes)
+		}
+	},
 }
 
 // utilities
@@ -139,3 +152,4 @@ const toDashedCase = (/** @type {string} */ value) => value.replace(/[A-Z]/g, '-
 
 /** @typedef {[ Element, ...Element[] ]} PanelOfLightDOM */
 /** @typedef {PanelOfLightDOM[]} PanelsetOfLightDOM */
+/** @typedef {'collapse' | 'exclusive-collapse' | 'tab-bar'} AffordanceType */
