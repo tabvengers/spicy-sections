@@ -9,7 +9,9 @@ export class OUIPanelset extends HTMLElement {
 	#shadow = h(this.attachShadow({ mode: 'open', slotAssignment: 'manual' }), null,
 		h('style', {
 			textContent: (
-				':where([part~="label"]){all:unset;display:block;width:100%}' +
+				':where([part~="labels"]){display:flex;gap:1em}' +
+				':where([part~="label"]){all:unset;display:block}' +
+				':where([part~="label collapse"]){width:100%}' +
 				':where([part~="panel"]:not([part~="open"])){display:none}' +
 				':where(:focus){outline:revert}'
 			)
@@ -17,7 +19,7 @@ export class OUIPanelset extends HTMLElement {
 	)
 
 	connectedCallback() {
-		createCollapseAffordance(this, this.#shadow)
+		assignTabBarAffordance(this, this.#shadow)
 	}
 }
 
@@ -44,24 +46,55 @@ const getContentPanels = ({ childNodes }) => {
 	return panelset
 }
 
-const createCollapseAffordance = (
+const assignTabBarAffordance = (
+	/** @type {HTMLElement} */
+	host,
+	/** @type {ShadowRoot} */
+	root
+) => {
+	const contents = getContentPanels(host)
+	const labels = h('div', { part: 'labels' })
+	const panels = h('div', { part: 'panels' })
+	const container = h('div', { part: 'container tab-bar' }, labels, panels)
+
+	h(root, null, container)
+
+	for (const [ labelNode, ...panelNodes ] of contents) {
+		const labelSlot = h('slot')
+		const panelSlot = h('slot')
+
+		const labelButton = h('button', { part: 'label tab-bar', onclick(event) {
+			labelButton.part.toggle('open')
+			panelGroup.part.toggle('open')
+		} }, labelSlot)
+		const panelGroup = h('div', { part: 'panel tab-bar' }, panelSlot)
+
+		h(labels, null, labelButton)
+		h(panels, null, panelGroup)
+
+		labelSlot.assign(labelNode)
+		panelSlot.assign(...panelNodes)
+	}
+}
+
+const assignCollapseAffordance = (
 	/** @type {HTMLElement} */
 	host,
 	/** @type {ShadowRoot} */
 	root
 ) => {
 	const panels = getContentPanels(host)
-	const container = root.appendChild(h('div', { part: 'container collapse' }))
+	const container = root.appendChild(h('div', { part: 'container tab-bar' }))
 
 	for (const [ labelNode, ...panelNodes ] of panels) {
 		const labelSlot = h('slot')
 		const panelSlot = h('slot')
 
-		const labelButton = h('button', { part: 'label collapse', onclick(event) {
+		const labelButton = h('button', { part: 'label tab-bar', onclick(event) {
 			labelButton.part.toggle('open')
 			panelGroup.part.toggle('open')
 		} }, labelSlot)
-		const panelGroup = h('div', { part: 'panel collapse' }, panelSlot)
+		const panelGroup = h('div', { part: 'panel tab-bar' }, panelSlot)
 
 		container.append(labelButton, panelGroup)
 
