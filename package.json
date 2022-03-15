@@ -4,6 +4,7 @@
   "description": "A custom element that allows authors to employ tabs, accordions and summary+detail like UI affordances via CSS over otherwise good semantic content",
   "main": "index.js",
   "scripts": {
+    "start": "serve src",
     "test": "testcafe \"firefox:headless\" test/*.tests.js -e"
   },
   "author": "Brian Kardell <bkardell@igalia.com>",
@@ -15,6 +16,22 @@
   ],
   "license": "W3C",
   "devDependencies": {
+    "serve": "^13.0.2",
     "testcafe": "^1.17.0"
+  },
+  "prettier": {
+    "overrides": [
+      {
+        "files": [
+          "*.js"
+        ],
+        "options": {
+          "quoteProps": "consistent",
+          "singleQuote": true,
+          "semi": false,
+          "useTabs": true
+        }
+      }
+    ]
   }
 }
