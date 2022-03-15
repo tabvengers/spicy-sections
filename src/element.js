@@ -1,3 +1,5 @@
+// @ts-check
+
 import './polyfill.js'
 
 // element
@@ -7,8 +9,9 @@ export class OUIPanelset extends HTMLElement {
 	#shadow = h(this.attachShadow({ mode: 'open', slotAssignment: 'manual' }), null,
 		h('style', {
 			textContent: (
-				'[part~="label"]{display:block}' +
-				'[part~="panel"]:not([part~="open"]){display:none}'
+				':where([part~="label"]){all:unset;display:block;width:100%}' +
+				':where([part~="panel"]:not([part~="open"])){display:none}' +
+				':where(:focus){outline:revert}'
 			)
 		})
 	)
@@ -41,11 +44,14 @@ const getContentPanels = ({ childNodes }) => {
 	return panelset
 }
 
-const createCollapseAffordance = (host, root) => {
+const createCollapseAffordance = (
+	/** @type {HTMLElement} */
+	host,
+	/** @type {ShadowRoot} */
+	root
+) => {
 	const panels = getContentPanels(host)
-	const container = root.appendChild(
-		h('div', { part: 'container collapse' })
-	)
+	const container = root.appendChild(h('div', { part: 'container collapse' }))
 
 	for (const [ labelNode, ...panelNodes ] of panels) {
 		const labelSlot = h('slot')
@@ -68,28 +74,29 @@ const createCollapseAffordance = (host, root) => {
 // -----------------------------------------------------------------------------
 
 /** Returns the given element or generated element with any properties, attributes, or children. */
-const h = (
-	/** @type {Element | string} */
-	target,
-	/** @type {Record<string, any>} */
-	props,
-	/** @type {(Element | string)[]} */
-	...children
-) => {
+/** @type {{ <T extends Node | string>(target: T, props?: Record<string, any>, ...children: (Node | string)[]): T extends 'button' ? HTMLButtonElement : T extends 'div' ? HTMLDivElement : T extends 'slot' ? HTMLSlotElement : T extends 'style' ? HTMLStyleElement : T extends string ? HTMLElement : T }} */
+const h = (target, props, ...children) => {
 	const element = typeof target === 'string' ? document.createElement(target) : target
 
 	for (const name in props) {
 		if (props[name] == null) {
-			element.removeAttribute(toDashedCase(name))
+			// @ts-ignore
+			if ('removeAttribute' in element) {
+				element.removeAttribute(toDashedCase(name))
+			}
+		// @ts-ignore
 		} else if (name in element) {
 			element[name] = props[name]
-		} else {
+		// @ts-ignore
+		} else if ('setAttribute' in element) {
 			element.setAttribute(toDashedCase(name), props[name])
 		}
 	}
 
+	// @ts-ignore
 	element.append(...children)
 
+	// @ts-ignore
 	return element
 }
 
