@@ -278,6 +278,9 @@ class MediaAffordancesElement extends HTMLElement {
 						activate: () => {
 							if (this.affordanceState.current) {
 								this.__affordanceConf[this.affordanceState.current].toggle(labelEl)
+								// Dispatch a toggle event from the clicked 
+								const ToggleEvent = new CustomEvent('toggle', { bubbles: true, composed: true, cancelable: false });
+								labelEl.dispatchEvent(ToggleEvent);
 							}
 						},
 					}
