@@ -9,16 +9,22 @@
 	<script src="register.js"></script>
 	<style>
 	oui-panelset {
-		--const-mq-affordances:
-			[ screen and (max-width: 40em) ] collapse |
-			[ screen and (min-width: 60em) ] tab-bar
-		;
 		display: block;
 		box-shadow:
 			inset 0 calc(1em / 3) 0 0 CurrentColor,
 			inset 0 calc(1em / -3) 0 0 CurrentColor
 		;
 		padding: 1em;
+	}
+	@media (max-width: 40em) {
+		oui-panelset {
+			--affordance: collapse;
+		}
+	}
+	@media (min-width: 60em) {
+		oui-panelset {
+			--affordance: tab-bar;
+		}
 	}
 	</style>
 	<script>
@@ -35,7 +41,7 @@
 <body>
 	<h1>Open-UI Panelset</h1>
 
-	<oui-panelset affordance="tab-bar">
+	<oui-panelset>
 		<h2>Tabs</h2>
 		<p>
 			The <code>tab-bar</code> affordance

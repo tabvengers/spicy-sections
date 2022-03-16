@@ -1,5 +1,7 @@
 // @ts-check
 
+import { CSSStyleObserver } from './css-style-observer.js'
+
 // element
 // -----------------------------------------------------------------------------
 
@@ -292,9 +294,15 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 	}
 
 	/** Observed used to re-initialize the panel affordance when the contents change. */
-	const observer = new MutationObserver(internals.initialize)
+	const mutations = new MutationObserver(internals.initialize)
 
-	observer.observe(host, { childList: true })
+	mutations.observe(host, { childList: true })
+
+	const properties = new CSSStyleObserver(([ record ]) => {
+		internals.setAffordance(/** @type {Internals['affordance']} */ (record.newValue.trim()))
+	})
+
+	properties.observe(host, '--affordance')
 
 	// add the panelset container to the panelset shadow root
 	shadowRoot.append(container, defaultStyle)
