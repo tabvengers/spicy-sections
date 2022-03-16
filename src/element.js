@@ -41,10 +41,8 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 		':where([part~="label"][part~="tab-bar"][part~="open"]) ::slotted(*){text-decoration:underline}'
 	)
 
-	shadowRoot.append(container, defaultStyle)
-
 	const onclick = (/** @type {HTMLElementEventMap['click'] & { currentTarget: HTMLButtonElement }} */ event) => {
-		internals.toggle(internals.sectionMap.get(event.currentTarget))
+		internals.toggleSection(internals.sectionMap.get(event.currentTarget))
 	}
 
 	const onkeydown = (/** @type {HTMLElementEventMap['keydown'] & { currentTarget: HTMLButtonElement }} */ event) => {
@@ -56,12 +54,15 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 				if (section.prev) {
 					section.prev.label.element.focus()
 				}
+
 				break
+
 			case 'ArrowDown':
 			case 'ArrowRight':
 				if (section.next) {
 					section.next.label.element.focus()
 				}
+
 				break
 		}
 	}
@@ -125,7 +126,7 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 
 			return section
 		},
-		toggle(paneledSection) {
+		toggleSection(paneledSection) {
 			switch (internals.affordance) {
 				case 'collapse': {
 					const open = paneledSection.open = !paneledSection.open
@@ -158,7 +159,7 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 				}
 			}
 		},
-		refresh() {
+		initialize() {
 			if (!host.isConnected) return
 
 			const template = internals.templates[internals.affordance](container)
@@ -218,11 +219,16 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 		},
 	}
 
-	const observer = new MutationObserver(internals.refresh)
+	/** Observed used to re-initialize the panel affordance when the contents change. */
+	const observer = new MutationObserver(internals.initialize)
 
 	observer.observe(host, { childList: true })
 
-	internals.refresh()
+	// add the panelset container to the panelset shadow root
+	shadowRoot.append(container, defaultStyle)
+
+
+	internals.initialize()
 
 	return internals
 }
@@ -234,7 +240,7 @@ const toDashedCase = (/** @type {string} */ value) => value.replace(/[A-Z]/g, '-
 
 const isWritableProp = (/** @type {any} */ value) => value === null || typeof value !== 'object'
 
-const h = new Proxy(/** @type {CreateElement} */ ((/** @type {AnyElement | ElementName} */ target, /** @type {any} */ ...args) => {
+const h = new Proxy(/** @type {CreateElement} */ ((/** @type {AnyElement | AnyElementName} */ target, /** @type {any} */ ...args) => {
 	const element = typeof target === 'string' ? target === 'svg' || target === 'polygon' ? document.createElementNS('http://www.w3.org/2000/svg', target) : document.createElement(target) : target
 
 	const isSVG = element instanceof SVGElement
@@ -261,7 +267,7 @@ const h = new Proxy(/** @type {CreateElement} */ ((/** @type {AnyElement | Eleme
 /** Returns sections of content extracted from `<oui-panelset>`. */
 const getContentSections = (/** @type {HTMLElement} */ host) => {
 	/** All child nodes of the panelset element. */
-	let nodes = /** @type {ChildNode[]} */ (/** @type {any} */ (host.childNodes))
+	let nodes = /** @type {AnyNode[]} */ (/** @type {any} */ (host.childNodes))
 
 	/** All sections extracted from the panelset element. */
 	let sections = /** @type {ContentSection[]} */ ([])
@@ -287,9 +293,8 @@ const getContentSections = (/** @type {HTMLElement} */ host) => {
 	return sections
 }
 
-/** @typedef {import('./element').ChildNode} ChildNode */
-/** @typedef {import('./element').ElementName} ElementName */
 /** @typedef {import('./element').AnyElement} AnyElement */
+/** @typedef {import('./element').AnyElementName} AnyElementName */
 /** @typedef {import('./element').AnyNode} AnyNode */
 /** @typedef {import('./element').CreateElement} CreateElement */
 /** @typedef {import('./element').Internals} Internals */
