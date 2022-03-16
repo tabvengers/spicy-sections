@@ -40,7 +40,9 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 	)
 
 	const onclick = (/** @type {HTMLElementEventMap['click'] & { currentTarget: HTMLButtonElement }} */ event) => {
-		internals.toggleSection(internals.sectionMap.get(event.currentTarget))
+		if (internals.toggleSection(internals.sectionMap.get(event.currentTarget))) {
+			host.dispatchEvent(new Event('toggle'))
+		}
 	}
 
 	const onkeydown = (/** @type {HTMLElementEventMap['keydown'] & { currentTarget: HTMLButtonElement }} */ event) => {
@@ -133,16 +135,16 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 					paneledSection.label.marker.part.toggle('open', open)
 					paneledSection.panel.element.part.toggle('open', open)
 
-					host.dispatchEvent(new Event('toggle', { bubbles: true, cancelable: false, composed: true }))
-
-					break
+					return true
 				}
 
 				case 'tab-bar': {
-					if (paneledSection.open) return
+					if (paneledSection.open) return false
 
 					for (const eachPaneledSection of internals.sectionSet) {
 						const open = eachPaneledSection === paneledSection
+
+						eachPaneledSection.open = open
 
 						h(eachPaneledSection.label.element, { tabIndex: open ? 0 : -1 })
 
@@ -151,9 +153,7 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 						eachPaneledSection.panel.element.part.toggle('open', open)
 					}
 
-					host.dispatchEvent(new Event('toggle', { bubbles: true, cancelable: false, composed: true }))
-
-					break
+					return true
 				}
 			}
 		},

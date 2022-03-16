@@ -21,6 +21,15 @@
 		padding: 1em;
 	}
 	</style>
+	<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		document.querySelectorAll('oui-panelset').forEach(
+			element => {
+				element.addEventListener('toggle', console.log)
+			}
+		)
+	})
+	</script>
 </head>
 
 <body>

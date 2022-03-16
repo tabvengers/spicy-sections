@@ -7,7 +7,7 @@ export interface Internals {
 
 	initialize(): void
 	addSection(contentSection: Content.Section): Paneled.Section
-	toggleSection(paneledSection: Paneled.Section): void
+	toggleSection(paneledSection: Paneled.Section): boolean
 
 	templates: {
 		[K in AffordanceType]: {
