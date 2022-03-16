@@ -6,58 +6,157 @@ import './polyfill.js'
 // -----------------------------------------------------------------------------
 
 export class OUIPanelset extends HTMLElement {
-	#shadow = h(this.attachShadow({ mode: 'open', slotAssignment: 'manual' }), null,
-		h('style', {
-			textContent: (
-				':where([part~="labels"]){display:flex;gap:1em}' +
-				':where([part~="label"]){all:unset;display:block}' +
-				':where([part~="label"][part~="collapse"]){width:100%}' +
-				':where([part~="panel"]:not([part~="open"])){display:none}' +
-				':where(:focus){outline:revert}'
-			)
-		})
-	)
-
-	/** @type {'collapse' | 'exclusive-collapse' | 'tab-bar'} */
-	#affordance
+	#internals = createInternals(this)
 
 	connectedCallback() {
-		if (this.#affordance === undefined) {
-			this.affordance = this.affordance
-			this.affordance = /** @type {AffordanceType} */ (this.getAttribute('affordance'))
-		}
+		this.#internals.connectedCallback()
 	}
 
 	get affordance() {
-		return this.#affordance || (this.#affordance = 'collapse')
+		return this.#internals.affordance
 	}
 
 	set affordance(value) {
-		const normalizedValue = String(value).toLowerCase()
-
-		if (normalizedValue === 'collapse' || normalizedValue === 'exclusive-collapse' || normalizedValue === 'tab-bar') {
-			this.#affordance = normalizedValue
-
-			assignAffordance[normalizedValue](this, this.#shadow)
-		}
+		this.#internals.affordance = value
 	}
 }
 
 // internals
 // -----------------------------------------------------------------------------
 
-const getContentPanels = ({ childNodes }) => {
-	/** @type {PanelsetOfLightDOM} */
+const createInternals = (/** @type {HTMLElement} */ host) => {
+	const shadowRoot = host.attachShadow({ mode: 'open', slotAssignment: 'manual' })
+
+	shadowRoot.append(
+		h.style(
+			':where(button){all:unset}',
+			':where(button,div){display:block}',
+			':where([part~="labels"]){display:flex;gap:1em}',
+			':where([part~="panel"]:not([part~="open"])){display:none}',
+			':where(:focus){outline:revert}'
+		)
+	)
+
+	const links = createLinks()
+
+	const onclick = (/** @type {HTMLElementEventMap['click']} */ event) => {
+		const item = links.get(event.currentTarget)
+
+		const open = item.label.part.toggle('open')
+		
+		item.panel.part.toggle('open', open)
+
+		const attributeName = item.label.part.contains('tab-bar') ? 'aria-selected' : 'aria-expanded'
+
+		item.label.setAttribute(attributeName, String(open))
+	}
+
+	const onkeydown = (/** @type {HTMLElementEventMap['keydown']} */ event) => {
+		const item = links.get(event.currentTarget)
+
+		switch (event.key) {
+			case 'ArrowUp':
+			case 'ArrowLeft':
+				if (item.prev) {
+					item.prev.label.focus()
+				}
+				break
+			case 'ArrowDown':
+			case 'ArrowRight':
+				if (item.next) {
+					item.next.label.focus()
+				}
+				break
+		}
+	}
+
+	const internals = {
+		connectedCallback() {
+			const content = getContent(...host.childNodes)
+
+			// <div part="container tab-bar">
+			const shadowContainer = h.div({ part: 'container tab-bar' })
+
+			// <div part="labels tab-bar">
+			const labelsContainer = h.div({ part: 'labels tab-bar', role: 'tablist' })
+
+			// <div part="panels tab-bar">
+			const panelsContainer = h.div({ part: 'panels tab-bar' })
+
+			shadowContainer.append(labelsContainer, panelsContainer)
+
+			shadowRoot.append(shadowContainer)
+
+			for (const [ index, actualLabel, ...actualPanels ] of content) {
+				// <slot name="label">
+				const shadowLabelSlot = h.slot({ name: 'label-' + index })
+
+				// <button part="label tab-bar">
+				const shadowLabel = h.button({ part: 'label tab-bar', role: 'tab', id: 'label-' + index, ariaControls: 'panel-' + index, ariaSelected: false, onclick, onkeydown }, shadowLabelSlot)
+
+				// <slot name="panel">
+				const shadowPanelSlot = h.slot({ name: 'panel-' + index })
+
+				// <div part="panel tab-bar">
+				const shadowPanel = h.div({ part: 'panel tab-bar', role: 'tabpanel', id: 'panel-' + index, ariaLabelledby: 'label-' + index }, shadowPanelSlot)
+
+				links.add(shadowLabel, shadowPanel)
+
+				labelsContainer.append(shadowLabel)
+				panelsContainer.append(shadowPanel)
+
+				shadowLabelSlot.assign(actualLabel)
+				shadowPanelSlot.assign(...actualPanels)
+			}
+
+			// // <div part="container collapse">
+			// const shadowContainer = h.div({ part: 'container collapse' })
+
+			// shadowRoot.append(shadowContainer)
+
+			// for (const [ actualLabel, ...actualPanels ] of content) {
+			// 	// <slot name="label">
+			// 	const shadowLabelSlot = h.slot({ name: 'label' })
+
+			// 	// <button part="label collapse">
+			// 	const shadowLabel = h.button({ part: 'label collapse', ariaExpanded: false, onclick, onkeydown }, shadowLabelSlot)
+
+			// 	// <slot name="panel">
+			// 	const shadowPanelSlot = h.slot({ name: 'panel' })
+
+			// 	// <div part="panel collapse">
+			// 	const shadowPanel = h.div({ part: 'panel collapse' }, shadowPanelSlot)
+
+			// 	links.add(shadowLabel, shadowPanel)
+
+			// 	shadowContainer.append(shadowLabel)
+			// 	shadowContainer.append(shadowPanel)
+
+			// 	shadowLabelSlot.assign(actualLabel)
+			// 	shadowPanelSlot.assign(...actualPanels)
+			// }
+		},
+	}
+
+	return internals
+}
+
+const getContent = (/** @type {ChildNode[]} */ ...childNodes) => {
+	/** @type {[ number, HTMLHeadingElement, ...(Element | Text)[] ][]} */
 	const panelset = []
 
-	/** @type {PanelOfLightDOM} */ // @ts-ignore
-	let panel = []
+	/** @type {[ number, HTMLHeadingElement, ...Node[] ]} */
+	let panel = /** @type {any} */ ([])
+
+	let index = 0
 
 	for (const childNode of childNodes) {
-		if (childNode.slot !== undefined) h(childNode, { slot: null })
+		if (childNode instanceof Element) {
+			childNode.removeAttribute('slot')
+		}
 
 		if (childNode instanceof HTMLHeadingElement) {
-			panelset.push(panel = [childNode])
+			panelset.push(panel = [ ++index, childNode ])
 		} else {
 			panel.push(childNode)
 		}
@@ -66,90 +165,47 @@ const getContentPanels = ({ childNodes }) => {
 	return panelset
 }
 
-/** @type {Record<AffordanceType, { (host: HTMLElement, root: ShadowRoot): void  }>} */
-const assignAffordance = {
-	'collapse'(host, root) {
-		const panels = getContentPanels(host)
-		const container = h('div', { part: 'container collapse' })
-	
-		root.append(container)
-	
-		for (const [ labelNode, ...panelNodes ] of panels) {
-			const labelSlot = h('slot')
-			const panelSlot = h('slot')
-	
-			const labelButton = h('button', { part: 'label collapse', onclick() {
-				labelButton.part.toggle('open')
-				panelGroup.part.toggle('open')
-			} }, labelSlot)
-			const panelGroup = h('div', { part: 'panel collapse' }, panelSlot)
-	
-			container.append(labelButton, panelGroup)
-	
-			labelSlot.assign(labelNode)
-			panelSlot.assign(...panelNodes)
-		}
-	},
-	'exclusive-collapse'(host, root) {},
-	'tab-bar'(host, root) {
-		const contents = getContentPanels(host)
-		const labels = h('div', { part: 'labels' })
-		const panels = h('div', { part: 'panels' })
-		const container = h('div', { part: 'container tab-bar' }, labels, panels)
-
-		h(root, null, container)
-
-		for (const [ labelNode, ...panelNodes ] of contents) {
-			const labelSlot = h('slot')
-			const panelSlot = h('slot')
-
-			const labelButton = h('button', { part: 'label tab-bar', onclick() {
-				labelButton.part.toggle('open')
-				panelGroup.part.toggle('open')
-			} }, labelSlot)
-			const panelGroup = h('div', { part: 'panel tab-bar' }, panelSlot)
-
-			h(labels, null, labelButton)
-			h(panels, null, panelGroup)
-
-			labelSlot.assign(labelNode)
-			panelSlot.assign(...panelNodes)
-		}
-	},
-}
-
 // utilities
 // -----------------------------------------------------------------------------
 
-/** Returns the given element or generated element with any properties, attributes, or children. */
-/** @type {{ <T extends Node | string>(target: T, props?: Record<string, any>, ...children: (Node | string)[]): T extends 'button' ? HTMLButtonElement : T extends 'div' ? HTMLDivElement : T extends 'slot' ? HTMLSlotElement : T extends 'style' ? HTMLStyleElement : T extends string ? HTMLElement : T }} */
-const h = (target, props, ...children) => {
-	const element = typeof target === 'string' ? document.createElement(target) : target
-
-	for (const name in props) {
-		if (props[name] == null) {
-			// @ts-ignore
-			if ('removeAttribute' in element) {
-				element.removeAttribute(toDashedCase(name))
-			}
-		// @ts-ignore
-		} else if (name in element) {
-			element[name] = props[name]
-		// @ts-ignore
-		} else if ('setAttribute' in element) {
-			element.setAttribute(toDashedCase(name), props[name])
-		}
-	}
-
-	// @ts-ignore
-	element.append(...children)
-
-	// @ts-ignore
-	return element
-}
-
 const toDashedCase = (/** @type {string} */ value) => value.replace(/[A-Z]/g, '-$&').toLowerCase()
 
-/** @typedef {[ Element, ...Element[] ]} PanelOfLightDOM */
-/** @typedef {PanelOfLightDOM[]} PanelsetOfLightDOM */
-/** @typedef {'collapse' | 'exclusive-collapse' | 'tab-bar'} AffordanceType */
+const h = new Proxy(/** @type {import('./element').Internals.H} */ ({}), {
+	get(_, /** @type {string} */ name) {
+		const element = document.createElement(name)
+
+		return (/** @type {any[]} */ ...args) => {
+			const props = typeof args[0] === 'object' && Object(args[0]).constructor === Object ? args.shift() : null
+
+			for (const prop in props) {
+				if (prop in element) element[prop] = props[prop]
+				else element.setAttribute(toDashedCase(prop), props[prop])
+			}
+
+			element.append(...args)
+
+			return element
+		}
+	}
+})
+
+/** @type {() => import('./element').Internals.Links} */ 
+const createLinks = () => ({
+	all: [],
+	ref: new WeakMap,
+	add(label, panel) {
+		const { all, ref } = this
+		const prev = all[all.length - 1] || null
+
+		/** @type {import('./element').Internals.Link} */
+		const link = { label, panel, prev, next: null, all }
+
+		if (prev) prev.next = link
+
+		all.push(link)
+		ref.set(label, link)
+	},
+	get(target) {
+		return this.ref.get(target)
+	}
+})
