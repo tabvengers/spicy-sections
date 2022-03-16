@@ -21,8 +21,13 @@ export namespace Internals {
 
 	export interface Links {
 		all: Link[]
+
 		ref: WeakMap<EventTarget, Link>
+
 		add(label: Link['label'], panel: Link['panel']): void
+
 		get(target: EventTarget): Link
+
+		toggleOne(target: EventTarget & HTMLElement): void
 	}
 }
