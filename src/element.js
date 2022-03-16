@@ -71,70 +71,100 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 	}
 
 	const internals = {
-		connectedCallback() {
-			const content = getContent(...host.childNodes)
+		affordance: 'collapse',
+		templates: {},
+		observer: new MutationObserver(
+			(records) => {
+				console.log(records)
+			}
+		),
+		refresh() {
+			if (!host.isConnected) return
 
-			// <div part="container tab-bar">
-			const shadowContainer = h.div({ part: 'container tab-bar' })
+			internals.content = getContent(...host.childNodes)
 
-			// <div part="labels tab-bar">
-			const labelsContainer = h.div({ part: 'labels tab-bar', role: 'tablist' })
+			const { affordance, templates, createTemplate } = internals
 
-			// <div part="panels tab-bar">
-			const panelsContainer = h.div({ part: 'panels tab-bar' })
-
-			shadowContainer.append(labelsContainer, panelsContainer)
-
-			shadowRoot.append(shadowContainer)
-
-			for (const [ index, actualLabel, ...actualPanels ] of content) {
-				// <slot name="label">
-				const shadowLabelSlot = h.slot({ name: 'label-' + index })
-
-				// <button part="label tab-bar">
-				const shadowLabel = h.button({ part: 'label tab-bar', role: 'tab', id: 'label-' + index, ariaControls: 'panel-' + index, ariaSelected: false, onclick, onkeydown }, shadowLabelSlot)
-
-				// <slot name="panel">
-				const shadowPanelSlot = h.slot({ name: 'panel-' + index })
-
-				// <div part="panel tab-bar">
-				const shadowPanel = h.div({ part: 'panel tab-bar', role: 'tabpanel', id: 'panel-' + index, ariaLabelledby: 'label-' + index }, shadowPanelSlot)
-
-				links.add(shadowLabel, shadowPanel)
-
-				labelsContainer.append(shadowLabel)
-				panelsContainer.append(shadowPanel)
-
-				shadowLabelSlot.assign(actualLabel)
-				shadowPanelSlot.assign(...actualPanels)
+			if (!templates[affordance]) {
+				templates[affordance] = createTemplate[affordance]()
 			}
 
-			// // <div part="container collapse">
-			// const shadowContainer = h.div({ part: 'container collapse' })
+			console.log('refresh')
+		},
+		connectedCallback() {
+			internals.observer.observe(host, { childList: true })
 
-			// shadowRoot.append(shadowContainer)
+			internals.refresh()
+		},
+		createTemplate: {
+			'collapse'() {
+				// <div part="container collapse">
+				const shadowContainer = h.div({ part: 'container collapse' })
 
-			// for (const [ actualLabel, ...actualPanels ] of content) {
-			// 	// <slot name="label">
-			// 	const shadowLabelSlot = h.slot({ name: 'label' })
+				shadowRoot.append(shadowContainer)
 
-			// 	// <button part="label collapse">
-			// 	const shadowLabel = h.button({ part: 'label collapse', ariaExpanded: false, onclick, onkeydown }, shadowLabelSlot)
+				for (const [ index, actualLabel, ...actualPanels ] of internals.content) {
+					// <slot name="label">
+					const shadowLabelSlot = h.slot({ name: 'label' })
 
-			// 	// <slot name="panel">
-			// 	const shadowPanelSlot = h.slot({ name: 'panel' })
+					// <button part="label collapse">
+					const shadowLabel = h.button({ part: 'label collapse', id: 'label-' + index, ariaControls: 'panel-' + index, ariaExpanded: false, onclick, onkeydown }, shadowLabelSlot)
 
-			// 	// <div part="panel collapse">
-			// 	const shadowPanel = h.div({ part: 'panel collapse' }, shadowPanelSlot)
+					// <slot name="panel">
+					const shadowPanelSlot = h.slot({ name: 'panel' })
 
-			// 	links.add(shadowLabel, shadowPanel)
+					// <div part="panel collapse">
+					const shadowPanel = h.div({ part: 'panel collapse', id: 'panel-' + index, ariaLabelledby: 'label-' + index }, shadowPanelSlot)
 
-			// 	shadowContainer.append(shadowLabel)
-			// 	shadowContainer.append(shadowPanel)
+					links.add(shadowLabel, shadowPanel)
 
-			// 	shadowLabelSlot.assign(actualLabel)
-			// 	shadowPanelSlot.assign(...actualPanels)
-			// }
+					shadowContainer.append(shadowLabel)
+					shadowContainer.append(shadowPanel)
+
+					shadowLabelSlot.assign(actualLabel)
+					shadowPanelSlot.assign(...actualPanels)
+				}
+
+				return shadowContainer
+			},
+			'tab-bar'() {
+				// <div part="container tab-bar">
+				const shadowContainer = h.div({ part: 'container tab-bar' })
+
+				// <div part="labels tab-bar">
+				const labelsContainer = h.div({ part: 'labels tab-bar', role: 'tablist' })
+
+				// <div part="panels tab-bar">
+				const panelsContainer = h.div({ part: 'panels tab-bar' })
+
+				shadowContainer.append(labelsContainer, panelsContainer)
+
+				shadowRoot.append(shadowContainer)
+
+				for (const [ index, actualLabel, ...actualPanels ] of internals.content) {
+					// <slot name="label">
+					const shadowLabelSlot = h.slot({ name: 'label-' + index })
+
+					// <button part="label tab-bar">
+					const shadowLabel = h.button({ part: 'label tab-bar', role: 'tab', id: 'label-' + index, ariaControls: 'panel-' + index, ariaSelected: false, onclick, onkeydown }, shadowLabelSlot)
+
+					// <slot name="panel">
+					const shadowPanelSlot = h.slot({ name: 'panel-' + index })
+
+					// <div part="panel tab-bar">
+					const shadowPanel = h.div({ part: 'panel tab-bar', role: 'tabpanel', id: 'panel-' + index, ariaLabelledby: 'label-' + index }, shadowPanelSlot)
+
+					links.add(shadowLabel, shadowPanel)
+
+					labelsContainer.append(shadowLabel)
+					panelsContainer.append(shadowPanel)
+
+					shadowLabelSlot.assign(actualLabel)
+					shadowPanelSlot.assign(...actualPanels)
+				}
+
+				return shadowContainer
+			},
 		},
 	}
 
