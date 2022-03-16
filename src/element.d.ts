@@ -6,6 +6,7 @@ export interface Internals {
 	sectionMap: WeakMap<HTMLButtonElement, Paneled.Section>
 
 	initialize(): void
+	setAffordance(affordanceType: AffordanceType): void
 	addSection(contentSection: Content.Section): Paneled.Section
 	toggleSection(paneledSection: Paneled.Section): boolean
 

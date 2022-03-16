@@ -9,6 +9,10 @@ export class OUIPanelset extends HTMLElement {
 	get affordance() {
 		return this.#internals.affordance
 	}
+
+	set affordance(value) {
+		this.#internals.setAffordance(value)
+	}
 }
 
 // internals
@@ -31,7 +35,7 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 		':where([part~="panel"]:not([part~="open"])){display:none}',
 
 		// default styles for collapse affordance
-		':where([part~="collapse"][part~="label"]){align-items:center;display:flex;gap:.25em}',
+		':where([part~="collapse"][part~="label"]){align-items:center;display:flex;gap:.25em;padding-inline-end:1em}',
 		':where([part~="collapse"][part~="marker"]){display:block;height:.75em;width:.75em;transform:rotate(90deg)}',
 		':where([part~="collapse"][part~="marker"][part~="open"]){transform:rotate(180deg)}',
 
@@ -40,36 +44,72 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 	)
 
 	const onclick = (/** @type {HTMLElementEventMap['click'] & { currentTarget: HTMLButtonElement }} */ event) => {
-		if (internals.toggleSection(internals.sectionMap.get(event.currentTarget))) {
-			host.dispatchEvent(new Event('toggle'))
+		const paneledSection = internals.sectionMap.get(event.currentTarget)
+		if (internals.toggleSection(paneledSection)) {
+			host.dispatchEvent(
+				new CustomEvent('toggle', {
+					detail: {
+						label: paneledSection.label.slotted,
+						panels: paneledSection.panel.slotted,
+					}
+				})
+			)
 		}
 	}
 
 	const onkeydown = (/** @type {HTMLElementEventMap['keydown'] & { currentTarget: HTMLButtonElement }} */ event) => {
-		const section = internals.sectionMap.get(event.currentTarget)
+		const paneledSection = internals.sectionMap.get(event.currentTarget)
 
 		switch (event.key) {
 			case 'ArrowUp':
 			case 'ArrowLeft':
-				if (section.prev) {
-					section.prev.label.element.focus()
+				if (paneledSection.prev) {
+					paneledSection.prev.label.element.focus()
+
+					if (isExclusive(internals.affordance)) {
+						internals.toggleSection(paneledSection.prev)
+					}
 				}
 
 				break
 
 			case 'ArrowDown':
 			case 'ArrowRight':
-				if (section.next) {
-					section.next.label.element.focus()
+				if (paneledSection.next) {
+					paneledSection.next.label.element.focus()
+
+					if (isExclusive(internals.affordance)) {
+						internals.toggleSection(paneledSection.next)
+					}
 				}
 
 				break
 		}
 	}
 
+	let firstRun = true
+
 	/** @type {Internals} */
 	const internals = {
-		affordance: 'tab-bar',
+		affordance: 'collapse',
+		setAffordance(/** @type {string} */ affordance) {
+			affordance = String(affordance).toLowerCase()
+
+			if (affordance !== 'collapse' && affordance !== 'exclusive-collapse' && affordance !== 'tab-bar') return
+
+			internals.affordance = affordance
+
+			const template = internals.templates[affordance](container)
+
+			for (const contentSection of getContentSections(host)) {
+				const paneledSection = internals.addSection(contentSection)
+
+				template.addSection(paneledSection)
+
+				assignSlot(paneledSection.label.slot, paneledSection.label.slotted)
+				assignSlot(paneledSection.panel.slot, ...paneledSection.panel.slotted)
+			}
+		},
 		sectionSet: [],
 		sectionMap: new WeakMap(),
 		addSection(contentSection) {
@@ -131,9 +171,29 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 				case 'collapse': {
 					const open = paneledSection.open = !paneledSection.open
 
+					paneledSection.open = open
+
+					h(paneledSection.label.element, { ariaExpanded: open })
+
 					paneledSection.label.element.part.toggle('open', open)
 					paneledSection.label.marker.part.toggle('open', open)
 					paneledSection.panel.element.part.toggle('open', open)
+
+					return true
+				}
+
+				case 'exclusive-collapse': {
+					if (paneledSection.open) return false
+
+					for (const eachPaneledSection of internals.sectionSet) {
+						const open = eachPaneledSection === paneledSection
+
+						eachPaneledSection.open = open
+
+						eachPaneledSection.label.element.part.toggle('open', open)
+						eachPaneledSection.label.marker.part.toggle('open', open)
+						eachPaneledSection.panel.element.part.toggle('open', open)
+					}
 
 					return true
 				}
@@ -146,7 +206,7 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 
 						eachPaneledSection.open = open
 
-						h(eachPaneledSection.label.element, { tabIndex: open ? 0 : -1 })
+						h(eachPaneledSection.label.element, { tabIndex: open ? 0 : -1, ariaSelected: open })
 
 						eachPaneledSection.label.element.part.toggle('open', open)
 						eachPaneledSection.label.marker.part.toggle('open', open)
@@ -160,16 +220,13 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 		initialize() {
 			if (!host.isConnected) return
 
-			const template = internals.templates[internals.affordance](container)
+			const affordance = /** @type {Internals['affordance']} */ (
+				firstRun
+					? (firstRun = false) || host.getAttribute('affordance')
+				: internals.affordance
+			)
 
-			for (const contentSection of getContentSections(host)) {
-				const paneledSection = internals.addSection(contentSection)
-
-				template.addSection(paneledSection)
-
-				assignSlot(paneledSection.label.slot, paneledSection.label.slotted)
-				assignSlot(paneledSection.panel.slot, ...paneledSection.panel.slotted)
-			}
+			internals.setAffordance(affordance)
 		},
 		templates: {
 			'collapse'(container) {
@@ -177,19 +234,31 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 
 				return {
 					addSection(section) {
-						h(section.label.element, { part: 'label collapse', tabIndex: null, ariaSelected: 'false' })
-						h(section.label.marker, { part: 'marker collapse' })
-						h(section.panel.element, { part: 'panel collapse' })
+						const open = internals.sectionSet.length === 1
+						const part = open ? ' open' : ''
+
+						h(section.label.element, { part: 'label collapse' + part, tabIndex: 0, ariaExpanded: String(open) })
+						h(section.label.marker, { part: 'marker collapse' + part })
+						h(section.panel.element, { part: 'panel collapse' + part })
 
 						container.append(section.label.element, section.panel.element)
 					}
 				}
 			},
 			'exclusive-collapse'(container) {
-				container.part.value = 'container exclusive-collapse'
+				container.part.value = 'container collapse exclusive'
 
 				return {
-					addSection(section) {}
+					addSection(section) {
+						const open = internals.sectionSet.length === 1
+						const part = open ? ' open' : ''
+
+						h(section.label.element, { part: 'label collapse exclusive' + part, tabIndex: 0, ariaExpanded: String(open) })
+						h(section.label.marker, { part: 'marker collapse exclusive' + part })
+						h(section.panel.element, { part: 'panel collapse exclusive' + part })
+
+						container.append(section.label.element, section.panel.element)
+					}
 				}
 			},
 			'tab-bar'(container) {
@@ -303,6 +372,8 @@ const assignSlot = (/** @type {HTMLSlotElement} */ slot, /** @type {AnyNode[]} *
 		}
 	}
 }
+
+const isExclusive = (/** @type {Internals['affordance']} */ affordance) => affordance === 'exclusive-collapse' || affordance === 'tab-bar'
 
 /** @typedef {import('./element').AnyElement} AnyElement */
 /** @typedef {import('./element').AnyElementName} AnyElementName */
