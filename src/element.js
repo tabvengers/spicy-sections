@@ -1,7 +1,5 @@
 // @ts-check
 
-import './polyfill.js'
-
 // element
 // -----------------------------------------------------------------------------
 
@@ -29,7 +27,7 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 		':where(div){display:contents}',
 		':where(button){all:unset;outline:revert}',
 		':where(svg){display:none}',
-		':where([part~="labels"]){display:flex;gap:1em}',
+		':where([part~="label-container"]){display:flex;gap:1em}',
 		':where([part~="panel"]:not([part~="open"])){display:none}',
 
 		// default styles for collapse affordance
@@ -169,8 +167,8 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 
 				template.addSection(paneledSection)
 
-				paneledSection.label.slot.assign(paneledSection.label.slotted)
-				paneledSection.panel.slot.assign(...paneledSection.panel.slotted)
+				assignSlot(paneledSection.label.slot, paneledSection.label.slotted)
+				assignSlot(paneledSection.panel.slot, ...paneledSection.panel.slotted)
 			}
 		},
 		templates: {
@@ -197,22 +195,22 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 			'tab-bar'(container) {
 				h(container, { part: 'container tab-bar' })
 
-				const labels = h.div({ part: 'labels tab-bar', role: 'tablist' })
-				const panels = h.div({ part: 'panels tab-bar' })
+				const labelContainer = h.div({ part: 'label-container tab-bar', role: 'tablist' })
+				const panelContainer = h.div({ part: 'panel-container tab-bar' })
 
-				container.append(labels, panels)
+				container.append(labelContainer, panelContainer)
 
 				return {
 					addSection(section) {
 						const open = internals.sectionSet.length === 1
 						const part = open ? ' open' : ''
 
-						h(section.label.element, { part: 'label tab-bar' + part, tabIndex: open ? 0 : -1, ariaSelected: String(!open) })
+						h(section.label.element, { part: 'label tab-bar' + part, role: 'tab', tabIndex: open ? 0 : -1, ariaSelected: String(!open) })
 						h(section.label.marker, { part: 'marker tab-bar' + part })
-						h(section.panel.element, { part: 'panel tab-bar' + part })
+						h(section.panel.element, { part: 'panel tab-bar' + part, role: 'tabpanel' })
 
-						labels.append(section.label.element)
-						panels.append(section.panel.element)
+						labelContainer.append(section.label.element)
+						panelContainer.append(section.panel.element)
 					}
 				}
 			},
@@ -291,6 +289,19 @@ const getContentSections = (/** @type {HTMLElement} */ host) => {
 	}
 
 	return sections
+}
+
+/** Assigns to the given slot the given nodes (using manual slot assignment when supported). */
+const assignSlot = (/** @type {HTMLSlotElement} */ slot, /** @type {AnyNode[]} */ ...nodes) => {
+	if (typeof slot.assign === 'function') {
+		slot.assign(...nodes)
+	} else {
+		for (const node of nodes) {
+			if (node instanceof Element) {
+				node.slot = slot.name
+			}
+		}
+	}
 }
 
 /** @typedef {import('./element').AnyElement} AnyElement */
