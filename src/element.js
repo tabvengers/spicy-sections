@@ -29,11 +29,9 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 
 	shadowRoot.append(
 		h.style(
-			':where(button){all:unset}',
-			':where(button,div){display:block}',
+			':where(button){all:unset;display:block;outline:revert}',
 			':where([part~="labels"]){display:flex;gap:1em}',
-			':where([part~="panel"]:not([part~="open"])){display:none}',
-			':where(:focus){outline:revert}'
+			':where([part~="panel"]:not([part~="open"])){display:none}'
 		)
 	)
 
