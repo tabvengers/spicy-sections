@@ -93,11 +93,19 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 
 	/** @type {Internals} */
 	const internals = {
-		affordance: 'collapse',
+		affordance: 'none',
 		setAffordance(/** @type {string} */ affordance) {
-			affordance = String(affordance).toLowerCase()
+			affordance = affordance == null ? internals.affordance : String(affordance).toLowerCase()
 
-			if (affordance !== 'collapse' && affordance !== 'exclusive-collapse' && affordance !== 'tab-bar') return
+			switch (affordance) {
+				default:
+					return
+
+				case 'collapse':
+				case 'exclusive-collapse':
+				case 'none':
+				case 'tab-bar':
+			}
 
 			internals.affordance = affordance
 			internals.sectionSet = []
@@ -105,6 +113,8 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 			container.replaceChildren()
 
 			const template = internals.templates[affordance](container)
+
+			if (affordance === 'none') return
 
 			for (const contentSection of getContentSections(host)) {
 				const paneledSection = internals.addSection(contentSection)
@@ -236,6 +246,21 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 			internals.setAffordance(affordance)
 		},
 		templates: {
+			'none'() {
+				h(container, { part: 'container none' })
+
+				const defaultSlot = h.slot()
+
+				container.append(defaultSlot)
+
+				assignSlot(defaultSlot, ...(/** @type {AnyNode[]} */ /** @type {any} */ (host.childNodes)))
+
+				return {
+					addSection(section) {
+						console.log(section)
+					}
+				}
+			},
 			'collapse'(container) {
 				h(container, { part: 'container collapse' })
 
@@ -299,7 +324,7 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 	mutations.observe(host, { childList: true })
 
 	const properties = new CSSStyleObserver(([ record ]) => {
-		internals.setAffordance(/** @type {Internals['affordance']} */ (record.newValue.trim()))
+		internals.setAffordance(/** @type {Internals['affordance']} */ (record.newValue.trim() || 'none'))
 	})
 
 	properties.observe(host, '--affordance')

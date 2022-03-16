@@ -1,4 +1,4 @@
-export type AffordanceType = 'collapse' | 'exclusive-collapse' | 'tab-bar'
+export type AffordanceType = 'collapse' | 'exclusive-collapse' | 'none' | 'tab-bar'
 
 export interface Internals {
 	affordance: AffordanceType
