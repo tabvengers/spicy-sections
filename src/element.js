@@ -98,6 +98,9 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 			if (affordance !== 'collapse' && affordance !== 'exclusive-collapse' && affordance !== 'tab-bar') return
 
 			internals.affordance = affordance
+			internals.sectionSet = []
+
+			container.replaceChildren()
 
 			const template = internals.templates[affordance](container)
 
@@ -189,6 +192,8 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 						const open = eachPaneledSection === paneledSection
 
 						eachPaneledSection.open = open
+
+						h(paneledSection.label.element, { ariaExpanded: open })
 
 						eachPaneledSection.label.element.part.toggle('open', open)
 						eachPaneledSection.label.marker.part.toggle('open', open)
@@ -349,11 +354,6 @@ const getContentSections = (/** @type {HTMLElement} */ host) => {
 		} else {
 			// otherwise, append the child node to the existing section
 			section.panel.push(node)
-		}
-
-		// remove any existing slotting
-		if (node instanceof Element) {
-			node.removeAttribute('slot')
 		}
 	}
 
