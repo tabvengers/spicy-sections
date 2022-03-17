@@ -306,7 +306,7 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 
 						h(section.label.element, { part: 'label tab-bar' + part, role: 'tab', tabIndex: open ? 0 : -1, ariaSelected: String(!open) })
 						h(section.label.marker, { part: 'marker tab-bar' + part })
-						h(section.panel.element, { part: 'panel tab-bar' + part, role: 'tabpanel' })
+						h(section.panel.element, { part: 'panel tab-bar' + part, role: 'tabpanel', tabindex: 0 })
 
 						labelContainer.append(section.label.element)
 						panelContainer.append(section.panel.element)
