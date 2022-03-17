@@ -1,0 +1,106 @@
+*, ::before, ::after {
+	box-sizing: border-box;
+}
+
+:where(body) {
+	font: 100%/2 "Inter", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	margin-inline: auto;
+	max-width: 48rem;
+	padding-inline: 1rem;
+	tab-size: 4;
+}
+
+:where(pre) {
+	background-color: #f0f0f4;
+	font: 400 0.875rem/1.5 "Menlo", "Consolas", "Monaco", "Liberation Mono", "Lucida Console", monospace;
+	margin-block: 1rem 2rem;
+	padding: 1rem;
+}
+
+:where(code) {
+	font: 400 0.875em/1.5 Menlo,Consolas,Monaco,Liberation Mono,Lucida Console,monospace;
+}
+
+:where(dl) {
+	margin-block: 0;
+}
+
+:where(dt) {
+	margin-block: 2rem .5rem;
+}
+
+:where(p) {
+	margin-block: 1rem;
+}
+
+:where(h2) {
+	font-size: 2.25rem;
+	font-weight: 300;
+	line-height: 1.138;
+}
+
+:where(h3, h4, h5, h6) {
+	font-size: 1.5rem;
+	font-weight: 400;
+	line-height: 1.2916;
+	margin-block: 2rem 1rem;
+}
+
+:where(section > :is(h1, h2, h3)) {
+	font-size: 1.75rem;
+	font-weight: 400;
+	line-height: 1.2857;
+	margin-block: 4rem 1rem;
+}
+
+:where(section > :is(h4, h5, h6)) {
+	font-size: 1.5rem;
+	font-weight: 500;
+	line-height: 1.2916;
+	margin-block: 2rem 1rem;
+}
+
+:where(section > :is(h5, h6)) {
+	font-size: 1.25rem;
+	margin-block: 0;
+}
+
+:where(:is(h4, h5, h6) + :is(h4, h5, h6)) {
+	margin-block-start: 0;
+}
+
+:where(dl dd) {
+	margin-block: 0 1rem;
+	margin-inline: 1rem 0;
+}
+
+:where(dd p) {
+	margin-block: 0 1rem;
+}
+
+:where(table) {
+	border-collapse: collapse;
+	border: 1px solid #cfcfd8;
+	font-size: .875rem;
+	font-weight: 400;
+	line-height: 1.75;
+	margin: 1rem 0;
+	width: 100%;
+}
+
+:where(table :is(td, th)) {
+	border: 1px solid #cfcfd8;
+	padding: .5rem .75rem;
+	vertical-align: middle;
+}
+
+:where(table th) {
+	text-align: left;
+	background: #fbfbfe;
+	font-weight: 600;
+	line-height: 1.5;
+}
+
+:where([aria-current]) {
+	font-weight: 600;
+}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en-US">
+	<head>
+		<title>Panelset Element Demonstration</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="description" content="Panelset Element Demonstration" />
+		<meta property="og:type" content="website" />
+		<script type="module">
+		import { OUIPanelset } from 'https://raw.githack.com/tabvengers/spicy-sections/oui/src/element.js'
+
+		customElements.define('oui-panelset', OUIPanelset)
+		</script>
+		<link rel="stylesheet" href="../style.css">
+		<style>
+		@media (max-width: 40em) {
+			oui-panelset {
+				--affordance: collapse;
+			}
+		}
+		@media (min-width: 60em) {
+			oui-panelset {
+				--affordance: tab-bar;
+			}
+		}
+		</style>
+	</head>
+	<body>
+		<h1>Panelset Element Demonstration</h1>
+
+		<oui-panelset>
+			<h3>Tabs</h3>
+			<p>
+				The <code>tab-bar</code> affordance
+				can use shadow-dom to establish
+				a styleable tab-bar and panels.
+				The required parts can be exposed for styling
+				with consistent pseudo-elements.
+			</p>
+			<p>
+				In a tab state, we likely want to style:
+			</p>
+			<ul>
+				<li>The outer box</li>
+				<li>The tab bar</li>
+				<li>The tabs themselves</li>
+				<li>The selected tab</li>
+				<li>The tab panel area</li>
+			</ul>
+	
+			<h3>Collapse</h3>
+			<p>
+				The accordion-like <code>collapse</code> affordance
+				also uses shadow-dom to establish
+				summary-details like behavior for each section,
+				with an option to make the toggle-states
+				<code>exclusive-collapse</code>.
+			</p>
+			<p>
+				In an accordion state, we likely want to style:
+			</p>
+			<ul>
+				<li>The outer box</li>
+				<li>The section headings/buttons</li>
+				<li>The open/closed marker</li>
+				<li>Open and closed heading styles</li>
+				<li>Open and closed content styles</li>
+			</ul>
+	
+			<h3>Structured Content</h3>
+			<p>
+				The fallback state is simply structured HTML,
+				without any show/hide affordances.
+				This does not require any special styling.
+			</p>
+		</oui-panelset>
+		<footer>
+			<nav>
+				<ul>
+					<li>
+						<a href="../index.html">Panelset Element</a>
+					</li>
+					<li>
+						<a href="../explainer.html">Explainer</a>
+					</li>
+				</ul>
+			</nav>
+		</footer>
+	</body>
+</html>
