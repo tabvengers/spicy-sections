@@ -112,9 +112,17 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 
 			const template = internals.templates[affordance](container)
 
-			if (affordance === 'none') return
-
 			for (const contentSection of getContentSections(host)) {
+				// TODO: remove this
+				// workaround issue in chromium/firefox where heading roles are not dropped within another role
+				if (affordance === 'none') {
+					contentSection.label.removeAttribute('role')
+
+					continue
+				} else {
+					contentSection.label.setAttribute('role', 'none')
+				}
+
 				const paneledSection = internals.addSection(contentSection)
 
 				template.addSection(paneledSection)
