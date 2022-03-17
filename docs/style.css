@@ -7,8 +7,7 @@
 	color: #222222;
 	font: 100%/2 "Inter", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 	margin-inline: auto;
-	max-width: 48rem;
-	padding-inline: 1rem;
+	max-width: min(100% - 2rem, 48rem);
 	tab-size: 4;
 }
 
