@@ -1,101 +1,118 @@
 <!doctype html>
 <html lang="en-US">
 	<head>
-		<title>Panelset Element Explainer</title>
+		<title>Panelset Element Documentation</title>
 		<meta charset="utf-8" />
-		<meta http-equiv="last-modified" content="Thu, 17 Mar 2022 04:26:00 GMT" />
+		<meta http-equiv="last-modified" content="Thu, 17 Mar 2022 08:30:00 GMT" />
 		<meta name="viewport" content="width=device-width" />
-		<meta name="description" content="Panelset Element Explainer" />
+		<meta name="description" content="Panelset Element Documentation" />
 		<meta property="og:type" content="website" />
 		<link rel="stylesheet" href="../style.css" />
 	</head>
 	<body>
-		<h1>Panelset Element Explainer</h1>
-
+		<h1>
+			Panelset Element Documentation
+		</h1>
 		<main>
 			<h2>
-				OUIPanelsetElement
+				&lt;oui-panelset&gt;: The Panelset element
 			</h2>
 			<p>
-				The <code>OUIPanelsetElement</code> interface gives access to properties specific to <code>&lt;oui-panelset&gt;</code> elements. It inherits methods and properties from the base HTMLElement interface.
+				The &lt;oui-panelset&gt; HTML element represents a generic division of a document, which is composed of flat sections.
+				Panelsets are used to present sections of content with distinct controls used to consume them.
 			</p>
-			<svg viewBox="-1 -1 650 42" preserveAspectRatio="xMinYMin meet">
-				<a style="text-decoration: none;" xlink:href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget">
-					<rect x="0" y="0" width="88" height="25" fill="#fff" stroke="#D4DDE4" stroke-width="2px"></rect>
-					<text x="44" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
-						EventTarget
-					</text>
-				</a>
-				<line x1="88" y1="14" x2="118" y2="14" stroke="#D4DDE4" "=""></line>
-				<polyline points="88,14 98,9 98,19 88,14" stroke="#D4DDE4" fill="#fff"></polyline>
-				<a style="text-decoration: none;" xlink:href="https://developer.mozilla.org/en-US/docs/Web/API/Node">
-					<rect x="118" y="0" width="75" height="25" fill="#fff" stroke="#D4DDE4" stroke-width="2px"></rect>
-					<text x="155.5" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
-						Node
-					</text>
-				</a>
-				<line x1="193" y1="14" x2="223" y2="14" stroke="#D4DDE4" "=""></line>
-				<polyline points="193,14 203,9 203,19 193,14" stroke="#D4DDE4" fill="#fff"></polyline>
-				<a style="text-decoration: none;" xlink:href="https://developer.mozilla.org/en-US/docs/Web/API/Element">
-					<rect x="223" y="0" width="75" height="25" fill="#fff" stroke="#D4DDE4" stroke-width="2px"></rect>
-					<text x="260.5" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
-						Element
-					</text>
-				</a>
-				<line x1="298" y1="14" x2="328" y2="14" stroke="#D4DDE4" "=""></line>
-				<polyline points="298,14 308,9 308,19 298,14" stroke="#D4DDE4" fill="#fff"></polyline>
-				<a style="text-decoration: none;" xlink:href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement">
-					<rect x="328" y="0" width="88" height="25" fill="#fff" stroke="#D4DDE4" stroke-width="2px"></rect>
-					<text x="372" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
-						HTMLElement
-					</text>
-				</a>
-				<line x1="416" y1="14" x2="446" y2="14" stroke="#D4DDE4" "=""></line>
-				<polyline points="416,14 426,9 426,19 416,14" stroke="#D4DDE4" fill="#fff"></polyline>
-				<a style="text-decoration: none;" xlink:href="explainer.html" aria-current="page">
-					<rect x="446" y="0" width="128" height="25" fill="#F4F7F8" stroke="#D4DDE4" stroke-width="2px"></rect>
-					<text x="510" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
-						OUIPanelsetElement
-					</text>
-				</a>
-			</svg>
-			<section>
-				<h3>Attributes</h3>
+			<section id="dom-interface">
+				<h3>
+					<a href="#dom-interface"><code>OUIPanelsetElement</code></a>
+				</h3>
 				<p>
-					Inherits attributes from its parent, HTMLElement.
+					The <code>OUIPanelsetElement</code> interface gives access to properties specific to <code>&lt;oui-panelset&gt;</code> elements.
+					It inherits methods and properties from the base HTMLElement interface.
 				</p>
-				<dl>
-					<dt id="affordance-attribute">
-						<a href="#affordance-attribute"><code>[affordance]</code></a>
-					</dt>
-					<dd>
-						<p>
-							A string containing the default affordance of the panelset.
-							When set, this attribute does not update the current affordance of the panelset.
-						</p>
-					</dd>
-				</dl>
+				<svg viewBox="-1 -1 650 42" preserveAspectRatio="xMinYMin meet">
+					<a style="text-decoration: none;" xlink:href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget">
+						<rect x="0" y="0" width="88" height="25" fill="#fff" stroke="#D4DDE4" stroke-width="2px"></rect>
+						<text x="44" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
+							EventTarget
+						</text>
+					</a>
+					<line x1="88" y1="14" x2="118" y2="14" stroke="#D4DDE4" "=""></line>
+					<polyline points="88,14 98,9 98,19 88,14" stroke="#D4DDE4" fill="#fff"></polyline>
+					<a style="text-decoration: none;" xlink:href="https://developer.mozilla.org/en-US/docs/Web/API/Node">
+						<rect x="118" y="0" width="75" height="25" fill="#fff" stroke="#D4DDE4" stroke-width="2px"></rect>
+						<text x="155.5" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
+							Node
+						</text>
+					</a>
+					<line x1="193" y1="14" x2="223" y2="14" stroke="#D4DDE4" "=""></line>
+					<polyline points="193,14 203,9 203,19 193,14" stroke="#D4DDE4" fill="#fff"></polyline>
+					<a style="text-decoration: none;" xlink:href="https://developer.mozilla.org/en-US/docs/Web/API/Element">
+						<rect x="223" y="0" width="75" height="25" fill="#fff" stroke="#D4DDE4" stroke-width="2px"></rect>
+						<text x="260.5" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
+							Element
+						</text>
+					</a>
+					<line x1="298" y1="14" x2="328" y2="14" stroke="#D4DDE4" "=""></line>
+					<polyline points="298,14 308,9 308,19 298,14" stroke="#D4DDE4" fill="#fff"></polyline>
+					<a style="text-decoration: none;" xlink:href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement">
+						<rect x="328" y="0" width="88" height="25" fill="#fff" stroke="#D4DDE4" stroke-width="2px"></rect>
+						<text x="372" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
+							HTMLElement
+						</text>
+					</a>
+					<line x1="416" y1="14" x2="446" y2="14" stroke="#D4DDE4" "=""></line>
+					<polyline points="416,14 426,9 426,19 416,14" stroke="#D4DDE4" fill="#fff"></polyline>
+					<a style="text-decoration: none;" xlink:href="explainer.html" aria-current="page">
+						<rect x="446" y="0" width="128" height="25" fill="#F4F7F8" stroke="#D4DDE4" stroke-width="2px"></rect>
+						<text x="510" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
+							OUIPanelsetElement
+						</text>
+					</a>
+				</svg>
+				<section id="html-properties">
+					<h3>
+						<a href="#html-properties">Attributes</a>
+					</h3>
+					<p>
+						Inherits attributes from its parent, HTMLElement.
+					</p>
+					<dl>
+						<dt id="affordance-attribute">
+							<a href="#affordance-attribute"><code>[affordance]</code></a>
+						</dt>
+						<dd>
+							<p>
+								A string containing the default affordance of the panelset.
+								When set, this attribute does not update the current affordance of the panelset.
+							</p>
+						</dd>
+					</dl>
+				</section>
+				<section id="dom-properties">
+					<h3>
+						<a href="#dom-properties">Properties</a>
+					</h3>
+					<p>
+						Inherits properties from its parent, HTMLElement.
+					</p>
+					<dl>
+						<dt id="affordance-property">
+							<a href="#affordance-property"><code>OUIPanelsetElement.affordance</code></a>
+						</dt>
+						<dd>
+							<p>
+								A string containing the current affordance of the panelset.
+								When set, this property updates the current affordance of the panelset.
+								This does not reflect the <a href="#affordance-attribute"><code>affordance</code></a> attribute.
+							</p>
+						</dd>
+					</dl>
+				</section>
 			</section>
-			<section>
-				<h3>Properties</h3>
-				<p>
-					Inherits properties from its parent, HTMLElement.
-				</p>
-				<dl>
-					<dt id="affordance-property">
-						<a href="#affordance-property"><code>OUIPanelsetElement.affordance</code></a>
-					</dt>
-					<dd>
-						<p>
-							A string containing the current affordance of the panelset.
-							When set, this property updates the current affordance of the panelset.
-							This does not reflect the <a href="#affordance-attribute"><code>affordance</code></a> attribute.
-						</p>
-					</dd>
-				</dl>
-			</section>
-			<section>
-				<h3>Affordances</h3>
+			<section id="affordances">
+				<h3>
+					<a href="#affordances">Affordances</a>
+				</h3>
 				<table>
 					<thead>
 						<tr>
@@ -123,8 +140,10 @@
 					</tbody>
 				</table>
 			</section>
-			<section>
-				<h3>Parts</h3>
+			<section id="parts">
+				<h3>
+					<a href="#parts">Parts</a>
+				</h3>
 				<pre><code
 >&lt;oui-panelset&gt;
 	::part(container)
