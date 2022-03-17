@@ -3,6 +3,8 @@
 }
 
 :where(body) {
+	background-color: #ffffff;
+	color: #222222;
 	font: 100%/2 "Inter", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 	margin-inline: auto;
 	max-width: 48rem;
@@ -10,15 +12,25 @@
 	tab-size: 4;
 }
 
+:where(a) {
+	color: #0000ee;
+}
+
 :where(pre) {
 	background-color: #f0f0f4;
 	font: 400 0.875rem/1.5 "Menlo", "Consolas", "Monaco", "Liberation Mono", "Lucida Console", monospace;
 	margin-block: 1rem 2rem;
 	padding: 1rem;
+	white-space: pre-wrap;
 }
 
 :where(code) {
 	font: 400 0.875em/1.5 Menlo,Consolas,Monaco,Liberation Mono,Lucida Console,monospace;
+}
+
+:where(pre code) {
+	font-size: 100%;
+	line-height: 1.75;
 }
 
 :where(dl) {
@@ -31,6 +43,11 @@
 
 :where(p) {
 	margin-block: 1rem;
+}
+
+:where(:is(p, pre) + p.note) {
+	font-size: 0.875rem;
+	margin-block-start: -1rem;
 }
 
 :where(h2) {
@@ -103,4 +120,40 @@
 
 :where([aria-current]) {
 	font-weight: 600;
+}
+
+:where(footer) {
+	box-shadow: 0 -0.125rem 0 0 #999;
+	margin-block: 2rem;
+	padding-block: 1rem;
+}
+
+/* Delimiter */
+:where(c-[d]) {
+	color: #999999;
+}
+
+/* Keyword */
+:where(c-[k]) {
+	color: #135ac0;
+}
+
+/* Name */
+:where(c-[n]) {
+	color: #125262;
+}
+
+/* Name.Property */
+:where(c-[np]) {
+	color: #0059a5;
+}
+
+/* String */
+:where(c-[s]) {
+	color: #1f7951;
+}
+
+/* Variable */
+:where(c-[v]) {
+	color: #617400;
 }
