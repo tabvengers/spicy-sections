@@ -1,7 +1,5 @@
 // @ts-check
 
-import { CSSStyleObserver } from './css-style-observer.js'
-
 // element
 // -----------------------------------------------------------------------------
 
@@ -323,15 +321,10 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 
 	mutations.observe(host, { childList: true })
 
-	const properties = new CSSStyleObserver(([ record ]) => {
-		internals.setAffordance(/** @type {Internals['affordance']} */ (record.newValue.trim() || 'none'))
-	})
-
-	properties.observe(host, '--affordance')
-
 	// add the panelset container to the panelset shadow root
 	shadowRoot.append(container, defaultStyle)
-
+	
+	observeAffordance(host, internals)
 
 	internals.initialize()
 
@@ -407,6 +400,24 @@ const assignSlot = (/** @type {HTMLSlotElement} */ slot, /** @type {AnyNode[]} *
 }
 
 const isExclusive = (/** @type {Internals['affordance']} */ affordance) => affordance === 'exclusive-collapse' || affordance === 'tab-bar'
+
+const observeAffordance = (/** @type {HTMLElement} */ host, /** @type {Internals} */ internals) => {
+	let style = getComputedStyle(host)
+	let oldValue = ''
+	let newValue = ''
+	let frameA = () => {
+		requestAnimationFrame(frameB)
+		newValue = style.getPropertyValue('--affordance')
+	}
+	let frameB = () => {
+		requestAnimationFrame(frameA)
+		if (oldValue !== newValue) {
+			oldValue = newValue
+			internals.setAffordance(/** @type {Internals['affordance']} */ (newValue.trim() || 'none'))
+		}
+	}
+	frameA()
+}
 
 /** @typedef {import('./element').AnyElement} AnyElement */
 /** @typedef {import('./element').AnyElementName} AnyElementName */
