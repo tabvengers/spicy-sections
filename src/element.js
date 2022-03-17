@@ -226,6 +226,8 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 						eachPaneledSection.label.element.part.toggle('open', open)
 						eachPaneledSection.label.marker.part.toggle('open', open)
 						eachPaneledSection.panel.element.part.toggle('open', open)
+
+						console.log(eachPaneledSection.label)
 					}
 
 					return true
@@ -304,7 +306,7 @@ const createInternals = (/** @type {HTMLElement} */ host) => {
 						const open = internals.sectionSet.length === 1
 						const part = open ? ' open' : ''
 
-						h(section.label.element, { part: 'label tab-bar' + part, role: 'tab', tabIndex: open ? 0 : -1, ariaSelected: String(!open) })
+						h(section.label.element, { part: 'label tab-bar' + part, role: 'tab', tabIndex: open ? 0 : -1, ariaSelected: String(open) })
 						h(section.label.marker, { part: 'marker tab-bar' + part })
 						h(section.panel.element, { part: 'panel tab-bar' + part, role: 'tabpanel', tabindex: 0 })
 
