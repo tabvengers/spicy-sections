@@ -29,6 +29,8 @@
 
 :where(p code) {
 	background-color: #f0f0f4;
+	border-radius: 0.125rem;
+	display: inline-block;
 	color: #3f3f49;
 	padding: .125rem .25rem;
 }
