@@ -12,7 +12,7 @@
 }
 
 :where(a) {
-	color: #0000ee;
+	color: #4343d1;
 }
 
 :where(pre) {
@@ -25,6 +25,12 @@
 
 :where(code) {
 	font: 400 0.875em/1.5 Menlo,Consolas,Monaco,Liberation Mono,Lucida Console,monospace;
+}
+
+:where(p code) {
+	background-color: #f0f0f4;
+	color: #3f3f49;
+	padding: .125rem .25rem;
 }
 
 :where(pre code) {

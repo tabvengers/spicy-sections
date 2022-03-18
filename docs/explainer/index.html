@@ -3,7 +3,7 @@
 	<head>
 		<title>Panelset Element Documentation</title>
 		<meta charset="utf-8" />
-		<meta http-equiv="last-modified" content="Thu, 18 Mar 2022 12:28:00 GMT" />
+		<meta http-equiv="last-modified" content="Thu, 18 Mar 2022 12:38:00 GMT" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="description" content="Panelset Element Documentation" />
 		<meta property="og:type" content="website" />
@@ -18,8 +18,8 @@
 				&lt;oui-panelset&gt;: The Panelset element
 			</h2>
 			<p>
-				The &lt;oui-panelset&gt; HTML element represents a generic division of a document, which is composed of flat sections.
-				Panelsets are used to present sections of content with distinct controls used to consume them.
+				The <code>&lt;oui-panelset&gt;</code> HTML element represents a generic division of a document, which is composed of flat sections of content.
+				Panelsets can be assigned <a href="#affordances">affordances</a> to present sections of content with distinct controls to consume them.
 			</p>
 			<section id="dom-interface">
 				<h3>
@@ -119,7 +119,7 @@
 						<a href="#dom-affordance-property-usage">Usage</a>
 					</h5>
 					<pre><code
-><c- k>const</c-> <c- v>panelset</c-> <c- d>=</c-> <c- n>document</c->.<c- np>querySelector</c->(<c- s>'oui-panelset'</c-><c -d>)</c->
+><c- k>const</c-> <c- v>panelset</c-> <c- d>=</c-> <c- n>document</c->.<c- np>querySelector</c->(<c- s>'oui-panelset'</c-><c- d>)</c->
 
 <c- v>panelset<c- d>.</c->affordance</c-> <c->=</c-> <c- s>'exclusive-collapse'</c-></code
 					></pre>
@@ -171,19 +171,19 @@
 					<tbody>
 						<tr>
 							<td><code>collapse</code></td>
-							<td>sequential sections of content that display independently</td>
+							<td>Sequential sections of content that display independently.</td>
 						</tr>
 						<tr>
 							<td><code>exclusive-collapse</code></td>
-							<td>sequential sections of content that display one at a time</td>
+							<td>Sequential sections of content that display one at a time.</td>
 						</tr>
 						<tr>
 							<td><code>tab-bar</code></td>
-							<td>layered sections of content that display one at a time</td>
+							<td>Layered sections of content that display one at a time.</td>
 						</tr>
 						<tr>
 							<td><code>none</code></td>
-							<td>content displays as it is written</td>
+							<td>Contents display as they are authored.</td>
 						</tr>
 					</tbody>
 				</table>
@@ -193,13 +193,7 @@
 					<a href="#parts">Parts</a>
 				</h3>
 				<p>
-					The generated shadow tree inside a Panelset element can be styled using the <code>::part</code> pseudo-elements
-					<code>container</code>,
-						<code>label-container</code>,
-							<code>marker</code>,
-							<code>label</code>,
-						<code>panel-container</code>,
-							and <code>panel</code>.
+					The generated shadow tree inside a Panelset element can be styled using <code>::part</code> pseudo-elements.
 				</p>
 				<pre><code
 >&lt;oui-panelset&gt;
@@ -217,15 +211,12 @@
 				<p>
 					Each shadow tree part can also be styled by a particular <a href="#affordances">affordance</a>.
 				</p>
-				<p>
-					For example, <code>::part(container tab-bar)</code> styles a panelset container when the <strong>tab-bar</strong> affordance is applied.
-				</p>
 				<pre><code
-><c -d>&lt;</c-><c- n>style</c-><c- d>&gt;</c->
+><c- d>&lt;</c-><c- n>style</c-><c- d>&gt;</c->
 <c- n>oui-panelset</c-><c- d>::</c-><c- n>part</c-><c- d>(</c-><c- n>container</c-> <c- n>tab-bar</c-><c- d>)</c-> <c- d>{</c->
 	<c- d>/*</c-> panelset container styles during the tab-bar affordance <c- d>*/</c->
 <c- d>}</c->
-<c -d>&lt;/</c-><c- n>style</c-><c- d>&gt;</c-></code
+<c- d>&lt;/</c-><c- n>style</c-><c- d>&gt;</c-></code
 				></pre>
 				<table>
 					<thead>
