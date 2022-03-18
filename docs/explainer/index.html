@@ -3,7 +3,7 @@
 	<head>
 		<title>Panelset Element Documentation</title>
 		<meta charset="utf-8" />
-		<meta http-equiv="last-modified" content="Thu, 18 Mar 2022 03:20:00 GMT" />
+		<meta http-equiv="last-modified" content="Thu, 18 Mar 2022 12:28:00 GMT" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="description" content="Panelset Element Documentation" />
 		<meta property="og:type" content="website" />
@@ -87,6 +87,14 @@
 							</p>
 						</dd>
 					</dl>
+					<h5 id="html-affordance-attribute-usage">
+						<a href="#html-affordance-attribute-usage">Usage</a>
+					</h5>
+					<pre><code
+><c- d>&lt;</c-><c- n>oui-panelset</c-> <c- n>affordance</c-><c- d>=</c-><c- s>"exclusive-collapse"</c-><c- d>&gt;</c->
+	<c- d>&lt;!--</c-> flat sections of content <c- d>--&gt;</c->
+<c- d>&lt;/</c-><c- n>oui-panelset</c-><c- d>&gt;</c-></code
+					></pre>
 				</section>
 				<section id="dom-properties">
 					<h3>
@@ -107,9 +115,11 @@
 							</p>
 						</dd>
 					</dl>
-					<h5>Usage</h5>
+					<h5 id="dom-affordance-property-usage">
+						<a href="#dom-affordance-property-usage">Usage</a>
+					</h5>
 					<pre><code
-><c- k>const</c-> <c- v>panelset</c-> <c- d>=</c-> <c- n>document</c->.<c- np>querySelector</c->(<c- s>'oui-panelset'</c-><c -d>)</c>
+><c- k>const</c-> <c- v>panelset</c-> <c- d>=</c-> <c- n>document</c->.<c- np>querySelector</c->(<c- s>'oui-panelset'</c-><c -d>)</c->
 
 <c- v>panelset<c- d>.</c->affordance</c-> <c->=</c-> <c- s>'exclusive-collapse'</c-></code
 					></pre>
@@ -129,7 +139,9 @@
 							</p>
 						</dd>
 					</dl>
-					<h5>Usage</h5>
+					<h5 id="css-affordance-property-usage">
+						<a href="#css-affordance-property-usage">Usage</a>
+					</h5>
 					<pre><code
 ><c- v>@media</c-> <c- d>(</c-><c- n>max-width</c-><c- d>:</c-> <c- v>40em</c-><c- d>)</c-></c-> <c- d>{</c->
 	<c- n>oui-panelset</c-> <c- d>{</c->
@@ -180,10 +192,20 @@
 				<h3>
 					<a href="#parts">Parts</a>
 				</h3>
+				<p>
+					The generated shadow tree inside a Panelset element can be styled using the <code>::part</code> pseudo-elements
+					<code>container</code>,
+						<code>label-container</code>,
+							<code>marker</code>,
+							<code>label</code>,
+						<code>panel-container</code>,
+							and <code>panel</code>.
+				</p>
 				<pre><code
 >&lt;oui-panelset&gt;
 	::part(container)
 		::part(label-container)
+			::part(marker)
 			::part(label)
 
 		::part(panel-container) {
@@ -192,49 +214,49 @@
 	::
 &lt;/oui-panelset&gt;</code
 				></pre>
-				<h4><code>::part(container)</code></h4>
 				<p>
-					The container of all content in the panelset.
+					Each shadow tree part can also be styled by a particular <a href="#affordances">affordance</a>.
 				</p>
-				<h5><code>::part(container collapse)</code></h5>
-				<h5><code>::part(container exclusive-collapse)</code></h5>
-				<h5><code>::part(container tab-bar)</code></h5>
-				<br />
-				<hr />
-				<h4><code>::part(label-container)</code></h4>
 				<p>
-					The container of the labels in the panelset.
+					For example, <code>::part(container tab-bar)</code> styles a panelset container when the <strong>tab-bar</strong> affordance is applied.
 				</p>
-				<h5><code>::part(label-container collapse)</code></h5>
-				<h5><code>::part(label-container exclusive-collapse)</code></h5>
-				<h5><code>::part(label-container tab-bar)</code></h5>
-				<br />
-				<hr />
-				<h4><code>::part(label)</code></h4>
-				<p>
-					The container of the labels in the panelset.
-				</p>
-				<h5><code>::part(label collapse)</code></h5>
-				<h5><code>::part(label exclusive-collapse)</code></h5>
-				<h5><code>::part(label tab-bar)</code></h5>
-				<br />
-				<hr />
-				<h4><code>::part(panel-container)</code></h4>
-				<p>
-					The container of the panels in the panelset.
-				</p>
-				<h5><code>::part(panel-container collapse)</code></h5>
-				<h5><code>::part(panel-container exclusive-collapse)</code></h5>
-				<h5><code>::part(panel-container tab-bar)</code></h5>
-				<br />
-				<hr />
-				<h4><code>::part(panel)</code></h4>
-				<p>
-					The container of the panels in the panelset.
-				</p>
-				<h5><code>::part(panel collapse)</code></h5>
-				<h5><code>::part(panel exclusive-collapse)</code></h5>
-				<h5><code>::part(panel tab-bar)</code></h5>
+				<pre><code
+><c -d>&lt;</c-><c- n>style</c-><c- d>&gt;</c->
+<c- n>oui-panelset</c-><c- d>::</c-><c- n>part</c-><c- d>(</c-><c- n>container</c-> <c- n>tab-bar</c-><c- d>)</c-> <c- d>{</c->
+	<c- d>/*</c-> panelset container styles during the tab-bar affordance <c- d>*/</c->
+<c- d>}</c->
+<c -d>&lt;/</c-><c- n>style</c-><c- d>&gt;</c-></code
+				></pre>
+				<table>
+					<thead>
+						<tr>
+							<th>Part</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><code>container</code></td>
+							<td>The container of all content in the panelset.</td>
+						</tr>
+						<tr>
+							<td><code>label-container</code></td>
+							<td>The container of all labels in the panelset, only available during the <strong>tab-bar</strong> affordance.</td>
+						</tr>
+						<tr>
+							<td><code>label</code></td>
+							<td>The container of each label in the panelset.</td>
+						</tr>
+						<tr>
+							<td><code>panel-container</code></td>
+							<td>The container of all panels in the panelset, only available during the <strong>tab-bar</strong> affordance.</td>
+						</tr>
+						<tr>
+							<td><code>label</code></td>
+							<td>The container of each panel in the panelset.</td>
+						</tr>
+					</tbody>
+				</table>
 			</section>
 		</main>
 		<footer>
