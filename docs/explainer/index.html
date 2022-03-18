@@ -3,7 +3,7 @@
 	<head>
 		<title>Panelset Element Documentation</title>
 		<meta charset="utf-8" />
-		<meta http-equiv="last-modified" content="Thu, 18 Mar 2022 13:06:00 GMT" />
+		<meta http-equiv="last-modified" content="Thu, 18 Mar 2022 18:50:00 GMT" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="description" content="Panelset Element Documentation" />
 		<meta property="og:type" content="website" />
@@ -156,12 +156,14 @@
 						<a href="#css-affordance-property-usage">Usage</a>
 					</h5>
 					<pre><code
-><c- v>@media</c-> <c- d>(</c-><c- n>max-width</c-><c- d>:</c-> <c- v>40em</c-><c- d>)</c-></c-> <c- d>{</c->
+><c- d>/*</c-> use with a collapsed interface on narrow width screens <c- d>*/</c->
+<c- v>@media</c-> <c- d>(</c-><c- n>max-width</c-><c- d>:</c-> <c- v>40em</c-><c- d>)</c-></c-> <c- d>{</c->
 	<c- n>oui-panelset</c-> <c- d>{</c->
 		<c- n>--affordance</c-><c- d>:</c-> <c- n>collapse</c-><c- d>;</c->
 	<c- d>}</c->
 <c- d>}</c->
 
+<c- d>/*</c-> use a tab-bar interface on wide width screens <c- d>*/</c->
 <c- v>@media</c-> <c- d>(</c-><c- n>min-width</c-><c- d>:</c-> <c- v>60em</c-><c- d>)</c-> <c- d>{</c->
 	<c- n>oui-panelset</c-> <c- d>{</c->
 		<c- n>--affordance</c-><c- d>:</c-> <c- n>tab-bar</c-><c- d>;</c->
