@@ -3,7 +3,7 @@
 	<head>
 		<title>Panelset Element Documentation</title>
 		<meta charset="utf-8" />
-		<meta http-equiv="last-modified" content="Thu, 18 Mar 2022 02:42:00 GMT" />
+		<meta http-equiv="last-modified" content="Thu, 18 Mar 2022 03:20:00 GMT" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="description" content="Panelset Element Documentation" />
 		<meta property="og:type" content="website" />
@@ -107,6 +107,12 @@
 							</p>
 						</dd>
 					</dl>
+					<h5>Usage</h5>
+					<pre><code
+><c- k>const</c-> <c- v>panelset</c-> <c- d>=</c-> <c- n>document</c->.<c- np>querySelector</c->(<c- s>'oui-panelset'</c-><c -d>)</c>
+
+<c- v>panelset<c- d>.</c->affordance</c-> <c->=</c-> <c- s>'exclusive-collapse'</c-></code
+					></pre>
 				</section>
 				<section id="css-properties">
 					<h3>
@@ -123,6 +129,20 @@
 							</p>
 						</dd>
 					</dl>
+					<h5>Usage</h5>
+					<pre><code
+><c- v>@media</c-> <c- d>(</c-><c- n>max-width</c-><c- d>:</c-> <c- v>40em</c-><c- d>)</c-></c-> <c- d>{</c->
+	<c- n>oui-panelset</c-> <c- d>{</c->
+		<c- n>--affordance</c-><c- d>:</c-> <c- n>collapse</c-><c- d>;</c->
+	<c- d>}</c->
+<c- d>}</c->
+
+<c- v>@media</c-> <c- d>(</c-><c- n>min-width</c-><c- d>:</c-> <c- v>60em</c-><c- d>)</c-> <c- d>{</c->
+	<c- n>oui-panelset</c-> <c- d>{</c->
+		<c- n>--affordance</c-><c- d>:</c-> <c- n>tab-bar</c-><c- d>;</c->
+	<c- d>}</c->
+<c- d>}</c-></code
+					></pre>
 				</section>
 			</section>
 			<section id="affordances">
