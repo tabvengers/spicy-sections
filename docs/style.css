@@ -35,6 +35,10 @@
 	padding: .125rem .25rem;
 }
 
+:where(table code) {
+	white-space: nowrap;
+}
+
 :where(pre code) {
 	font-size: 100%;
 	line-height: 1.75;
