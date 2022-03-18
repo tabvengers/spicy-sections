@@ -3,7 +3,7 @@
 // element
 // -----------------------------------------------------------------------------
 
-export class OUIPanelset extends HTMLElement {
+export class OUIPanelsetElement extends HTMLElement {
 	#internals = createInternals(this)
 
 	get affordance() {
