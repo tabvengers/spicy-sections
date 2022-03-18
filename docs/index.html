@@ -3,47 +3,23 @@
 	<head>
 		<title>Panelset Element</title>
 		<meta charset="utf-8" />
-		<meta http-equiv="last-modified" content="Thu, 18 Mar 2022 12:50:00 GMT" />
+		<meta http-equiv="last-modified" content="Thu, 18 Mar 2022 19:02:00 GMT" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="description" content="Panelset Element" />
 		<meta property="og:type" content="website" />
-		<link rel="stylesheet" href="style.css" />
+		<link rel="stylesheet" href="./style.css" />
 	</head>
 	<body>
-		<h1>Panelset Element</h1>
-		<p>
-			The <strong>Panelset Element</strong> is an experiment in which “<em>good ol’ well supported HTML</em>” is conditionally presented with <a href="https://bkardell.com/blog/DesignAffordanceControls.html">different affordances</a>; either as a tab set, or with independent collapses (“<em>disclosure widgets</em>”) or exclusive collapses (“<em>accordions</em>”).
-		</p>
-		<nav>
-			<ul>
-				<li>
-					<a href="demonstration/">Demonstration</a>
-				</li>
-				<li>
-					<a href="explainer/">Explainer</a>
-				</li>
-				<li>
-					<a href="https://github.com/tabvengers/spicy-sections">GitHub</a>
-				</li>
-			</ul>
-		</nav>
-		<h2>
-			Installation
-		</h2>
-		<p>
-			Import the <code>OUIPanelsetElement</code> class and use it to define the <code>&lt;oui-panelset&gt;</code> element.
-			Use <code>&lt;out-panelset&gt;</code> to wrap flat sections of content.
-		</p>
-		<pre
-><code><c- d>&lt;</c-><c- n>script</c-> <c- np>type</c-><c- o>=</c-><c- s>"module"</c-><c- d>&gt;</c->
-
-<c- k>import</c-> <c- d>{</c-> <c- v>OUIPanelsetElement</c-> <c- d>}</c-> <c- k>from</c-> <c- s>'https://raw.githack.com/tabvengers/spicy-sections/oui/src/element.js'</c->
-
-<c- n>customElements</c->.<c- np>define</c->(<c- s>'oui-panelset'</c->, <c- v>OUIPanelsetElement</c->)
-
-<c- d>&lt;/</c-><c- n>script</c-><c- d>&gt;</c->
-
-<c- d>&lt;</c-><c- n>oui-panelset</c-><c- d>&gt;</c->
+		<main>
+			<h1>
+				&lt;oui-panelset&gt;: The Panelset element
+			</h1>
+			<p>
+				The <code>&lt;oui-panelset&gt;</code> HTML element represents a generic division of a document, which is composed of flat sections of content.
+				Panelsets can be assigned <a href="#affordances">affordances</a> to present sections of content with distinct controls to consume them.
+			</p>
+			<pre><code
+><c- d>&lt;</c-><c- n>oui-panelset</c-><c- d>&gt;</c->
 	<c- d>&lt;</c-><c- n>h2</c-><c- d>&gt;</c->Mail<c- d>&lt;/</c-><c- n>h2</c-><c- d>&gt;</c->
 	<c- d>&lt;</c-><c- n>p</c-><c- d>&gt;</c->… Mail content …<c- d>&lt;/</c-><c- n>p</c-><c- d>&gt;</c->
 	<c- d>&lt;</c-><c- n>p</c-><c- d>&gt;</c->… Mail content …<c- d>&lt;/</c-><c- n>p</c-><c- d>&gt;</c->
@@ -52,10 +28,268 @@
 	<c- d>&lt;</c-><c- n>p</c-><c- d>&gt;</c->… News content …<c- d>&lt;/</c-><c- n>p</c-><c- d>&gt;</c->
 	<c- d>&lt;</c-><c- n>p</c-><c- d>&gt;</c->… News content …<c- d>&lt;/</c-><c- n>p</c-><c- d>&gt;</c->
 	<c- d>&lt;</c-><c- n>p</c-><c- d>&gt;</c->… News content …<c- d>&lt;/</c-><c- n>p</c-><c- d>&gt;</c->
-<c- d>&lt;/</c-><c- n>oui-panelset</c-><c- d>&gt;</c></code></pre
-		>
-		<p class="note">
-			<em>These instructions will be simplified once the package is published.</em>
-		</p>
+<c- d>&lt;/</c-><c- n>oui-panelset</c-><c- d>&gt;</c></code
+			></pre>
+			<section id="installation">
+				<h2>
+					<a href="#installation">Installation</a>
+				</h2>
+				<p>
+					Register the <code>oui-panelset</code> element with the following script.
+				</p>
+				<pre><code
+><c- d>&lt;</c-><c- n>script</c-> <c- np>src</c-><c- o>=</c-><c- s>"https://tabvengers.github.io/spicy-sections/register.js"</c-><c- d>&gt;</c-><c- d>&lt;/</c-><c- n>script</c-><c- d>&gt;</c-></code></pre>
+			</section>
+			<section id="dom-interface">
+				<h3>
+					<a href="#dom-interface"><code>OUIPanelsetElement</code></a>
+				</h3>
+				<p>
+					The <code>OUIPanelsetElement</code> interface gives access to properties specific to <code>&lt;oui-panelset&gt;</code> elements.
+					It inherits methods and properties from the base HTMLElement interface.
+				</p>
+				<svg viewBox="-1 -1 650 42" preserveAspectRatio="xMinYMin meet">
+					<a style="text-decoration: none;" xlink:href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget">
+						<rect x="0" y="0" width="88" height="25" fill="#fff" stroke="#D4DDE4" stroke-width="2px"></rect>
+						<text x="44" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
+							EventTarget
+						</text>
+					</a>
+					<line x1="88" y1="14" x2="118" y2="14" stroke="#D4DDE4" "=""></line>
+					<polyline points="88,14 98,9 98,19 88,14" stroke="#D4DDE4" fill="#fff"></polyline>
+					<a style="text-decoration: none;" xlink:href="https://developer.mozilla.org/en-US/docs/Web/API/Node">
+						<rect x="118" y="0" width="75" height="25" fill="#fff" stroke="#D4DDE4" stroke-width="2px"></rect>
+						<text x="155.5" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
+							Node
+						</text>
+					</a>
+					<line x1="193" y1="14" x2="223" y2="14" stroke="#D4DDE4" "=""></line>
+					<polyline points="193,14 203,9 203,19 193,14" stroke="#D4DDE4" fill="#fff"></polyline>
+					<a style="text-decoration: none;" xlink:href="https://developer.mozilla.org/en-US/docs/Web/API/Element">
+						<rect x="223" y="0" width="75" height="25" fill="#fff" stroke="#D4DDE4" stroke-width="2px"></rect>
+						<text x="260.5" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
+							Element
+						</text>
+					</a>
+					<line x1="298" y1="14" x2="328" y2="14" stroke="#D4DDE4" "=""></line>
+					<polyline points="298,14 308,9 308,19 298,14" stroke="#D4DDE4" fill="#fff"></polyline>
+					<a style="text-decoration: none;" xlink:href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement">
+						<rect x="328" y="0" width="88" height="25" fill="#fff" stroke="#D4DDE4" stroke-width="2px"></rect>
+						<text x="372" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
+							HTMLElement
+						</text>
+					</a>
+					<line x1="416" y1="14" x2="446" y2="14" stroke="#D4DDE4" "=""></line>
+					<polyline points="416,14 426,9 426,19 416,14" stroke="#D4DDE4" fill="#fff"></polyline>
+					<a style="text-decoration: none;" xlink:href="explainer.html" aria-current="page">
+						<rect x="446" y="0" width="128" height="25" fill="#F4F7F8" stroke="#D4DDE4" stroke-width="2px"></rect>
+						<text x="510" y="16" font-size="10px" fill="#4D4E53" text-anchor="middle">
+							OUIPanelsetElement
+						</text>
+					</a>
+				</svg>
+				<section id="html-properties">
+					<h3>
+						<a href="#html-properties">Attributes</a>
+					</h3>
+					<p>
+						Inherits attributes from its parent, HTMLElement.
+					</p>
+					<dl>
+						<dt id="html-affordance-attribute">
+							<a href="#html-affordance-attribute"><code>affordance</code></a>
+						</dt>
+						<dd>
+							<p>
+								A string containing the default affordance of the panelset.
+								When set, this attribute does not update the current <a href="#affordances">affordance</a> of the panelset.
+							</p>
+						</dd>
+					</dl>
+					<h5 id="html-affordance-attribute-usage">
+						<a href="#html-affordance-attribute-usage">Usage</a>
+					</h5>
+					<pre><code
+><c- d>&lt;</c-><c- n>oui-panelset</c-> <c- n>affordance</c-><c- d>=</c-><c- s>"exclusive-collapse"</c-><c- d>&gt;</c->
+	<c- d>&lt;!--</c-> flat sections of content <c- d>--&gt;</c->
+<c- d>&lt;/</c-><c- n>oui-panelset</c-><c- d>&gt;</c-></code
+					></pre>
+				</section>
+				<section id="dom-properties">
+					<h3>
+						<a href="#dom-properties">Properties</a>
+					</h3>
+					<p>
+						Inherits properties from its parent, HTMLElement.
+					</p>
+					<dl>
+						<dt id="dom-affordance-property">
+							<a href="#dom-affordance-property"><code>affordance</code></a>
+						</dt>
+						<dd>
+							<p>
+								A string containing the current affordance of the panelset.
+								When set, this property updates the current <a href="#affordances">affordance</a> of the panelset.
+								This does not reflect the <a href="#affordance-attribute"><code>affordance</code></a> attribute.
+							</p>
+						</dd>
+					</dl>
+					<h5 id="dom-affordance-property-usage">
+						<a href="#dom-affordance-property-usage">Usage</a>
+					</h5>
+					<pre><code
+><c- k>const</c-> <c- v>panelset</c-> <c- d>=</c-> <c- n>document</c->.<c- np>querySelector</c->(<c- s>'oui-panelset'</c-><c- d>)</c->
+
+<c- v>panelset<c- d>.</c->affordance</c-> <c->=</c-> <c- s>'exclusive-collapse'</c-></code
+					></pre>
+				</section>
+				<section id="css-properties">
+					<h3>
+						<a href="#css-properties">CSS Properties</a>
+					</h3>
+					<dl>
+						<dt id="css-affordance-property">
+							<a href="#css-affordance-property"><code>--affordance</code></a>
+						</dt>
+						<dd>
+							<p>
+								A string containing the active affordance of the panelset.
+								When set, this property updates the current <a href="#affordances">affordance</a> of the panelset.
+								This does not reflect the <a href="#affordance-attribute"><code>affordance</code></a> attribute.
+							</p>
+						</dd>
+					</dl>
+					<h5 id="css-affordance-property-usage">
+						<a href="#css-affordance-property-usage">Usage</a>
+					</h5>
+					<pre><code
+><c- d>/*</c-> use with a collapsed interface on narrow width screens <c- d>*/</c->
+<c- v>@media</c-> <c- d>(</c-><c- n>max-width</c-><c- d>:</c-> <c- v>40em</c-><c- d>)</c-></c-> <c- d>{</c->
+	<c- n>oui-panelset</c-> <c- d>{</c->
+		<c- n>--affordance</c-><c- d>:</c-> <c- n>collapse</c-><c- d>;</c->
+	<c- d>}</c->
+<c- d>}</c->
+
+<c- d>/*</c-> use a tab-bar interface on wide width screens <c- d>*/</c->
+<c- v>@media</c-> <c- d>(</c-><c- n>min-width</c-><c- d>:</c-> <c- v>60em</c-><c- d>)</c-> <c- d>{</c->
+	<c- n>oui-panelset</c-> <c- d>{</c->
+		<c- n>--affordance</c-><c- d>:</c-> <c- n>tab-bar</c-><c- d>;</c->
+	<c- d>}</c->
+<c- d>}</c-></code
+					></pre>
+				</section>
+			</section>
+			<section id="affordances">
+				<h3>
+					<a href="#affordances">Affordances</a>
+				</h3>
+				<table>
+					<thead>
+						<tr>
+							<th>Type</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><code>collapse</code></td>
+							<td>Sequential sections of content that display independently.</td>
+						</tr>
+						<tr>
+							<td><code>exclusive-collapse</code></td>
+							<td>Sequential sections of content that display one at a time.</td>
+						</tr>
+						<tr>
+							<td><code>tab-bar</code></td>
+							<td>Layered sections of content that display one at a time.</td>
+						</tr>
+						<tr>
+							<td><code>none</code></td>
+							<td>Contents display as they are authored.</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+			<section id="parts">
+				<h3>
+					<a href="#parts">Parts</a>
+				</h3>
+				<p>
+					The generated shadow tree inside a Panelset element can be styled using <code>::part</code> pseudo-elements.
+				</p>
+				<pre><code
+>&lt;oui-panelset&gt;
+	::part(container)
+		::part(label-container)
+			::part(marker)
+			::part(label)
+
+		::part(panel-container) {
+			::part(panel)
+		::
+	::
+&lt;/oui-panelset&gt;</code
+				></pre>
+				<p>
+					Any shadow tree part can be styled by a particular <a href="#affordances">affordance</a> by adding it to the part selector.
+				</p>
+				<pre><code
+><c- d>&lt;</c-><c- n>style</c-><c- d>&gt;</c->
+<c- n>oui-panelset</c-><c- d>::</c-><c- n>part</c-><c- d>(</c-><c- n>container</c-> <c- n>tab-bar</c-><c- d>)</c-> <c- d>{</c->
+	<c- d>/*</c-> panelset container styles during the tab-bar affordance <c- d>*/</c->
+<c- d>}</c->
+<c- d>&lt;/</c-><c- n>style</c-><c- d>&gt;</c-></code
+				></pre>
+				<table>
+					<thead>
+						<tr>
+							<th>Part</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><code>container</code></td>
+							<td>The container of all content in the panelset.</td>
+						</tr>
+						<tr>
+							<td><code>label-container</code></td>
+							<td>The container of all labels, available in the <strong>tab-bar</strong> affordance.</td>
+						</tr>
+						<tr>
+							<td><code>marker</code></td>
+							<td>The marker before each label, available in the <strong>collapse</strong> and <strong>exclusive-collapse</strong> affordances.</td>
+						</tr>
+						<tr>
+							<td><code>label</code></td>
+							<td>The container of each label.</td>
+						</tr>
+						<tr>
+							<td><code>panel-container</code></td>
+							<td>The container of all panels, available in the <strong>tab-bar</strong> affordance.</td>
+						</tr>
+						<tr>
+							<td><code>label</code></td>
+							<td>The container of each panel.</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+		</main>
+		<footer>
+			<nav>
+				<ul>
+					<li>
+						<a href="./">Panelset Element</a>
+					</li>
+					<li>
+						<a href="./demonstration/">Demonstration</a>
+					</li>
+					<li>
+						<a href="https://github.com/tabvengers/spicy-sections">GitHub</a>
+					</li>
+				</ul>
+			</nav>
+		</footer>
 	</body>
 </html>
