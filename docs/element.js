@@ -11,6 +11,15 @@ export class OUIPanelsetElement extends HTMLElement {
     getActivePanels() {
         return this.#internals.getActivePanels();
     }
+    connectedCallback() {
+        let window = this.ownerDocument.defaultView;
+        window.addEventListener('hashchange', this.#internals.onHashChange);
+        requestAnimationFrame(() => this.#internals.onHashChange({ currentTarget: window }));
+    }
+    disconnectedCallback() {
+        let window = this.ownerDocument.defaultView;
+        window.removeEventListener('hashchange', this.#internals.onHashChange);
+    }
 }
 // Panelset internals factory
 // -----------------------------------------------------------------------------
@@ -280,6 +289,11 @@ let createInternals = (host) => {
     new MutationObserver(childrenChangedCallback);
     if (host.hasChildNodes())
         childrenChangedCallback();
+    // Handle changes to the page hash
+    // -------------------------------------------------------------------------
+    window.addEventListener('hashchange', (event) => {
+        // ...
+    });
     // Handle changes to the CSS --affordance property
     // -------------------------------------------------------------------------
     let oldValue = affordance;
@@ -322,6 +336,28 @@ let createInternals = (host) => {
                 }
             }
             return activePanels;
+        },
+        onHashChange(event) {
+            let hash = event.currentTarget.location.hash;
+            if (hash) {
+                let element = document.querySelector(hash);
+                if (element) {
+                    for (let panel of panels) {
+                        if (panel.slotted.label.contains(element)) {
+                            console.log(panel);
+                            panelToggledCallback(panel);
+                            return;
+                        }
+                        for (let content of panel.slotted.content) {
+                            if (content.contains(element)) {
+                                console.log(panel);
+                                panelToggledCallback(panel);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
         },
     };
     return internals;

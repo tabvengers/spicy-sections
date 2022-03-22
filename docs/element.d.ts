@@ -6,4 +6,6 @@ export declare class OUIPanelsetElement extends HTMLElement {
         label: HTMLHeadingElement;
         content: (Element | Text)[];
     }[];
+    connectedCallback(): void;
+    disconnectedCallback(): void;
 }

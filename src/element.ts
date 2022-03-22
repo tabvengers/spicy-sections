@@ -15,6 +15,20 @@ export class OUIPanelsetElement extends HTMLElement {
 	getActivePanels() {
 		return this.#internals.getActivePanels()
 	}
+
+	connectedCallback() {
+		let window = this.ownerDocument.defaultView as Window
+
+		window.addEventListener('hashchange', this.#internals.onHashChange)
+
+		requestAnimationFrame(() => this.#internals.onHashChange({ currentTarget: window }))
+	}
+
+	disconnectedCallback() {
+		let window = this.ownerDocument.defaultView as Window
+
+		window.removeEventListener('hashchange', this.#internals.onHashChange)
+	}
 }
 
 
@@ -35,7 +49,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 	let document = host.ownerDocument
 
 	/** Window associated with the current Panelset. */
-	let window = document.defaultView
+	let window = document.defaultView as Window
 
 	/** Panelset LightDOM child nodes. */
 	let hostChildNodes = host.childNodes
@@ -117,12 +131,12 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// -------------------------------------------------------------------------
 
 	/** Run whenever the shadow label is clicked. */
-	let onclick = (event: EventOnShadowLabel<PointerEvent>) => {
+	let onclick = (event: EventWithCurrentTarget<PointerEvent, Panel['shadow']['label']>) => {
 		panelToggledCallback(panelByShadowLabel.get(event.currentTarget))
 	}
 
 	/** Run whenever the shadow label receives keyboard input while focused. */
-	let onkeydown = (event: EventOnShadowLabel<KeyboardEvent>) => {
+	let onkeydown = (event: EventWithCurrentTarget<KeyboardEvent, Panel['shadow']['label']>) => {
 		let move: '' | 'prev' | 'next' = ''
 
 		switch (event.code) {
@@ -404,6 +418,14 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 
 
+	// Handle changes to the page hash
+	// -------------------------------------------------------------------------
+
+	window.addEventListener('hashchange', (event) => {
+		// ...
+	})
+
+
 	// Handle changes to the CSS --affordance property
 	// -------------------------------------------------------------------------
 
@@ -457,6 +479,33 @@ let createInternals = (host: OUIPanelsetElement) => {
 				}
 			}
 			return activePanels
+		},
+		onHashChange(event: any) {
+			let hash = (event.currentTarget as Window).location.hash
+
+			if (hash) {
+				let element = document.querySelector(hash)
+
+				if (element) {
+					for (let panel of panels) {
+						if (panel.slotted.label.contains(element)) {
+							console.log(panel)
+							panelToggledCallback(panel)
+
+							return
+						}
+
+						for (let content of panel.slotted.content) {
+							if (content.contains(element)) {
+								console.log(panel)
+								panelToggledCallback(panel)
+	
+								return
+							}
+						}
+					}
+				}
+			}
 		},
 	}
 
@@ -557,8 +606,8 @@ type HTMLAttributes = Record<string, Primitive> & {
 }
 
 /** Event interface that always expects the current target to be a shadow panel label. */
-type EventOnShadowLabel<T1 extends Event> = T1 & {
-	currentTarget: Panel['shadow']['label']
+type EventWithCurrentTarget<E extends Event, T extends EventTarget> = E & {
+	currentTarget: T
 }
 
 /** WeakMap interface that always expects to get a Panel. */
