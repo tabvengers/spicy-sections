@@ -373,8 +373,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 	}
 
 	/** Run whenever a panel is being navigated from. */
-	let panelNavigatedCallback = (focusedSection: Panel, move: 'prev' | 'next') => {
-		let siblingSection = focusedSection[move]
+	let panelNavigatedCallback = (panel: Panel, move: 'prev' | 'next') => {
+		let siblingSection = panel[move]
 
 		if (siblingSection) {
 			siblingSection.shadow.label.focus()

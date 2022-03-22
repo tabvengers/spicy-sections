@@ -262,8 +262,8 @@ let createInternals = (host) => {
         }));
     };
     /** Run whenever a panel is being navigated from. */
-    let panelNavigatedCallback = (focusedSection, move) => {
-        let siblingSection = focusedSection[move];
+    let panelNavigatedCallback = (panel, move) => {
+        let siblingSection = panel[move];
         if (siblingSection) {
             siblingSection.shadow.label.focus();
             if (affordance === 'tablist') {
