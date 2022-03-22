@@ -265,7 +265,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 					section.shadow.content.removeAttribute('tabindex')
 					section.shadow.content.part.toggle('open', true)
 
-					section.shadow.section.append(section.shadow.nonLabel, section.shadow.content)
+					section.shadow.section.replaceChildren(section.shadow.nonLabel, section.shadow.content)
 
 					shadowContents.append(section.shadow.section)
 
@@ -278,10 +278,11 @@ let createInternals = (host: OUIPanelsetElement) => {
 				case 'disclosure': {
 					section.shadow.content.tabIndex = 0
 
-					section.shadow.label.part.toggle('open', section.open)
 					section.shadow.content.part.toggle('open', section.open)
+					section.shadow.label.part.toggle('open', section.open)
+					section.shadow.marker.part.toggle('open', section.open)
 
-					section.shadow.section.append(section.shadow.label, section.shadow.content)
+					section.shadow.section.replaceChildren(section.shadow.label, section.shadow.content)
 					shadowContents.append(section.shadow.section)
 
 					assignSlot(section.shadow.labelSlot, section.slotted.label)
