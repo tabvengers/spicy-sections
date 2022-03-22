@@ -280,10 +280,13 @@ let createInternals = (host: OUIPanelsetElement) => {
 			setAttributes(panel.shadow.marker, { part: withAffordance('marker') })
 			setAttributes(panel.shadow.content, { part: withAffordance('content') })
 
+			panel.shadow.label.removeAttribute('tabindex')
+			panel.shadow.label.removeAttribute('aria-expanded')
+			panel.shadow.label.removeAttribute('aria-selected')
+			panel.shadow.content.removeAttribute('tabindex')
+
 			switch (affordance) {
 				case 'content': {
-					panel.shadow.label.removeAttribute('tabindex')
-					panel.shadow.content.removeAttribute('tabindex')
 					panel.shadow.content.part.toggle('open', true)
 
 					panel.shadow.section.replaceChildren(panel.shadow.nonLabel, panel.shadow.content)
@@ -297,8 +300,14 @@ let createInternals = (host: OUIPanelsetElement) => {
 				}
 
 				case 'disclosure': {
-					panel.shadow.label.tabIndex = 0
-					panel.shadow.content.tabIndex = 0
+					setAttributes(panel.shadow.label, {
+						'aria-expanded': panel.open,
+						tabindex: 0
+					})
+
+					setAttributes(panel.shadow.content, {
+						tabindex: 0
+					})
 
 					panel.shadow.content.part.toggle('open', panel.open)
 					panel.shadow.label.part.toggle('open', panel.open)
@@ -316,8 +325,14 @@ let createInternals = (host: OUIPanelsetElement) => {
 				case 'tablist': {
 					panel.open = mostRecentPanel === panel
 
-					panel.shadow.label.tabIndex = panel.open ? 0 : -1
-					panel.shadow.content.tabIndex = 0
+					setAttributes(panel.shadow.label, {
+						'aria-selected': panel.open,
+						tabindex: panel.open ? 0 : -1
+					})
+
+					setAttributes(panel.shadow.content, {
+						tabindex: 0
+					})
 
 					panel.shadow.label.part.toggle('open', panel.open)
 					panel.shadow.content.part.toggle('open', panel.open)
@@ -359,6 +374,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 					let open = panel.open = panel === toggledPanel
 
 					panel.shadow.label.tabIndex = open ? 0 : -1
+
+					setAttributes(panel.shadow.label, { 'aria-selected': open })
 
 					panel.shadow.section.part.toggle('open', open)
 					panel.shadow.label.part.toggle('open', open)
