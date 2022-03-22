@@ -32,13 +32,13 @@ let createInternals = (host) => {
     /** Panelset ShadowDOM root. */
     let shadowRoot = host.attachShadow({ mode: 'closed', slotAssignment: 'manual' });
     /** Panelset ShadowDOM container of all content. */
-    let shadowContents = attrs(html('div'), { part: 'contents' });
+    let shadowContents = createElement('div', { part: 'contents' });
     /** Panelset ShadowDOM container of all default styles (used in tabbed affordance"). */
-    let shadowStyle = html('style');
+    let shadowStyle = createElement('style');
     /** Panelset ShadowDOM container of all panel labels. */
-    let shadowLabelset = attrs(html('div'), { part: 'labelset is-tablist' });
+    let shadowLabelset = createElement('div', { part: 'labelset is-tablist' });
     /** Panelset ShadowDOM container of all panel contents. */
-    let shadowContentset = attrs(html('div'), { part: 'contentset is-tablist' });
+    let shadowContentset = createElement('div', { part: 'contentset is-tablist' });
     // ShadowDOM styles
     // -------------------------------------------------------------------------
     // include the following default syles
@@ -106,24 +106,24 @@ let createInternals = (host) => {
                             },
                             shadow: {
                                 /** Section (`<div part="section">`). */
-                                section: attrs(html('div'), { part: 'section' }),
+                                section: createElement('div', { part: 'section' }),
                                 /** Label (`<button part="label">`). */
-                                label: attrs(html('button'), { part: 'label', type: 'button' }),
-                                labelSlot: html('slot'),
+                                label: createElement('button', { part: 'label', type: 'button' }),
+                                labelSlot: createElement('slot'),
                                 /** Label (`<button part="label">`). */
-                                nonLabel: attrs(html('div'), { part: 'label is-content open' }),
-                                nonLabelSlot: html('slot'),
+                                nonLabel: createElement('div', { part: 'label is-content open' }),
+                                nonLabelSlot: createElement('slot'),
                                 /** Marker (`<svg part="marker">`). */
-                                marker: attrs(svg('svg'), { part: 'marker', viewBox: '0 0 270 240', namespaceURI: 'http://www.w3.org/2000/svg' }),
+                                marker: createElement('svg', { part: 'marker', viewBox: '0 0 270 240', xmlns: 'http://www.w3.org/2000/svg' }),
                                 /** Content (`<div part="content">`). */
-                                content: attrs(html('div'), { part: 'content', role: 'region', tabindex: 0 }),
-                                contentSlot: html('slot'),
+                                content: createElement('div', { part: 'content', role: 'region', tabindex: 0 }),
+                                contentSlot: createElement('slot'),
                             },
                             prev: null,
                             next: null,
                         };
-                        props(panel.shadow.label, { onclick, onkeydown });
-                        panel.shadow.marker.append(attrs(svg('polygon'), { points: '5,235 135,10 265,235', namespaceURI: 'http://www.w3.org/2000/svg' }));
+                        setProps(panel.shadow.label, { onclick, onkeydown });
+                        panel.shadow.marker.append(createElement('polygon', { points: '5,235 135,10 265,235', xmlns: 'http://www.w3.org/2000/svg' }));
                         panel.shadow.label.append(panel.shadow.marker, panel.shadow.labelSlot);
                         panel.shadow.nonLabel.append(panel.shadow.nonLabelSlot);
                         panel.shadow.content.append(panel.shadow.contentSlot);
@@ -132,12 +132,12 @@ let createInternals = (host) => {
                         return panel;
                     },
                     update(panel) {
-                        attrs(panel.shadow.label, { id: 'label-' + index, 'aria-controls': 'content-' + index });
-                        attrs(panel.shadow.labelSlot, { name: 'label-' + index });
-                        attrs(panel.shadow.nonLabel, { id: 'label-' + index });
-                        attrs(panel.shadow.nonLabelSlot, { name: 'label-' + index });
-                        attrs(panel.shadow.content, { id: 'content-' + index, 'aria-labelledby': 'label-' + index });
-                        attrs(panel.shadow.contentSlot, { name: 'content-' + index });
+                        setAttributes(panel.shadow.label, { id: 'label-' + index, 'aria-controls': 'content-' + index });
+                        setAttributes(panel.shadow.labelSlot, { name: 'label-' + index });
+                        setAttributes(panel.shadow.nonLabel, { id: 'label-' + index });
+                        setAttributes(panel.shadow.nonLabelSlot, { name: 'label-' + index });
+                        setAttributes(panel.shadow.content, { id: 'content-' + index, 'aria-labelledby': 'label-' + index });
+                        setAttributes(panel.shadow.contentSlot, { name: 'content-' + index });
                         return panel;
                     },
                 });
@@ -161,7 +161,7 @@ let createInternals = (host) => {
     };
     /** Run whenever the panelset affordance is changed. */
     let affordanceChangedCallback = () => {
-        attrs(shadowContents, { part: withAffordance('contents') });
+        setAttributes(shadowContents, { part: withAffordance('contents') });
         if (affordance === 'tablist') {
             shadowContents.replaceChildren(shadowLabelset, shadowContentset);
         }
@@ -169,10 +169,10 @@ let createInternals = (host) => {
             shadowContents.replaceChildren();
         }
         for (let panel of refs.panels) {
-            attrs(panel.shadow.section, { part: withAffordance('section') });
-            attrs(panel.shadow.label, { part: withAffordance('label') });
-            attrs(panel.shadow.marker, { part: withAffordance('marker') });
-            attrs(panel.shadow.content, { part: withAffordance('content') });
+            setAttributes(panel.shadow.section, { part: withAffordance('section') });
+            setAttributes(panel.shadow.label, { part: withAffordance('label') });
+            setAttributes(panel.shadow.marker, { part: withAffordance('marker') });
+            setAttributes(panel.shadow.content, { part: withAffordance('content') });
             switch (affordance) {
                 case 'content': {
                     panel.shadow.content.removeAttribute('tabindex');
@@ -321,26 +321,33 @@ let assignSlot = (slot, ...nodes) => {
     else {
         for (let node of nodes) {
             if (node instanceof Element) {
-                attrs(node, { slot: slot.name });
+                setAttributes(node, { slot: slot.name });
             }
         }
     }
 };
 /** Whether slot assignment is supported by the current browser. */
 let supportsSlotAssignment = typeof HTMLSlotElement === 'function' && typeof HTMLSlotElement.prototype.assign === 'function';
-/** Returns a new HTML element specified by the given tag name. */
-let html = (name) => document.createElement(name);
-/** Returns a new SVG element specified by the given tag name. */
-let svg = (name) => document.createElementNS('http://www.w3.org/2000/svg', name);
-/** Appends multiple . */
-let attrs = (element, props) => {
-    for (let prop in props)
-        element.setAttribute(prop, String(props[prop]));
+/** Returns a new element specified by the given tag name with the given attributes. */
+let createElement = (name, attrs = null) => {
+    let xmlns = attrs && attrs.xmlns || 'http://www.w3.org/1999/xhtml';
+    let element = document.createElementNS(attrs && delete attrs.xmlns && xmlns || 'http://www.w3.org/1999/xhtml', name);
+    return setAttributes(element, attrs);
+};
+/** Returns the given element with the given attributes set. */
+let setAttributes = (element, props) => {
+    for (let prop in props) {
+        element.setAttribute(prop, props[prop]);
+    }
     return element;
 };
-let props = Object.assign;
+/** Returns the given object with the given properties set. */
+let setProps = Object.assign;
+/** Returns the value of the given weakmap with the given key, using the given options to add or update that value. */
 let upsert = (map, key, fns) => {
     let value;
-    map.set(key, value = map.has(key) ? fns.update(map.get(key)) : fns.update(fns.insert(key)));
+    map.set(key, value = map.has(key)
+        ? fns.update(map.get(key))
+        : fns.update(fns.insert(key)));
     return value;
 };
