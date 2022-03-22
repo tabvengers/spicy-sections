@@ -1,4 +1,4 @@
-// panelset class
+// Panelset class
 // -----------------------------------------------------------------------------
 export class OUIPanelsetElement extends HTMLElement {
     #internals = createInternals(this);
@@ -12,7 +12,7 @@ export class OUIPanelsetElement extends HTMLElement {
         return this.#internals.getActivePanels();
     }
 }
-// panelset internals creator
+// Panelset internals factory
 // -----------------------------------------------------------------------------
 let createInternals = (host) => {
     /** Current affordance, which is 'content', 'disclosure', or 'tablist'. */
@@ -53,18 +53,23 @@ let createInternals = (host) => {
     // -------------------------------------------------------------------------
     // append content and style containers to the ShadowDOM root
     shadowRoot.append(shadowContents, shadowStyle);
+    // Panel references
     // -------------------------------------------------------------------------
-    let refs = {
-        lastSection: null,
-        panels: [],
-        panelBySlottedLabel: new WeakMap(),
-        panelByShadowLabel: new WeakMap(),
-    };
-    // events
+    /** Array of all panels in the panelset. */
+    let panels = [];
+    /** Panel that was most recently activated. */
+    let mostRecentPanel;
+    /** WeakMap from a slotted label to a panel. */
+    let panelBySlottedLabel = new WeakMap();
+    /** WeakMap from a shadow label to a panel. */
+    let panelByShadowLabel = new WeakMap();
+    // ShadowDOM events
     // -------------------------------------------------------------------------
+    /** Run whenever the shadow label is clicked. */
     let onclick = (event) => {
-        panelToggledCallback(refs.panelByShadowLabel.get(event.currentTarget));
+        panelToggledCallback(panelByShadowLabel.get(event.currentTarget));
     };
+    /** Run whenever the shadow label receives keyboard input while focused. */
     let onkeydown = (event) => {
         let move = '';
         switch (event.code) {
@@ -80,10 +85,10 @@ let createInternals = (host) => {
         if (move) {
             event.preventDefault();
             event.stopImmediatePropagation();
-            panelNavigatedCallback(refs.panelByShadowLabel.get(event.currentTarget), move);
+            panelNavigatedCallback(panelByShadowLabel.get(event.currentTarget), move);
         }
     };
-    // callbacks
+    // Panelset callbacks
     // -------------------------------------------------------------------------
     /** Run whenever nodes are added to or removed from the panelset host. */
     let childrenChangedCallback = () => {
@@ -91,10 +96,10 @@ let createInternals = (host) => {
         let panel = { slotted: { content: [] } };
         let previous = null;
         let index = 0;
-        refs.panels.splice(0);
+        panels.splice(0);
         for (let node of hostChildNodes) {
             if (node instanceof HTMLHeadingElement) {
-                panel = upsert(refs.panelBySlottedLabel, node, {
+                panel = upsert(panelBySlottedLabel, node, {
                     insert(label) {
                         // add a new panel, if the child node is a heading
                         panel = {
@@ -127,8 +132,8 @@ let createInternals = (host) => {
                         panel.shadow.label.append(panel.shadow.marker, panel.shadow.labelSlot);
                         panel.shadow.nonLabel.append(panel.shadow.nonLabelSlot);
                         panel.shadow.content.append(panel.shadow.contentSlot);
-                        refs.panelBySlottedLabel.set(label, panel);
-                        refs.panelByShadowLabel.set(panel.shadow.label, panel);
+                        panelBySlottedLabel.set(label, panel);
+                        panelByShadowLabel.set(panel.shadow.label, panel);
                         return panel;
                     },
                     update(panel) {
@@ -141,14 +146,14 @@ let createInternals = (host) => {
                         return panel;
                     },
                 });
-                index = refs.panels.push(panel);
+                index = panels.push(panel);
                 if (previous) {
                     panel.prev = previous;
                     previous.next = panel;
                 }
                 previous = panel;
-                if (refs.lastSection === null) {
-                    refs.lastSection = panel;
+                if (!mostRecentPanel) {
+                    mostRecentPanel = panel;
                     panel.open = true;
                 }
             }
@@ -168,13 +173,14 @@ let createInternals = (host) => {
         else {
             shadowContents.replaceChildren();
         }
-        for (let panel of refs.panels) {
+        for (let panel of panels) {
             setAttributes(panel.shadow.section, { part: withAffordance('section') });
             setAttributes(panel.shadow.label, { part: withAffordance('label') });
             setAttributes(panel.shadow.marker, { part: withAffordance('marker') });
             setAttributes(panel.shadow.content, { part: withAffordance('content') });
             switch (affordance) {
                 case 'content': {
+                    panel.shadow.label.removeAttribute('tabindex');
                     panel.shadow.content.removeAttribute('tabindex');
                     panel.shadow.content.part.toggle('open', true);
                     panel.shadow.section.replaceChildren(panel.shadow.nonLabel, panel.shadow.content);
@@ -184,6 +190,7 @@ let createInternals = (host) => {
                     break;
                 }
                 case 'disclosure': {
+                    panel.shadow.label.tabIndex = 0;
                     panel.shadow.content.tabIndex = 0;
                     panel.shadow.content.part.toggle('open', panel.open);
                     panel.shadow.label.part.toggle('open', panel.open);
@@ -195,7 +202,7 @@ let createInternals = (host) => {
                     break;
                 }
                 case 'tablist': {
-                    panel.open = refs.lastSection === panel;
+                    panel.open = mostRecentPanel === panel;
                     panel.shadow.label.tabIndex = panel.open ? 0 : -1;
                     panel.shadow.content.tabIndex = 0;
                     panel.shadow.label.part.toggle('open', panel.open);
@@ -213,7 +220,7 @@ let createInternals = (host) => {
     let panelToggledCallback = (selectedSection) => {
         let { open } = selectedSection;
         if (!open) {
-            refs.lastSection = selectedSection;
+            mostRecentPanel = selectedSection;
         }
         switch (affordance) {
             case 'disclosure': {
@@ -228,7 +235,7 @@ let createInternals = (host) => {
                 if (selectedSection.open) {
                     return;
                 }
-                for (let panel of refs.panels) {
+                for (let panel of panels) {
                     let open = panel.open = panel === selectedSection;
                     panel.shadow.label.tabIndex = open ? 0 : -1;
                     panel.shadow.section.part.toggle('open', open);
@@ -256,16 +263,16 @@ let createInternals = (host) => {
             }
         }
     };
-    // utilities
+    // Utilities
     // -------------------------------------------------------------------------
     /** Returns the given part identifier and the current affordance. */
     let withAffordance = (identifier) => identifier + ' is-' + affordance;
-    // handle changes to any DOM child nodes
+    // Handle changes to any DOM child nodes
     // -------------------------------------------------------------------------
     new MutationObserver(childrenChangedCallback);
     if (host.hasChildNodes())
         childrenChangedCallback();
-    // handle changes to the CSS --affordance property
+    // Handle changes to the CSS --affordance property
     // -------------------------------------------------------------------------
     let oldValue = affordance;
     let newValue = '';
@@ -281,7 +288,7 @@ let createInternals = (host) => {
         }
     };
     frameA();
-    // internals
+    // Internals
     // -------------------------------------------------------------------------
     let internals = {
         get affordance() {
@@ -298,7 +305,7 @@ let createInternals = (host) => {
         },
         getActivePanels() {
             let activePanels = [];
-            for (let panel of refs.panels) {
+            for (let panel of panels) {
                 if (panel.open) {
                     activePanels.push({
                         label: panel.slotted.label,
@@ -311,7 +318,7 @@ let createInternals = (host) => {
     };
     return internals;
 };
-// utilities
+// Utilities
 // -----------------------------------------------------------------------------
 /** Assigns to the given slot the given nodes (using manual slot assignment when supported). */
 let assignSlot = (slot, ...nodes) => {

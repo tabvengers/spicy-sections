@@ -1,4 +1,4 @@
-// panelset class
+// Panelset class
 // -----------------------------------------------------------------------------
 
 export class OUIPanelsetElement extends HTMLElement {
@@ -19,7 +19,7 @@ export class OUIPanelsetElement extends HTMLElement {
 
 
 
-// panelset internals creator
+// Panelset internals factory
 // -----------------------------------------------------------------------------
 
 let createInternals = (host: OUIPanelsetElement) => {
@@ -96,25 +96,32 @@ let createInternals = (host: OUIPanelsetElement) => {
 	shadowRoot.append(shadowContents, shadowStyle)
 
 
-
+	// Panel references
 	// -------------------------------------------------------------------------
 
-	let refs = {
-		lastSection: null as Panel | null,
-		panels: [] as Panel[],
-		panelBySlottedLabel: new WeakMap<SlottedPanel.Label, Panel>(),
-		panelByShadowLabel: new WeakMap<ShadowPanel.Label, Panel>(),
-	}
+	/** Array of all panels in the panelset. */
+	let panels: Panel[] = []
+
+	/** Panel that was most recently activated. */
+	let mostRecentPanel: Panel
+
+	/** WeakMap from a slotted label to a panel. */
+	let panelBySlottedLabel = new WeakMap<SlottedPanel.Label, Panel>()
+
+	/** WeakMap from a shadow label to a panel. */
+	let panelByShadowLabel = new WeakMap<ShadowPanel.Label, Panel>()
 
 
 
-	// events
+	// ShadowDOM events
 	// -------------------------------------------------------------------------
 
+	/** Run whenever the shadow label is clicked. */
 	let onclick = (event: MouseEvent) => {
-		panelToggledCallback(refs.panelByShadowLabel.get(event.currentTarget as ShadowPanel.Label) as Panel)
+		panelToggledCallback(panelByShadowLabel.get(event.currentTarget as ShadowPanel.Label) as Panel)
 	}
 
+	/** Run whenever the shadow label receives keyboard input while focused. */
 	let onkeydown = (event: KeyboardEvent) => {
 		let move: '' | 'prev' | 'next' = ''
 
@@ -134,7 +141,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 			event.stopImmediatePropagation()
 
 			panelNavigatedCallback(
-				refs.panelByShadowLabel.get(event.currentTarget as ShadowPanel.Label) as Panel,
+				panelByShadowLabel.get(event.currentTarget as ShadowPanel.Label) as Panel,
 				move
 			)
 		}
@@ -142,7 +149,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 
 
-	// callbacks
+	// Panelset callbacks
 	// -------------------------------------------------------------------------
 
 	/** Run whenever nodes are added to or removed from the panelset host. */
@@ -153,11 +160,11 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 		let index = 0
 
-		refs.panels.splice(0)
+		panels.splice(0)
 
 		for (let node of hostChildNodes) {
 			if (node instanceof HTMLHeadingElement) {
-				panel = upsert(refs.panelBySlottedLabel, node, {
+				panel = upsert(panelBySlottedLabel, node, {
 					insert(label) {
 						// add a new panel, if the child node is a heading
 						panel = {
@@ -197,8 +204,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 						panel.shadow.nonLabel.append(panel.shadow.nonLabelSlot)
 						panel.shadow.content.append(panel.shadow.contentSlot)
 
-						refs.panelBySlottedLabel.set(label, panel)
-						refs.panelByShadowLabel.set(panel.shadow.label, panel)
+						panelBySlottedLabel.set(label, panel)
+						panelByShadowLabel.set(panel.shadow.label, panel)
 
 						return panel
 					},
@@ -215,7 +222,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 					},
 				})
 
-				index = refs.panels.push(panel)
+				index = panels.push(panel)
 
 				if (previous) {
 					panel.prev = previous
@@ -224,8 +231,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 				previous = panel
 
-				if (refs.lastSection === null) {
-					refs.lastSection = panel
+				if (!mostRecentPanel) {
+					mostRecentPanel = panel
 					panel.open = true
 				}
 			} else if (node instanceof Element || node instanceof Text) {
@@ -247,7 +254,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 			shadowContents.replaceChildren()
 		}
 
-		for (let panel of refs.panels) {
+		for (let panel of panels) {
 			setAttributes(panel.shadow.section, { part: withAffordance('section') })
 			setAttributes(panel.shadow.label, { part: withAffordance('label') })
 			setAttributes(panel.shadow.marker, { part: withAffordance('marker') })
@@ -255,6 +262,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 			switch (affordance) {
 				case 'content': {
+					panel.shadow.label.removeAttribute('tabindex')
 					panel.shadow.content.removeAttribute('tabindex')
 					panel.shadow.content.part.toggle('open', true)
 
@@ -269,6 +277,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 				}
 
 				case 'disclosure': {
+					panel.shadow.label.tabIndex = 0
 					panel.shadow.content.tabIndex = 0
 
 					panel.shadow.content.part.toggle('open', panel.open)
@@ -285,7 +294,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 				}
 
 				case 'tablist': {
-					panel.open = refs.lastSection === panel
+					panel.open = mostRecentPanel === panel
 
 					panel.shadow.label.tabIndex = panel.open ? 0 : -1
 					panel.shadow.content.tabIndex = 0
@@ -310,7 +319,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 		let { open } = selectedSection
 
 		if (!open) {
-			refs.lastSection = selectedSection
+			mostRecentPanel = selectedSection
 		}
 
 		switch (affordance) {
@@ -330,7 +339,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 					return
 				}
 
-				for (let panel of refs.panels) {
+				for (let panel of panels) {
 					let open = panel.open = panel === selectedSection
 
 					panel.shadow.label.tabIndex = open ? 0 : -1
@@ -370,7 +379,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 
 
-	// utilities
+	// Utilities
 	// -------------------------------------------------------------------------
 
 	/** Returns the given part identifier and the current affordance. */
@@ -378,7 +387,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 
 
-	// handle changes to any DOM child nodes
+	// Handle changes to any DOM child nodes
 	// -------------------------------------------------------------------------
 
 	new MutationObserver(childrenChangedCallback)
@@ -387,7 +396,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 
 
-	// handle changes to the CSS --affordance property
+	// Handle changes to the CSS --affordance property
 	// -------------------------------------------------------------------------
 
 	let oldValue = affordance as string
@@ -411,7 +420,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 
 
-	// internals
+	// Internals
 	// -------------------------------------------------------------------------
 
 	let internals = {
@@ -431,7 +440,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 		},
 		getActivePanels() {
 			let activePanels = []
-			for (let panel of refs.panels) {
+			for (let panel of panels) {
 				if (panel.open) {
 					activePanels.push({
 						label: panel.slotted.label,
@@ -448,7 +457,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 
 
-// utilities
+// Utilities
 // -----------------------------------------------------------------------------
 
 /** Assigns to the given slot the given nodes (using manual slot assignment when supported). */
