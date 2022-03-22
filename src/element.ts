@@ -106,10 +106,10 @@ let createInternals = (host: OUIPanelsetElement) => {
 	let mostRecentPanel: Panel
 
 	/** WeakMap from a slotted label to a panel. */
-	let panelBySlottedLabel = new WeakMap as PanelWeakMap<SlottedPanel.Label>
+	let panelBySlottedLabel = new WeakMap as PanelWeakMap<Panel['slotted']['label']>
 
 	/** WeakMap from a shadow label to a panel. */
-	let panelByShadowLabel = new WeakMap as PanelWeakMap<ShadowPanel.Label>
+	let panelByShadowLabel = new WeakMap as PanelWeakMap<Panel['shadow']['label']>
 
 
 
@@ -117,12 +117,12 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// -------------------------------------------------------------------------
 
 	/** Run whenever the shadow label is clicked. */
-	let onclick = (event: EventWithCurrentTarget<PointerEvent, ShadowPanel.Label>) => {
+	let onclick = (event: EventOnShadowLabel<PointerEvent>) => {
 		panelToggledCallback(panelByShadowLabel.get(event.currentTarget))
 	}
 
 	/** Run whenever the shadow label receives keyboard input while focused. */
-	let onkeydown = (event: EventWithCurrentTarget<KeyboardEvent, ShadowPanel.Label>) => {
+	let onkeydown = (event: EventOnShadowLabel<KeyboardEvent>) => {
 		let move: '' | 'prev' | 'next' = ''
 
 		switch (event.code) {
@@ -521,19 +521,10 @@ let upsert = <K extends object, V>(map: WeakMap<K, V>, key: K, fns: { insert(key
 // Typing
 // -----------------------------------------------------------------------------
 
+/** Available affordances. */
 type Affordance = 'content' | 'disclosure' | 'tablist'
 
-declare namespace SlottedPanel {
-	type Label = HTMLHeadingElement
-	type Content = (Element | Text)[]
-}
-
-declare namespace ShadowPanel {
-	type Label = HTMLButtonElement
-	type Content = HTMLDivElement
-	type Section = HTMLDivElement
-}
-
+/** Panel generated from Panelset LightDOM child nodes. */
 declare interface Panel {
 	index: number
 	open: boolean
@@ -558,14 +549,20 @@ declare interface Panel {
 	next: Panel | null
 }
 
-type Primitive = string | number | bigint | boolean | symbol | null | undefined
-
+/** HTML attributes that may or may not include an xmlns namespace. */
 type HTMLAttributes = Record<string, Primitive> & {
 	xmlns?: 'http://www.w3.org/1999/xhtml' | 'http://www.w3.org/2000/svg'
 }
 
-type EventWithCurrentTarget<T1 extends Event, T2 extends Element> = T1 & { currentTarget: T2 }
+/** Event interface that always expects the current target to be a shadow panel label. */
+type EventOnShadowLabel<T1 extends Event> = T1 & {
+	currentTarget: Panel['shadow']['label']
+}
 
+/** WeakMap interface that always expects to get a Panel. */
 interface PanelWeakMap<K extends object, V = Panel> extends WeakMap<K, V> {
 	get(key: K): V
 }
+
+/** Value that is not an object. */
+type Primitive = string | number | bigint | boolean | symbol | null | undefined
