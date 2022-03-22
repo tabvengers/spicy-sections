@@ -117,12 +117,12 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// -------------------------------------------------------------------------
 
 	/** Run whenever the shadow label is clicked. */
-	let onclick = (event: MouseEvent) => {
-		panelToggledCallback(panelByShadowLabel.get(event.currentTarget as ShadowPanel.Label) as Panel)
+	let onclick = (event: EventWithCurrentTarget<PointerEvent, ShadowPanel.Label>) => {
+		panelToggledCallback(panelByShadowLabel.get(event.currentTarget) as Panel)
 	}
 
 	/** Run whenever the shadow label receives keyboard input while focused. */
-	let onkeydown = (event: KeyboardEvent) => {
+	let onkeydown = (event: EventWithCurrentTarget<KeyboardEvent, ShadowPanel.Label>) => {
 		let move: '' | 'prev' | 'next' = ''
 
 		switch (event.code) {
@@ -141,7 +141,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 			event.stopImmediatePropagation()
 
 			panelNavigatedCallback(
-				panelByShadowLabel.get(event.currentTarget as ShadowPanel.Label) as Panel,
+				panelByShadowLabel.get(event.currentTarget) as Panel,
 				move
 			)
 		}
@@ -494,7 +494,7 @@ let setAttributes = <E extends Element>(element: E, props: HTMLAttributes) => {
 }
 
 /** Returns the given object with the given properties set. */
-let setProps = Object.assign as <O extends object>(o: O, ...p: { [K in keyof O]?: O[K] }[]) => O
+let setProps = Object.assign as <O extends object>(o: O, ...p: object[]) => O
 
 /** Returns the value of the given weakmap with the given key, using the given options to add or update that value. */
 let upsert = <K extends object, V>(map: WeakMap<K, V>, key: K, fns: { insert(key: K): V, update(old: V): V }) => {
@@ -557,3 +557,5 @@ type Primitive = string | number | bigint | boolean | symbol | null | undefined
 type HTMLAttributes = Record<string, Primitive> & {
 	xmlns?: 'http://www.w3.org/1999/xhtml' | 'http://www.w3.org/2000/svg'
 }
+
+type EventWithCurrentTarget<T1 extends Event, T2 extends Element> = T1 & { currentTarget: T2 }
