@@ -1,0 +1,28 @@
+{
+  "files": [
+    "src/element.ts"
+  ],
+  "exclude": [
+    "src/aria-attributes.ts",
+    "src/internal.ts",
+  ],
+  "compilerOptions": {
+    "outDir": "docs",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "target": "ESNext",
+    "alwaysStrict": true,
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true
+  }
+}

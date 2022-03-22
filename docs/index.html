@@ -110,7 +110,7 @@
 						<a href="#html-affordance-attribute-usage">Usage</a>
 					</h5>
 					<pre><code
-><c- d>&lt;</c-><c- n>oui-panelset</c-> <c- n>affordance</c-><c- d>=</c-><c- s>"exclusive-collapse"</c-><c- d>&gt;</c->
+><c- d>&lt;</c-><c- n>oui-panelset</c-> <c- n>affordance</c-><c- d>=</c-><c- s>"exclusive-disclosure"</c-><c- d>&gt;</c->
 	<c- d>&lt;!--</c-> flat sections of content <c- d>--&gt;</c->
 <c- d>&lt;/</c-><c- n>oui-panelset</c-><c- d>&gt;</c-></code
 					></pre>
@@ -140,7 +140,7 @@
 					<pre><code
 ><c- k>const</c-> <c- v>panelset</c-> <c- d>=</c-> <c- n>document</c->.<c- np>querySelector</c->(<c- s>'oui-panelset'</c-><c- d>)</c->
 
-<c- v>panelset<c- d>.</c->affordance</c-> <c->=</c-> <c- s>'exclusive-collapse'</c-></code
+<c- v>panelset<c- d>.</c->affordance</c-> <c->=</c-> <c- s>'exclusive-disclosure'</c-></code
 					></pre>
 				</section>
 				<section id="css-properties">
@@ -163,17 +163,17 @@
 						<a href="#css-affordance-property-usage">Usage</a>
 					</h5>
 					<pre><code
-><c- d>/*</c-> use with a collapsed interface on narrow width screens <c- d>*/</c->
+><c- d>/*</c-> use with a disclosure interface on narrow width screens <c- d>*/</c->
 <c- v>@media</c-> <c- d>(</c-><c- n>max-width</c-><c- d>:</c-> <c- v>40em</c-><c- d>)</c-></c-> <c- d>{</c->
 	<c- n>oui-panelset</c-> <c- d>{</c->
-		<c- n>--affordance</c-><c- d>:</c-> <c- n>collapse</c-><c- d>;</c->
+		<c- n>--affordance</c-><c- d>:</c-> <c- n>disclosure</c-><c- d>;</c->
 	<c- d>}</c->
 <c- d>}</c->
 
-<c- d>/*</c-> use a tab-bar interface on wide width screens <c- d>*/</c->
+<c- d>/*</c-> use a tablist interface on wide width screens <c- d>*/</c->
 <c- v>@media</c-> <c- d>(</c-><c- n>min-width</c-><c- d>:</c-> <c- v>60em</c-><c- d>)</c-> <c- d>{</c->
 	<c- n>oui-panelset</c-> <c- d>{</c->
-		<c- n>--affordance</c-><c- d>:</c-> <c- n>tab-bar</c-><c- d>;</c->
+		<c- n>--affordance</c-><c- d>:</c-> <c- n>tablist</c-><c- d>;</c->
 	<c- d>}</c->
 <c- d>}</c-></code
 					></pre>
@@ -192,15 +192,15 @@
 					</thead>
 					<tbody>
 						<tr>
-							<td><code>collapse</code></td>
+							<td><code>disclosure</code></td>
 							<td>Sequential sections of content that display independently.</td>
 						</tr>
 						<tr>
-							<td><code>exclusive-collapse</code></td>
+							<td><code>exclusive-disclosure</code></td>
 							<td>Sequential sections of content that display one at a time.</td>
 						</tr>
 						<tr>
-							<td><code>tab-bar</code></td>
+							<td><code>tablist</code></td>
 							<td>Layered sections of content that display one at a time.</td>
 						</tr>
 						<tr>
@@ -235,8 +235,8 @@
 				</p>
 				<pre><code
 ><c- d>&lt;</c-><c- n>style</c-><c- d>&gt;</c->
-<c- n>oui-panelset</c-><c- d>::</c-><c- n>part</c-><c- d>(</c-><c- n>container</c-> <c- n>tab-bar</c-><c- d>)</c-> <c- d>{</c->
-	<c- d>/*</c-> panelset container styles during the tab-bar affordance <c- d>*/</c->
+<c- n>oui-panelset</c-><c- d>::</c-><c- n>part</c-><c- d>(</c-><c- n>container</c-> <c- n>tablist</c-><c- d>)</c-> <c- d>{</c->
+	<c- d>/*</c-> panelset container styles during the tablist affordance <c- d>*/</c->
 <c- d>}</c->
 <c- d>&lt;/</c-><c- n>style</c-><c- d>&gt;</c-></code
 				></pre>
@@ -254,11 +254,11 @@
 						</tr>
 						<tr>
 							<td><code>label-container</code></td>
-							<td>The container of all labels, available in the <strong>tab-bar</strong> affordance.</td>
+							<td>The container of all labels, available in the <strong>tablist</strong> affordance.</td>
 						</tr>
 						<tr>
 							<td><code>marker</code></td>
-							<td>The marker before each label, available in the <strong>collapse</strong> and <strong>exclusive-collapse</strong> affordances.</td>
+							<td>The marker before each label, available in the <strong>disclosure</strong> and <strong>exclusive-disclosure</strong> affordances.</td>
 						</tr>
 						<tr>
 							<td><code>label</code></td>
@@ -266,7 +266,7 @@
 						</tr>
 						<tr>
 							<td><code>panel-container</code></td>
-							<td>The container of all panels, available in the <strong>tab-bar</strong> affordance.</td>
+							<td>The container of all panels, available in the <strong>tablist</strong> affordance.</td>
 						</tr>
 						<tr>
 							<td><code>label</code></td>

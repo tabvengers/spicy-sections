@@ -11,17 +11,17 @@
 		<script type="module" src="../register.js"></script>
 		<style>
 
-		/* use a collapsed interface on narrow width screens */
+		/* use a disclosure interface on narrow width screens */
 		@media screen and (max-width: 40em) {
 			oui-panelset {
-				--affordance: collapse;
+				--affordance: disclosure;
 			}
 		}
 
-		/* use a tab-bar interface on wide width screens */
+		/* use a tablist interface on wide width screens */
 		@media screen and (min-width: 60em) {
 			oui-panelset {
-				--affordance: tab-bar;
+				--affordance: tablist;
 			}
 		}
 
@@ -33,9 +33,9 @@
 		<oui-panelset>
 			<h3>Tabs</h3>
 			<p>
-				The <code>tab-bar</code> affordance
+				The <code>tablist</code> affordance
 				can use shadow-dom to establish
-				a styleable tab-bar and panels.
+				a styleable tablist and panels.
 				The required parts can be exposed for styling
 				with consistent pseudo-elements.
 			</p>
@@ -50,13 +50,13 @@
 				<li>The tab panel area</li>
 			</ul>
 	
-			<h3>Collapse</h3>
+			<h3>Disclosure</h3>
 			<p>
-				The accordion-like <code>collapse</code> affordance
+				The accordion-like <code>disclosure</code> affordance
 				also uses shadow-dom to establish
 				summary-details like behavior for each section,
 				with an option to make the toggle-states
-				<code>exclusive-collapse</code>.
+				<code>exclusive-disclosure</code>.
 			</p>
 			<p>
 				In an accordion state, we likely want to style:
@@ -88,5 +88,13 @@
 				</ul>
 			</nav>
 		</footer>
+
+		<script type="module">
+		document.querySelectorAll('oui-panelset').forEach(
+			element => {
+				element.addEventListener('open', event => console.log(event.type, event.detail))
+			}
+		)
+		</script>
 	</body>
 </html>

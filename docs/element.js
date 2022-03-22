@@ -1,438 +1,325 @@
-// @ts-check
-
-// element
 // -----------------------------------------------------------------------------
-
 export class OUIPanelsetElement extends HTMLElement {
-	#internals = createInternals(this)
-
-	get affordance() {
-		return this.#internals.affordance
-	}
-
-	set affordance(value) {
-		this.#internals.setAffordance(value)
-	}
+    #internals = createInternals(this);
+    get affordance() {
+        return this.#internals.affordance;
+    }
+    set affordance(value) {
+        this.#internals.affordance = value;
+    }
 }
-
-// internals
-// -----------------------------------------------------------------------------
-
-const createInternals = (/** @type {HTMLElement} */ host) => {
-	/** Panelset Shadow Root */
-	const shadowRoot = host.attachShadow({ mode: 'open', slotAssignment: 'manual' })
-
-	/** Panelset Container */
-	const container = h.div({ part: 'container' })
-
-	/** Panelset Default Styles */
-	const defaultStyle = h.style(
-		// default styles for all affordances
-		':where(div){display:contents}',
-		':where(button){all:unset;outline:revert}',
-		':where(svg){display:none}',
-		':where([part~="label-container"]){display:flex;gap:1em}',
-		':where([part~="panel"]:not([part~="open"])){display:none}',
-
-		// default styles for collapse affordance
-		':where([part~="collapse"][part~="label"]){align-items:center;display:flex;gap:.25em;padding-inline-end:1em}',
-		':where([part~="collapse"][part~="marker"]){display:block;height:.75em;width:.75em;transform:rotate(90deg)}',
-		':where([part~="collapse"][part~="marker"][part~="open"]){transform:rotate(180deg)}',
-
-		// default styles for tab-bar affordance
-		':where([part~="label"][part~="tab-bar"][part~="open"]) ::slotted(*){text-decoration:underline}'
-	)
-
-	const onclick = (/** @type {HTMLElementEventMap['click'] & { currentTarget: HTMLButtonElement }} */ event) => {
-		const paneledSection = internals.sectionMap.get(event.currentTarget)
-		if (internals.toggleSection(paneledSection)) {
-			host.dispatchEvent(
-				new CustomEvent('toggle', {
-					detail: {
-						label: paneledSection.label.slotted,
-						panels: paneledSection.panel.slotted,
-					}
-				})
-			)
-		}
-	}
-
-	const onkeydown = (/** @type {HTMLElementEventMap['keydown'] & { currentTarget: HTMLButtonElement }} */ event) => {
-		const paneledSection = internals.sectionMap.get(event.currentTarget)
-
-		switch (event.key) {
-			case 'ArrowUp':
-			case 'ArrowLeft':
-				if (paneledSection.prev) {
-					paneledSection.prev.label.element.focus()
-
-					if (isExclusive(internals.affordance)) {
-						internals.toggleSection(paneledSection.prev)
-					}
-				}
-
-				break
-
-			case 'ArrowDown':
-			case 'ArrowRight':
-				if (paneledSection.next) {
-					paneledSection.next.label.element.focus()
-
-					if (isExclusive(internals.affordance)) {
-						internals.toggleSection(paneledSection.next)
-					}
-				}
-
-				break
-		}
-	}
-
-	let firstRun = true
-
-	/** @type {Internals} */
-	const internals = {
-		affordance: 'none',
-		setAffordance(/** @type {string} */ affordance) {
-			affordance = affordance == null ? internals.affordance : String(affordance).toLowerCase()
-
-			switch (affordance) {
-				default:
-					return
-
-				case 'collapse':
-				case 'exclusive-collapse':
-				case 'none':
-				case 'tab-bar':
-			}
-
-			internals.affordance = affordance
-			internals.sectionSet = []
-
-			container.replaceChildren()
-
-			const template = internals.templates[affordance](container)
-
-			for (const contentSection of getContentSections(host)) {
-				// TODO: remove this
-				// workaround issue in chromium/firefox where heading roles are not dropped within another role
-				if (affordance === 'none') {
-					contentSection.label.removeAttribute('role')
-
-					continue
-				} else {
-					contentSection.label.setAttribute('role', 'none')
-				}
-
-				const paneledSection = internals.addSection(contentSection)
-
-				template.addSection(paneledSection)
-
-				assignSlot(paneledSection.label.slot, paneledSection.label.slotted)
-				assignSlot(paneledSection.panel.slot, ...paneledSection.panel.slotted)
-			}
-		},
-		sectionSet: [],
-		sectionMap: new WeakMap(),
-		addSection(contentSection) {
-			/** Section Index. */
-			const index = internals.sectionSet.length
-
-			/** Section Label. */
-			const label = /** @type {PaneledSection['label']} */ ({
-				/** Label (`<button part="label">`). */
-				element: h.button({ part: 'label', id: 'label-' + index, ariaControls: 'panel-' + index, onclick, onkeydown }),
-
-				/** Marker (`<svg part="marker">`). */
-				marker: h.svg({ part: 'marker', viewBox: '0 0 270 240' }, h.polygon({ points: '5,235 135,10 265,235' })),
-
-				/** Slot (`<slot>`). */
-				slot: h.slot({ name: 'label-' + index }),
-
-				/** Slotted Element (`<h>`). */
-				slotted: contentSection.label,
-			})
-
-			/** Section Panel. */
-			const panel = /** @type {PaneledSection['panel']} */ ({
-				/** Section Panel (`<div part="panel">`). */
-				element: h.div({ part: 'panel', id: 'panel-' + index, ariaLabelledby: 'label-' + index }),
-
-				/** Slot (`<slot>`). */
-				slot: h.slot({ name: 'panel-' + index }),
-
-				/** Slotted Panel Elements. */
-				slotted: contentSection.panel,
-			})
-
-			// any previously added section
-			const prev = internals.sectionSet[internals.sectionSet.length - 1] || null
-
-			// create a new section (linked to any previous section)
-			const section = /** @type {PaneledSection} */ ({ label, panel, open: false, prev, next: null })
-	
-			// link the new section to any previous section
-			if (prev) prev.next = section
-	
-			// add the new section to the section set
-			internals.sectionSet.push(section)
-
-			// link the label element to the section
-			internals.sectionMap.set(label.element, section)
-
-			// append the label marker and label slot to the label element
-			label.element.append(label.marker, label.slot)
-
-			// append the panel slot to the panel element
-			panel.element.append(panel.slot)
-
-			return section
-		},
-		toggleSection(paneledSection) {
-			switch (internals.affordance) {
-				case 'collapse': {
-					const open = paneledSection.open = !paneledSection.open
-
-					paneledSection.open = open
-
-					h(paneledSection.label.element, { ariaExpanded: open })
-
-					paneledSection.label.element.part.toggle('open', open)
-					paneledSection.label.marker.part.toggle('open', open)
-					paneledSection.panel.element.part.toggle('open', open)
-
-					return true
-				}
-
-				case 'exclusive-collapse': {
-					if (paneledSection.open) return false
-
-					for (const eachPaneledSection of internals.sectionSet) {
-						const open = eachPaneledSection === paneledSection
-
-						eachPaneledSection.open = open
-
-						h(paneledSection.label.element, { ariaExpanded: open })
-
-						eachPaneledSection.label.element.part.toggle('open', open)
-						eachPaneledSection.label.marker.part.toggle('open', open)
-						eachPaneledSection.panel.element.part.toggle('open', open)
-					}
-
-					return true
-				}
-
-				case 'tab-bar': {
-					if (paneledSection.open) return false
-
-					for (const eachPaneledSection of internals.sectionSet) {
-						const open = eachPaneledSection === paneledSection
-
-						eachPaneledSection.open = open
-
-						h(eachPaneledSection.label.element, { tabIndex: open ? 0 : -1, ariaSelected: open })
-
-						eachPaneledSection.label.element.part.toggle('open', open)
-						eachPaneledSection.label.marker.part.toggle('open', open)
-						eachPaneledSection.panel.element.part.toggle('open', open)
-
-						console.log(eachPaneledSection.label)
-					}
-
-					return true
-				}
-			}
-		},
-		initialize() {
-			if (!host.isConnected) return
-
-			const affordance = /** @type {Internals['affordance']} */ (
-				firstRun
-					? (firstRun = false) || host.getAttribute('affordance')
-				: internals.affordance
-			)
-
-			internals.setAffordance(affordance)
-		},
-		templates: {
-			'none'() {
-				h(container, { part: 'container none' })
-
-				const defaultSlot = h.slot()
-
-				container.append(defaultSlot)
-
-				assignSlot(defaultSlot, ...(/** @type {AnyNode[]} */ /** @type {any} */ (host.childNodes)))
-
-				return {
-					addSection(section) {
-						console.log(section)
-					}
-				}
-			},
-			'collapse'(container) {
-				h(container, { part: 'container collapse' })
-
-				return {
-					addSection(section) {
-						const open = internals.sectionSet.length === 1
-						const part = open ? ' open' : ''
-
-						h(section.label.element, { part: 'label collapse' + part, tabIndex: 0, ariaExpanded: String(open) })
-						h(section.label.marker, { part: 'marker collapse' + part })
-						h(section.panel.element, { part: 'panel collapse' + part })
-
-						container.append(section.label.element, section.panel.element)
-					}
-				}
-			},
-			'exclusive-collapse'(container) {
-				container.part.value = 'container collapse exclusive'
-
-				return {
-					addSection(section) {
-						const open = internals.sectionSet.length === 1
-						const part = open ? ' open' : ''
-
-						h(section.label.element, { part: 'label collapse exclusive' + part, tabIndex: 0, ariaExpanded: String(open) })
-						h(section.label.marker, { part: 'marker collapse exclusive' + part })
-						h(section.panel.element, { part: 'panel collapse exclusive' + part })
-
-						container.append(section.label.element, section.panel.element)
-					}
-				}
-			},
-			'tab-bar'(container) {
-				h(container, { part: 'container tab-bar' })
-
-				const labelContainer = h.div({ part: 'label-container tab-bar', role: 'tablist' })
-				const panelContainer = h.div({ part: 'panel-container tab-bar' })
-
-				container.append(labelContainer, panelContainer)
-
-				return {
-					addSection(section) {
-						const open = internals.sectionSet.length === 1
-						const part = open ? ' open' : ''
-
-						h(section.label.element, { part: 'label tab-bar' + part, role: 'tab', tabIndex: open ? 0 : -1, ariaSelected: String(open) })
-						h(section.label.marker, { part: 'marker tab-bar' + part })
-						h(section.panel.element, { part: 'panel tab-bar' + part, role: 'tabpanel', tabindex: 0 })
-
-						labelContainer.append(section.label.element)
-						panelContainer.append(section.panel.element)
-					}
-				}
-			},
-		},
-	}
-
-	/** Observed used to re-initialize the panel affordance when the contents change. */
-	const mutations = new MutationObserver(internals.initialize)
-
-	mutations.observe(host, { childList: true })
-
-	// add the panelset container to the panelset shadow root
-	shadowRoot.append(container, defaultStyle)
-	
-	observeAffordance(host, internals)
-
-	internals.initialize()
-
-	return internals
-}
-
+let createInternals = (host) => {
+    /** Current affordance. */
+    let affordance = 'content';
+    // LightDOM references
+    // -------------------------------------------------------------------------
+    /** Panelset LightDOM child nodes. */
+    let hostChildNodes = host.childNodes;
+    /** Panelset LightDOM computed style. */
+    let hostComputedStyle = getComputedStyle(host);
+    // ShadowDOM references
+    // -------------------------------------------------------------------------
+    /** Panelset ShadowDOM root. */
+    let shadowRoot = host.attachShadow({ mode: 'closed', slotAssignment: 'manual' });
+    /** Panelset ShadowDOM container of all content. */
+    let shadowContents = attrs(html('div'), { part: 'contents' });
+    /** Panelset ShadowDOM container of all default styles. */
+    let shadowStyle = html('style');
+    /** Panelset ShadowDOM container of all section labels. */
+    let shadowLabelset = attrs(html('div'), { part: 'labelset is-tablist' });
+    /** Panelset ShadowDOM container of all section contents. */
+    let shadowContentset = attrs(html('div'), { part: 'contentset is-tablist' });
+    // ShadowDOM styles
+    // -------------------------------------------------------------------------
+    // include the following default syles
+    shadowStyle.append(
+    // default styles for all affordances
+    ':where(div){outline:none}', ':where(button){all:unset;outline:revert}', ':where(svg){display:none}', ':where([part~="content"]:not([part~="open"])){display:none}', 
+    // default styles for the disclosure affordance
+    ':where([part~="is-disclosure"][part~="section"]){display:flex;flex-direction:column}', ':where([part~="is-disclosure"][part~="label"]){align-items:center;display:flex;gap:.25em;padding-inline-end:1em}', ':where([part~="is-disclosure"][part~="marker"]){display:block;height:.75em;width:.75em;transform:rotate(90deg)}', ':where([part~="is-disclosure"][part~="marker"][part~="open"]){transform:rotate(180deg)}', 
+    // default styles for the tablist affordance
+    ':where([part~="is-tablist"][part~="labelset"]){display:flex;gap:1em}', ':where([part~="is-tablist"][part~="label"][part~="open"]) ::slotted(*){text-decoration:underline}');
+    // ShadowDOM tree
+    // -------------------------------------------------------------------------
+    // append content and style containers to the ShadowDOM root
+    shadowRoot.append(shadowContents, shadowStyle);
+    // -------------------------------------------------------------------------
+    let refs = {
+        lastSection: null,
+        sections: [],
+        sectionBySlottedLabel: new WeakMap(),
+        sectionByShadowLabel: new WeakMap(),
+    };
+    // events
+    // -------------------------------------------------------------------------
+    let onclick = (event) => {
+        sectionToggledCallback(refs.sectionByShadowLabel.get(event.currentTarget));
+    };
+    let onkeydown = (event) => {
+        let move = '';
+        switch (event.code) {
+            case 'ArrowUp':
+            case 'ArrowLeft':
+                move = 'prev';
+                break;
+            case 'ArrowDown':
+            case 'ArrowRight':
+                move = 'next';
+                break;
+        }
+        if (move) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            sectionNavigatedCallback(refs.sectionByShadowLabel.get(event.currentTarget), move);
+        }
+    };
+    // callbacks
+    // -------------------------------------------------------------------------
+    /** Run whenever nodes are added to the panelset host. */
+    let addedNodesCallback = () => {
+        /** Any section extracted from the panelset element. */
+        let section = { slotted: { content: [] } };
+        let previous = null;
+        let index = 0;
+        refs.sections.splice(0);
+        for (let node of hostChildNodes) {
+            if (node instanceof HTMLHeadingElement) {
+                section = upsert(refs.sectionBySlottedLabel, node, {
+                    insert(label) {
+                        // add a new section, if the child node is a heading
+                        section = {
+                            index,
+                            open: false,
+                            slotted: {
+                                label,
+                                content: [],
+                            },
+                            shadow: {
+                                /** Section (`<div part="section">`). */
+                                section: attrs(html('div'), { part: 'section' }),
+                                /** Label (`<button part="label">`). */
+                                label: attrs(html('button'), { part: 'label', type: 'button' }),
+                                labelSlot: html('slot'),
+                                /** Label (`<button part="label">`). */
+                                nonLabel: attrs(html('div'), { part: 'label is-content open' }),
+                                nonLabelSlot: html('slot'),
+                                /** Marker (`<svg part="marker">`). */
+                                marker: attrs(svg('svg'), { part: 'marker', viewBox: '0 0 270 240', namespaceURI: 'http://www.w3.org/2000/svg' }),
+                                /** Content (`<div part="content">`). */
+                                content: attrs(html('div'), { part: 'content', role: 'region', tabindex: 0 }),
+                                contentSlot: html('slot'),
+                            },
+                            prev: null,
+                            next: null,
+                        };
+                        props(section.shadow.label, { onclick, onkeydown });
+                        section.shadow.marker.append(attrs(svg('polygon'), { points: '5,235 135,10 265,235', namespaceURI: 'http://www.w3.org/2000/svg' }));
+                        section.shadow.label.append(section.shadow.marker, section.shadow.labelSlot);
+                        section.shadow.nonLabel.append(section.shadow.nonLabelSlot);
+                        section.shadow.content.append(section.shadow.contentSlot);
+                        refs.sectionBySlottedLabel.set(label, section);
+                        refs.sectionByShadowLabel.set(section.shadow.label, section);
+                        return section;
+                    },
+                    update(section) {
+                        attrs(section.shadow.label, { id: 'label-' + index, 'aria-controls': 'content-' + index });
+                        attrs(section.shadow.labelSlot, { name: 'label-' + index });
+                        attrs(section.shadow.nonLabel, { id: 'label-' + index });
+                        attrs(section.shadow.nonLabelSlot, { name: 'label-' + index });
+                        attrs(section.shadow.content, { id: 'content-' + index, 'aria-labelledby': 'label-' + index });
+                        attrs(section.shadow.contentSlot, { name: 'content-' + index });
+                        return section;
+                    },
+                });
+                index = refs.sections.push(section);
+                if (previous) {
+                    section.prev = previous;
+                    previous.next = section;
+                }
+                previous = section;
+                if (refs.lastSection === null) {
+                    refs.lastSection = section;
+                    section.open = true;
+                }
+            }
+            else if (node instanceof Element || node instanceof Text) {
+                // otherwise, append the child node to the existing section
+                section.slotted.content.push(node);
+            }
+        }
+        affordanceChangedCallback();
+    };
+    /** Run whenever the affordance is changed. */
+    let affordanceChangedCallback = () => {
+        attrs(shadowContents, { part: withAffordance('contents') });
+        if (affordance === 'tablist') {
+            shadowContents.replaceChildren(shadowLabelset, shadowContentset);
+        }
+        else {
+            shadowContents.replaceChildren();
+        }
+        for (let section of refs.sections) {
+            attrs(section.shadow.section, { part: withAffordance('section') });
+            attrs(section.shadow.label, { part: withAffordance('label') });
+            attrs(section.shadow.marker, { part: withAffordance('marker') });
+            attrs(section.shadow.content, { part: withAffordance('content') });
+            switch (affordance) {
+                case 'content': {
+                    section.shadow.content.removeAttribute('tabindex');
+                    section.shadow.content.part.toggle('open', true);
+                    section.shadow.section.append(section.shadow.nonLabel, section.shadow.content);
+                    shadowContents.append(section.shadow.section);
+                    assignSlot(section.shadow.nonLabelSlot, section.slotted.label);
+                    assignSlot(section.shadow.contentSlot, ...section.slotted.content);
+                    break;
+                }
+                case 'disclosure': {
+                    section.shadow.content.tabIndex = 0;
+                    section.shadow.label.part.toggle('open', section.open);
+                    section.shadow.content.part.toggle('open', section.open);
+                    section.shadow.section.append(section.shadow.label, section.shadow.content);
+                    shadowContents.append(section.shadow.section);
+                    assignSlot(section.shadow.labelSlot, section.slotted.label);
+                    assignSlot(section.shadow.contentSlot, ...section.slotted.content);
+                    break;
+                }
+                case 'tablist': {
+                    section.open = refs.lastSection === section;
+                    section.shadow.label.tabIndex = section.open ? 0 : -1;
+                    section.shadow.content.tabIndex = 0;
+                    section.shadow.label.part.toggle('open', section.open);
+                    section.shadow.content.part.toggle('open', section.open);
+                    shadowLabelset.append(section.shadow.label);
+                    shadowContentset.append(section.shadow.content);
+                    assignSlot(section.shadow.labelSlot, section.slotted.label);
+                    assignSlot(section.shadow.contentSlot, ...section.slotted.content);
+                    break;
+                }
+            }
+        }
+    };
+    /** Run whenever a section is toggled. */
+    let sectionToggledCallback = (selectedSection) => {
+        let { open } = selectedSection;
+        if (!open) {
+            refs.lastSection = selectedSection;
+        }
+        switch (affordance) {
+            case 'disclosure': {
+                open = selectedSection.open = !open;
+                selectedSection.shadow.section.part.toggle('open', open);
+                selectedSection.shadow.label.part.toggle('open', open);
+                selectedSection.shadow.marker.part.toggle('open', open);
+                selectedSection.shadow.content.part.toggle('open', open);
+                break;
+            }
+            case 'tablist': {
+                if (selectedSection.open) {
+                    return;
+                }
+                for (let section of refs.sections) {
+                    let open = section.open = section === selectedSection;
+                    section.shadow.label.tabIndex = open ? 0 : -1;
+                    section.shadow.section.part.toggle('open', open);
+                    section.shadow.label.part.toggle('open', open);
+                    section.shadow.marker.part.toggle('open', open);
+                    section.shadow.content.part.toggle('open', open);
+                }
+                break;
+            }
+        }
+        host.dispatchEvent(new CustomEvent('open', {
+            detail: {
+                label: selectedSection.slotted.label,
+                content: selectedSection.slotted.content.slice(0),
+            }
+        }));
+    };
+    let sectionNavigatedCallback = (focusedSection, move) => {
+        let siblingSection = focusedSection[move];
+        if (siblingSection) {
+            siblingSection.shadow.label.focus();
+            if (affordance === 'tablist') {
+                sectionToggledCallback(siblingSection);
+            }
+        }
+    };
+    // -------------------------------------------------------------------------
+    let withAffordance = (...parts) => [...parts, 'is-' + affordance].join(' ');
+    // -------------------------------------------------------------------------
+    new MutationObserver(addedNodesCallback);
+    if (host.hasChildNodes())
+        addedNodesCallback();
+    let oldValue = affordance;
+    let newValue = '';
+    let frameA = () => {
+        requestAnimationFrame(frameB);
+        newValue = hostComputedStyle.getPropertyValue('--affordance');
+    };
+    let frameB = () => {
+        requestAnimationFrame(frameA);
+        if (oldValue !== newValue) {
+            oldValue = newValue;
+            internals.affordance = newValue.trim() || 'content';
+        }
+    };
+    frameA();
+    // -------------------------------------------------------------------------
+    let internals = {
+        get affordance() {
+            return affordance;
+        },
+        set affordance(value) {
+            value = value.toLowerCase();
+            if (value === 'disclosure' || value === 'tablist' || value === 'content') {
+                if (value !== affordance) {
+                    affordance = value;
+                    affordanceChangedCallback();
+                }
+            }
+        },
+    };
+    return internals;
+};
 // utilities
 // -----------------------------------------------------------------------------
-
-const toDashedCase = (/** @type {string} */ value) => value.replace(/[A-Z]/g, '-$&').toLowerCase()
-
-const isWritableProp = (/** @type {any} */ value) => value === null || typeof value !== 'object'
-
-const h = new Proxy(/** @type {CreateElement} */ ((/** @type {AnyElement | AnyElementName} */ target, /** @type {any} */ ...args) => {
-	const element = typeof target === 'string' ? target === 'svg' || target === 'polygon' ? document.createElementNS('http://www.w3.org/2000/svg', target) : document.createElement(target) : target
-
-	const isSVG = element instanceof SVGElement
-
-	const props = typeof args[0] === 'object' && Object(args[0]).constructor === Object ? args.shift() : null
-
-	for (const prop in props) {
-		if (prop in element && isWritableProp(element[prop])) {
-			element[prop] = props[prop]
-		} else {
-			element.setAttribute(isSVG ? prop : toDashedCase(prop), props[prop])
-		}
-	}
-
-	element.append(...args)
-
-	return element
-}), {
-	get(_, /** @type {string} */ name) {
-		return (/** @type {any} */ ...args) => h(name, ...args)
-	}
-})
-
-/** Returns sections of content extracted from `<oui-panelset>`. */
-const getContentSections = (/** @type {HTMLElement} */ host) => {
-	/** All child nodes of the panelset element. */
-	let nodes = /** @type {AnyNode[]} */ (/** @type {any} */ (host.childNodes))
-
-	/** All sections extracted from the panelset element. */
-	let sections = /** @type {ContentSection[]} */ ([])
-
-	/** Any section extracted from the panelset element. */
-	let section = /** @type {ContentSection} */ ({ label: null, panel: [] })
-
-	for (const node of nodes) {
-		if (node instanceof HTMLHeadingElement) {
-			// add a new section, if the child node is a heading
-			sections.push(section = { label: node, panel: [] })
-		} else {
-			// otherwise, append the child node to the existing section
-			section.panel.push(node)
-		}
-	}
-
-	return sections
-}
-
 /** Assigns to the given slot the given nodes (using manual slot assignment when supported). */
-const assignSlot = (/** @type {HTMLSlotElement} */ slot, /** @type {AnyNode[]} */ ...nodes) => {
-	if (typeof slot.assign === 'function') {
-		slot.assign(...nodes)
-	} else {
-		for (const node of nodes) {
-			if (node instanceof Element) {
-				node.slot = slot.name
-			}
-		}
-	}
-}
-
-const isExclusive = (/** @type {Internals['affordance']} */ affordance) => affordance === 'exclusive-collapse' || affordance === 'tab-bar'
-
-const observeAffordance = (/** @type {HTMLElement} */ host, /** @type {Internals} */ internals) => {
-	let style = getComputedStyle(host)
-	let oldValue = ''
-	let newValue = ''
-	let frameA = () => {
-		requestAnimationFrame(frameB)
-		newValue = style.getPropertyValue('--affordance')
-	}
-	let frameB = () => {
-		requestAnimationFrame(frameA)
-		if (oldValue !== newValue) {
-			oldValue = newValue
-			internals.setAffordance(/** @type {Internals['affordance']} */ (newValue.trim() || 'none'))
-		}
-	}
-	frameA()
-}
-
-/** @typedef {import('./element').AnyElement} AnyElement */
-/** @typedef {import('./element').AnyElementName} AnyElementName */
-/** @typedef {import('./element').AnyNode} AnyNode */
-/** @typedef {import('./element').CreateElement} CreateElement */
-/** @typedef {import('./element').Internals} Internals */
-/** @typedef {import('./element').Paneled.Section} PaneledSection */
-/** @typedef {import('./element').Content.Section} ContentSection */
+let assignSlot = (slot, ...nodes) => {
+    if (supportsSlotAssignment) {
+        slot.assign(...nodes);
+    }
+    else {
+        for (let node of nodes) {
+            if (node instanceof Element) {
+                attrs(node, { slot: slot.name });
+            }
+        }
+    }
+};
+/** Assigns to the given slot the given nodes (using manual slot assignment when supported). */
+let observeProperty = (slot, ...nodes) => {
+    if (supportsSlotAssignment) {
+        slot.assign(...nodes);
+    }
+    else {
+        for (let node of nodes) {
+            if (node instanceof Element) {
+                attrs(node, { slot: slot.name });
+            }
+        }
+    }
+};
+let supportsSlotAssignment = typeof HTMLSlotElement === 'function' && typeof HTMLSlotElement.prototype.assign === 'function';
+let html = (name) => document.createElement(name);
+let svg = (name) => document.createElementNS('http://www.w3.org/2000/svg', name);
+let attrs = (element, props) => {
+    for (let prop in props)
+        element.setAttribute(prop, String(props[prop]));
+    return element;
+};
+let props = Object.assign;
+let upsert = (map, key, fns) => {
+    let value;
+    map.set(key, value = map.has(key) ? fns.update(map.get(key)) : fns.update(fns.insert(key)));
+    return value;
+};
