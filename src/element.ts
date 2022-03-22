@@ -1,5 +1,3 @@
-import type { Internal, Primitive, Slotted } from './internal'
-
 // panelset class
 // -----------------------------------------------------------------------------
 
@@ -15,10 +13,7 @@ export class OUIPanelsetElement extends HTMLElement {
 	}
 
 	getActivePanels() {
-		return this.#internals.getActivePanels() as unknown as {
-			label: HTMLHeadingElement
-			content: (Element | Text)[]
-		}
+		return this.#internals.getActivePanels()
 	}
 }
 
@@ -28,8 +23,8 @@ export class OUIPanelsetElement extends HTMLElement {
 // -----------------------------------------------------------------------------
 
 let createInternals = (host: OUIPanelsetElement) => {
-	/** Current affordance. */
-	let affordance: Internal.Affordance = 'content'
+	/** Current affordance, which is 'content', 'disclosure', or 'tablist'. */
+	let affordance: Affordance = 'content'
 
 
 
@@ -59,13 +54,13 @@ let createInternals = (host: OUIPanelsetElement) => {
 	/** Panelset ShadowDOM container of all content. */
 	let shadowContents = attrs(html('div'), { part: 'contents' })
 
-	/** Panelset ShadowDOM container of all default styles. */
+	/** Panelset ShadowDOM container of all default styles (used in tabbed affordance"). */
 	let shadowStyle = html('style')
 
-	/** Panelset ShadowDOM container of all section labels. */
+	/** Panelset ShadowDOM container of all panel labels. */
 	let shadowLabelset = attrs(html('div'), { part: 'labelset is-tablist' })
 
-	/** Panelset ShadowDOM container of all section contents. */
+	/** Panelset ShadowDOM container of all panel contents. */
 	let shadowContentset = attrs(html('div'), { part: 'contentset is-tablist' })
 
 
@@ -105,10 +100,10 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// -------------------------------------------------------------------------
 
 	let refs = {
-		lastSection: null as Internal.Section | null,
-		sections: [] as Internal.Section[],
-		sectionBySlottedLabel: new WeakMap<Internal.Slotted.Label, Internal.Section>(),
-		sectionByShadowLabel: new WeakMap<Internal.Shadow.Label, Internal.Section>(),
+		lastSection: null as Panel | null,
+		panels: [] as Panel[],
+		panelBySlottedLabel: new WeakMap<SlottedPanel.Label, Panel>(),
+		panelByShadowLabel: new WeakMap<ShadowPanel.Label, Panel>(),
 	}
 
 
@@ -117,7 +112,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// -------------------------------------------------------------------------
 
 	let onclick = (event: MouseEvent) => {
-		sectionToggledCallback(refs.sectionByShadowLabel.get(event.currentTarget as Internal.Shadow.Label) as Internal.Section)
+		panelToggledCallback(refs.panelByShadowLabel.get(event.currentTarget as ShadowPanel.Label) as Panel)
 	}
 
 	let onkeydown = (event: KeyboardEvent) => {
@@ -138,10 +133,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 			event.preventDefault()
 			event.stopImmediatePropagation()
 
-			sectionNavigatedCallback(
-				refs.sectionByShadowLabel.get(
-					event.currentTarget as Internal.Shadow.Label
-				) as Internal.Section,
+			panelNavigatedCallback(
+				refs.panelByShadowLabel.get(event.currentTarget as ShadowPanel.Label) as Panel,
 				move
 			)
 		}
@@ -154,20 +147,20 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 	/** Run whenever nodes are added to or removed from the panelset host. */
 	let childrenChangedCallback = () => {
-		/** Any section extracted from the panelset element. */
-		let section = { slotted: { content: [] } } as unknown as Internal.Section
-		let previous = null as unknown as Internal.Section
+		/** Any panel extracted from the panelset element. */
+		let panel = { slotted: { content: [] } } as unknown as Panel
+		let previous = null as unknown as Panel
 
 		let index = 0
 
-		refs.sections.splice(0)
+		refs.panels.splice(0)
 
 		for (let node of hostChildNodes) {
 			if (node instanceof HTMLHeadingElement) {
-				section = upsert(refs.sectionBySlottedLabel, node, {
+				panel = upsert(refs.panelBySlottedLabel, node, {
 					insert(label) {
-						// add a new section, if the child node is a heading
-						section = {
+						// add a new panel, if the child node is a heading
+						panel = {
 							index,
 							open: false,
 							slotted: {
@@ -197,47 +190,47 @@ let createInternals = (host: OUIPanelsetElement) => {
 							next: null,
 						}
 
-						props(section.shadow.label, { onclick, onkeydown })
+						props(panel.shadow.label, { onclick, onkeydown })
 
-						section.shadow.marker.append(attrs(svg('polygon'), { points: '5,235 135,10 265,235', namespaceURI: 'http://www.w3.org/2000/svg' }))
-						section.shadow.label.append(section.shadow.marker, section.shadow.labelSlot)
-						section.shadow.nonLabel.append(section.shadow.nonLabelSlot)
-						section.shadow.content.append(section.shadow.contentSlot)
+						panel.shadow.marker.append(attrs(svg('polygon'), { points: '5,235 135,10 265,235', namespaceURI: 'http://www.w3.org/2000/svg' }))
+						panel.shadow.label.append(panel.shadow.marker, panel.shadow.labelSlot)
+						panel.shadow.nonLabel.append(panel.shadow.nonLabelSlot)
+						panel.shadow.content.append(panel.shadow.contentSlot)
 
-						refs.sectionBySlottedLabel.set(label, section)
-						refs.sectionByShadowLabel.set(section.shadow.label, section)
+						refs.panelBySlottedLabel.set(label, panel)
+						refs.panelByShadowLabel.set(panel.shadow.label, panel)
 
-						return section
+						return panel
 					},
-					update(section) {
-						attrs(section.shadow.label, { id: 'label-' + index, 'aria-controls': 'content-' + index })
-						attrs(section.shadow.labelSlot, { name: 'label-' + index })
-						attrs(section.shadow.nonLabel, { id: 'label-' + index })
-						attrs(section.shadow.nonLabelSlot, { name: 'label-' + index })
+					update(panel) {
+						attrs(panel.shadow.label, { id: 'label-' + index, 'aria-controls': 'content-' + index })
+						attrs(panel.shadow.labelSlot, { name: 'label-' + index })
+						attrs(panel.shadow.nonLabel, { id: 'label-' + index })
+						attrs(panel.shadow.nonLabelSlot, { name: 'label-' + index })
 
-						attrs(section.shadow.content, { id: 'content-' + index, 'aria-labelledby': 'label-' + index })
-						attrs(section.shadow.contentSlot, { name: 'content-' + index })
+						attrs(panel.shadow.content, { id: 'content-' + index, 'aria-labelledby': 'label-' + index })
+						attrs(panel.shadow.contentSlot, { name: 'content-' + index })
 
-						return section
+						return panel
 					},
 				})
 
-				index = refs.sections.push(section)
+				index = refs.panels.push(panel)
 
 				if (previous) {
-					section.prev = previous
-					previous.next = section
+					panel.prev = previous
+					previous.next = panel
 				}
 
-				previous = section
+				previous = panel
 
 				if (refs.lastSection === null) {
-					refs.lastSection = section
-					section.open = true
+					refs.lastSection = panel
+					panel.open = true
 				}
 			} else if (node instanceof Element || node instanceof Text) {
-				// otherwise, append the child node to the existing section
-				section.slotted.content.push(node)
+				// otherwise, append the child node to the existing panel
+				panel.slotted.content.push(node)
 			}
 		}
 
@@ -254,57 +247,57 @@ let createInternals = (host: OUIPanelsetElement) => {
 			shadowContents.replaceChildren()
 		}
 
-		for (let section of refs.sections) {
-			attrs(section.shadow.section, { part: withAffordance('section') })
-			attrs(section.shadow.label, { part: withAffordance('label') })
-			attrs(section.shadow.marker, { part: withAffordance('marker') })
-			attrs(section.shadow.content, { part: withAffordance('content') })
+		for (let panel of refs.panels) {
+			attrs(panel.shadow.section, { part: withAffordance('section') })
+			attrs(panel.shadow.label, { part: withAffordance('label') })
+			attrs(panel.shadow.marker, { part: withAffordance('marker') })
+			attrs(panel.shadow.content, { part: withAffordance('content') })
 
 			switch (affordance) {
 				case 'content': {
-					section.shadow.content.removeAttribute('tabindex')
-					section.shadow.content.part.toggle('open', true)
+					panel.shadow.content.removeAttribute('tabindex')
+					panel.shadow.content.part.toggle('open', true)
 
-					section.shadow.section.replaceChildren(section.shadow.nonLabel, section.shadow.content)
+					panel.shadow.section.replaceChildren(panel.shadow.nonLabel, panel.shadow.content)
 
-					shadowContents.append(section.shadow.section)
+					shadowContents.append(panel.shadow.section)
 
-					assignSlot(section.shadow.nonLabelSlot, section.slotted.label)
-					assignSlot(section.shadow.contentSlot, ...section.slotted.content)
+					assignSlot(panel.shadow.nonLabelSlot, panel.slotted.label)
+					assignSlot(panel.shadow.contentSlot, ...panel.slotted.content)
 
 					break
 				}
 
 				case 'disclosure': {
-					section.shadow.content.tabIndex = 0
+					panel.shadow.content.tabIndex = 0
 
-					section.shadow.content.part.toggle('open', section.open)
-					section.shadow.label.part.toggle('open', section.open)
-					section.shadow.marker.part.toggle('open', section.open)
+					panel.shadow.content.part.toggle('open', panel.open)
+					panel.shadow.label.part.toggle('open', panel.open)
+					panel.shadow.marker.part.toggle('open', panel.open)
 
-					section.shadow.section.replaceChildren(section.shadow.label, section.shadow.content)
-					shadowContents.append(section.shadow.section)
+					panel.shadow.section.replaceChildren(panel.shadow.label, panel.shadow.content)
+					shadowContents.append(panel.shadow.section)
 
-					assignSlot(section.shadow.labelSlot, section.slotted.label)
-					assignSlot(section.shadow.contentSlot, ...section.slotted.content)
+					assignSlot(panel.shadow.labelSlot, panel.slotted.label)
+					assignSlot(panel.shadow.contentSlot, ...panel.slotted.content)
 
 					break
 				}
 
 				case 'tablist': {
-					section.open = refs.lastSection === section
+					panel.open = refs.lastSection === panel
 
-					section.shadow.label.tabIndex = section.open ? 0 : -1
-					section.shadow.content.tabIndex = 0
+					panel.shadow.label.tabIndex = panel.open ? 0 : -1
+					panel.shadow.content.tabIndex = 0
 
-					section.shadow.label.part.toggle('open', section.open)
-					section.shadow.content.part.toggle('open', section.open)
+					panel.shadow.label.part.toggle('open', panel.open)
+					panel.shadow.content.part.toggle('open', panel.open)
 
-					shadowLabelset.append(section.shadow.label)
-					shadowContentset.append(section.shadow.content)
+					shadowLabelset.append(panel.shadow.label)
+					shadowContentset.append(panel.shadow.content)
 
-					assignSlot(section.shadow.labelSlot, section.slotted.label)
-					assignSlot(section.shadow.contentSlot, ...section.slotted.content)
+					assignSlot(panel.shadow.labelSlot, panel.slotted.label)
+					assignSlot(panel.shadow.contentSlot, ...panel.slotted.content)
 
 					break
 				}
@@ -312,8 +305,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 		}
 	}
 
-	/** Run whenever the given panelset section is toggled. */
-	let sectionToggledCallback = (selectedSection: Internal.Section) => {
+	/** Run whenever the given panelset panel is toggled. */
+	let panelToggledCallback = (selectedSection: Panel) => {
 		let { open } = selectedSection
 
 		if (!open) {
@@ -337,15 +330,15 @@ let createInternals = (host: OUIPanelsetElement) => {
 					return
 				}
 
-				for (let section of refs.sections) {
-					let open = section.open = section === selectedSection
+				for (let panel of refs.panels) {
+					let open = panel.open = panel === selectedSection
 
-					section.shadow.label.tabIndex = open ? 0 : -1
+					panel.shadow.label.tabIndex = open ? 0 : -1
 
-					section.shadow.section.part.toggle('open', open)
-					section.shadow.label.part.toggle('open', open)
-					section.shadow.marker.part.toggle('open', open)
-					section.shadow.content.part.toggle('open', open)
+					panel.shadow.section.part.toggle('open', open)
+					panel.shadow.label.part.toggle('open', open)
+					panel.shadow.marker.part.toggle('open', open)
+					panel.shadow.content.part.toggle('open', open)
 				}
 
 				break
@@ -362,15 +355,15 @@ let createInternals = (host: OUIPanelsetElement) => {
 		)
 	}
 
-	/** Run whenever a section is being navigated from. */
-	let sectionNavigatedCallback = (focusedSection: Internal.Section, move: 'prev' | 'next') => {
+	/** Run whenever a panel is being navigated from. */
+	let panelNavigatedCallback = (focusedSection: Panel, move: 'prev' | 'next') => {
 		let siblingSection = focusedSection[move]
 
 		if (siblingSection) {
 			siblingSection.shadow.label.focus()
 
 			if (affordance === 'tablist') {
-				sectionToggledCallback(siblingSection)
+				panelToggledCallback(siblingSection)
 			}
 		}
 	}
@@ -438,11 +431,11 @@ let createInternals = (host: OUIPanelsetElement) => {
 		},
 		getActivePanels() {
 			let activePanels = []
-			for (let section of refs.sections) {
-				if (section.open) {
+			for (let panel of refs.panels) {
+				if (panel.open) {
 					activePanels.push({
-						label: section.slotted.label,
-						content: section.slotted.content.slice(0),
+						label: panel.slotted.label,
+						content: panel.slotted.content.slice(0),
 					})
 				}
 			}
@@ -459,7 +452,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 // -----------------------------------------------------------------------------
 
 /** Assigns to the given slot the given nodes (using manual slot assignment when supported). */
-let assignSlot = (slot: HTMLSlotElement, ...nodes: Slotted[]) => {
+let assignSlot = (slot: HTMLSlotElement, ...nodes: (Element | Text)[]) => {
 	if (supportsSlotAssignment) {
 		slot.assign(...nodes)
 	} else {
@@ -495,3 +488,42 @@ let upsert = <K extends object, V>(map: WeakMap<K, V>, key: K, fns: { insert(key
 
 	return value
 }
+
+type Affordance = 'content' | 'disclosure' | 'tablist'
+
+declare namespace SlottedPanel {
+	type Label = HTMLHeadingElement
+	type Content = (Element | Text)[]
+}
+
+declare namespace ShadowPanel {
+	type Label = HTMLButtonElement
+	type Content = HTMLDivElement
+	type Section = HTMLDivElement
+}
+
+declare interface Panel {
+	index: number
+	open: boolean
+
+	slotted: {
+		label: HTMLHeadingElement
+		content: (Element | Text)[]
+	}
+
+	shadow: {
+		section: HTMLDivElement
+		label: HTMLButtonElement
+		labelSlot: HTMLSlotElement
+		marker: SVGSVGElement
+		nonLabel: HTMLDivElement
+		nonLabelSlot: HTMLSlotElement
+		content: HTMLDivElement
+		contentSlot: HTMLSlotElement
+	}
+
+	prev: Panel | null
+	next: Panel | null
+}
+
+type Primitive = string | number | bigint | boolean | symbol | null | undefined

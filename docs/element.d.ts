@@ -5,5 +5,5 @@ export declare class OUIPanelsetElement extends HTMLElement {
     getActivePanels(): {
         label: HTMLHeadingElement;
         content: (Element | Text)[];
-    };
+    }[];
 }
