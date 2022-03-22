@@ -1,5 +1,6 @@
 import type { Internal, Primitive, Slotted } from './internal'
 
+// panelset class
 // -----------------------------------------------------------------------------
 
 export class OUIPanelsetElement extends HTMLElement {
@@ -12,20 +13,42 @@ export class OUIPanelsetElement extends HTMLElement {
 	set affordance(value) {
 		this.#internals.affordance = value
 	}
+
+	getActivePanels() {
+		return this.#internals.getActivePanels() as unknown as {
+			label: HTMLHeadingElement
+			content: (Element | Text)[]
+		}
+	}
 }
+
+
+
+// panelset internals creator
+// -----------------------------------------------------------------------------
 
 let createInternals = (host: OUIPanelsetElement) => {
 	/** Current affordance. */
 	let affordance: Internal.Affordance = 'content'
 
+
+
 	// LightDOM references
 	// -------------------------------------------------------------------------
+
+	/** Document associated with the current Panelset. */
+	let document = host.ownerDocument
+
+	/** Window associated with the current Panelset. */
+	let window = document.defaultView
 
 	/** Panelset LightDOM child nodes. */
 	let hostChildNodes = host.childNodes
 
 	/** Panelset LightDOM computed style. */
 	let hostComputedStyle = getComputedStyle(host)
+
+
 
 	// ShadowDOM references
 	// -------------------------------------------------------------------------
@@ -44,6 +67,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 	/** Panelset ShadowDOM container of all section contents. */
 	let shadowContentset = attrs(html('div'), { part: 'contentset is-tablist' })
+
+
 
 	// ShadowDOM styles
 	// -------------------------------------------------------------------------
@@ -67,11 +92,15 @@ let createInternals = (host: OUIPanelsetElement) => {
 		':where([part~="is-tablist"][part~="label"][part~="open"]) ::slotted(*){text-decoration:underline}'
 	)
 
+
+
 	// ShadowDOM tree
 	// -------------------------------------------------------------------------
 
 	// append content and style containers to the ShadowDOM root
 	shadowRoot.append(shadowContents, shadowStyle)
+
+
 
 	// -------------------------------------------------------------------------
 
@@ -81,6 +110,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 		sectionBySlottedLabel: new WeakMap<Internal.Slotted.Label, Internal.Section>(),
 		sectionByShadowLabel: new WeakMap<Internal.Shadow.Label, Internal.Section>(),
 	}
+
+
 
 	// events
 	// -------------------------------------------------------------------------
@@ -116,11 +147,13 @@ let createInternals = (host: OUIPanelsetElement) => {
 		}
 	}
 
+
+
 	// callbacks
 	// -------------------------------------------------------------------------
 
-	/** Run whenever nodes are added to the panelset host. */
-	let addedNodesCallback = () => {
+	/** Run whenever nodes are added to or removed from the panelset host. */
+	let childrenChangedCallback = () => {
 		/** Any section extracted from the panelset element. */
 		let section = { slotted: { content: [] } } as unknown as Internal.Section
 		let previous = null as unknown as Internal.Section
@@ -211,7 +244,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 		affordanceChangedCallback()
 	}
 
-	/** Run whenever the affordance is changed. */
+	/** Run whenever the panelset affordance is changed. */
 	let affordanceChangedCallback = () => {
 		attrs(shadowContents, { part: withAffordance('contents') })
 
@@ -278,7 +311,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 		}
 	}
 
-	/** Run whenever a section is toggled. */
+	/** Run whenever the given panelset section is toggled. */
 	let sectionToggledCallback = (selectedSection: Internal.Section) => {
 		let { open } = selectedSection
 
@@ -328,6 +361,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 		)
 	}
 
+	/** Run whenever a section is being navigated from. */
 	let sectionNavigatedCallback = (focusedSection: Internal.Section, move: 'prev' | 'next') => {
 		let siblingSection = focusedSection[move]
 
@@ -340,15 +374,27 @@ let createInternals = (host: OUIPanelsetElement) => {
 		}
 	}
 
+
+
+	// utilities
 	// -------------------------------------------------------------------------
 
-	let withAffordance = (...parts: string[]) => [ ...parts, 'is-' + affordance ].join(' ')
+	/** Returns the given part identifier and the current affordance. */
+	let withAffordance = (identifier: string) => identifier + ' is-' + affordance
 
+
+
+	// handle changes to any DOM child nodes
 	// -------------------------------------------------------------------------
 
-	new MutationObserver(addedNodesCallback)
+	new MutationObserver(childrenChangedCallback)
 
-	if (host.hasChildNodes()) addedNodesCallback()
+	if (host.hasChildNodes()) childrenChangedCallback()
+
+
+
+	// handle changes to the CSS --affordance property
+	// -------------------------------------------------------------------------
 
 	let oldValue = affordance as string
 	let newValue = ''
@@ -369,6 +415,9 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 	frameA()
 
+
+
+	// internals
 	// -------------------------------------------------------------------------
 
 	let internals = {
@@ -386,10 +435,24 @@ let createInternals = (host: OUIPanelsetElement) => {
 				}
 			}
 		},
+		getActivePanels() {
+			let activePanels = []
+			for (let section of refs.sections) {
+				if (section.open) {
+					activePanels.push({
+						label: section.slotted.label,
+						content: section.slotted.content.slice(0),
+					})
+				}
+			}
+			return activePanels
+		},
 	}
 
 	return internals
 }
+
+
 
 // utilities
 // -----------------------------------------------------------------------------
@@ -407,27 +470,18 @@ let assignSlot = (slot: HTMLSlotElement, ...nodes: Slotted[]) => {
 	}
 }
 
-/** Assigns to the given slot the given nodes (using manual slot assignment when supported). */
-let observeProperty = (slot: HTMLSlotElement, ...nodes: Slotted[]) => {
-	if (supportsSlotAssignment) {
-		slot.assign(...nodes)
-	} else {
-		for (let node of nodes) {
-			if (node instanceof Element) {
-				attrs(node, { slot: slot.name })
-			}
-		}
-	}
-}
-
+/** Whether slot assignment is supported by the current browser. */
 let supportsSlotAssignment = typeof HTMLSlotElement === 'function' && typeof HTMLSlotElement.prototype.assign === 'function'
 
+/** Returns a new HTML element specified by the given tag name. */
 let html = <T extends keyof HTMLElementTagNameMap>(name: T) => document.createElement(name) as HTMLElementTagNameMap[T]
 
+/** Returns a new SVG element specified by the given tag name. */
 let svg = <T extends keyof SVGElementTagNameMap>(name: T) => document.createElementNS('http://www.w3.org/2000/svg', name) as SVGElementTagNameMap[T]
 
+/** Appends multiple . */
 let attrs = <E extends Element, V extends Primitive, P extends { [K in keyof P]: V }>(element: E, props: P) => {
-	for (let prop in props) element.setAttribute(prop, String(props[prop as keyof typeof props]))
+	for (let prop in props) element.setAttribute(prop, String(props[prop]))
 	return element as E & P
 }
 

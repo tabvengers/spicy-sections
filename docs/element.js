@@ -1,3 +1,4 @@
+// panelset class
 // -----------------------------------------------------------------------------
 export class OUIPanelsetElement extends HTMLElement {
     #internals = createInternals(this);
@@ -7,12 +8,21 @@ export class OUIPanelsetElement extends HTMLElement {
     set affordance(value) {
         this.#internals.affordance = value;
     }
+    getActivePanels() {
+        return this.#internals.getActivePanels();
+    }
 }
+// panelset internals creator
+// -----------------------------------------------------------------------------
 let createInternals = (host) => {
     /** Current affordance. */
     let affordance = 'content';
     // LightDOM references
     // -------------------------------------------------------------------------
+    /** Document associated with the current Panelset. */
+    let document = host.ownerDocument;
+    /** Window associated with the current Panelset. */
+    let window = document.defaultView;
     /** Panelset LightDOM child nodes. */
     let hostChildNodes = host.childNodes;
     /** Panelset LightDOM computed style. */
@@ -75,8 +85,8 @@ let createInternals = (host) => {
     };
     // callbacks
     // -------------------------------------------------------------------------
-    /** Run whenever nodes are added to the panelset host. */
-    let addedNodesCallback = () => {
+    /** Run whenever nodes are added to or removed from the panelset host. */
+    let childrenChangedCallback = () => {
         /** Any section extracted from the panelset element. */
         let section = { slotted: { content: [] } };
         let previous = null;
@@ -149,7 +159,7 @@ let createInternals = (host) => {
         }
         affordanceChangedCallback();
     };
-    /** Run whenever the affordance is changed. */
+    /** Run whenever the panelset affordance is changed. */
     let affordanceChangedCallback = () => {
         attrs(shadowContents, { part: withAffordance('contents') });
         if (affordance === 'tablist') {
@@ -198,7 +208,7 @@ let createInternals = (host) => {
             }
         }
     };
-    /** Run whenever a section is toggled. */
+    /** Run whenever the given panelset section is toggled. */
     let sectionToggledCallback = (selectedSection) => {
         let { open } = selectedSection;
         if (!open) {
@@ -235,6 +245,7 @@ let createInternals = (host) => {
             }
         }));
     };
+    /** Run whenever a section is being navigated from. */
     let sectionNavigatedCallback = (focusedSection, move) => {
         let siblingSection = focusedSection[move];
         if (siblingSection) {
@@ -244,12 +255,17 @@ let createInternals = (host) => {
             }
         }
     };
+    // utilities
     // -------------------------------------------------------------------------
-    let withAffordance = (...parts) => [...parts, 'is-' + affordance].join(' ');
+    /** Returns the given part identifier and the current affordance. */
+    let withAffordance = (identifier) => identifier + ' is-' + affordance;
+    // handle changes to any DOM child nodes
     // -------------------------------------------------------------------------
-    new MutationObserver(addedNodesCallback);
+    new MutationObserver(childrenChangedCallback);
     if (host.hasChildNodes())
-        addedNodesCallback();
+        childrenChangedCallback();
+    // handle changes to the CSS --affordance property
+    // -------------------------------------------------------------------------
     let oldValue = affordance;
     let newValue = '';
     let frameA = () => {
@@ -264,6 +280,7 @@ let createInternals = (host) => {
         }
     };
     frameA();
+    // internals
     // -------------------------------------------------------------------------
     let internals = {
         get affordance() {
@@ -277,6 +294,18 @@ let createInternals = (host) => {
                     affordanceChangedCallback();
                 }
             }
+        },
+        getActivePanels() {
+            let activePanels = [];
+            for (let section of refs.sections) {
+                if (section.open) {
+                    activePanels.push({
+                        label: section.slotted.label,
+                        content: section.slotted.content.slice(0),
+                    });
+                }
+            }
+            return activePanels;
         },
     };
     return internals;
@@ -296,22 +325,13 @@ let assignSlot = (slot, ...nodes) => {
         }
     }
 };
-/** Assigns to the given slot the given nodes (using manual slot assignment when supported). */
-let observeProperty = (slot, ...nodes) => {
-    if (supportsSlotAssignment) {
-        slot.assign(...nodes);
-    }
-    else {
-        for (let node of nodes) {
-            if (node instanceof Element) {
-                attrs(node, { slot: slot.name });
-            }
-        }
-    }
-};
+/** Whether slot assignment is supported by the current browser. */
 let supportsSlotAssignment = typeof HTMLSlotElement === 'function' && typeof HTMLSlotElement.prototype.assign === 'function';
+/** Returns a new HTML element specified by the given tag name. */
 let html = (name) => document.createElement(name);
+/** Returns a new SVG element specified by the given tag name. */
 let svg = (name) => document.createElementNS('http://www.w3.org/2000/svg', name);
+/** Appends multiple . */
 let attrs = (element, props) => {
     for (let prop in props)
         element.setAttribute(prop, String(props[prop]));
