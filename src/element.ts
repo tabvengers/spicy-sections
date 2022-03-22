@@ -106,10 +106,10 @@ let createInternals = (host: OUIPanelsetElement) => {
 	let mostRecentPanel: Panel
 
 	/** WeakMap from a slotted label to a panel. */
-	let panelBySlottedLabel = new WeakMap() as KnownWeakMap<SlottedPanel.Label, Panel>
+	let panelBySlottedLabel = new WeakMap as PanelWeakMap<SlottedPanel.Label>
 
 	/** WeakMap from a shadow label to a panel. */
-	let panelByShadowLabel = new WeakMap() as KnownWeakMap<ShadowPanel.Label, Panel>
+	let panelByShadowLabel = new WeakMap as PanelWeakMap<ShadowPanel.Label>
 
 
 
@@ -566,6 +566,6 @@ type HTMLAttributes = Record<string, Primitive> & {
 
 type EventWithCurrentTarget<T1 extends Event, T2 extends Element> = T1 & { currentTarget: T2 }
 
-interface KnownWeakMap<K extends object, V> extends WeakMap<K, V> {
+interface PanelWeakMap<K extends object, V = Panel> extends WeakMap<K, V> {
 	get(key: K): V
 }

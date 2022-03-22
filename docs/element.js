@@ -60,9 +60,9 @@ let createInternals = (host) => {
     /** Panel that was most recently activated. */
     let mostRecentPanel;
     /** WeakMap from a slotted label to a panel. */
-    let panelBySlottedLabel = new WeakMap();
+    let panelBySlottedLabel = new WeakMap;
     /** WeakMap from a shadow label to a panel. */
-    let panelByShadowLabel = new WeakMap();
+    let panelByShadowLabel = new WeakMap;
     // ShadowDOM events
     // -------------------------------------------------------------------------
     /** Run whenever the shadow label is clicked. */
