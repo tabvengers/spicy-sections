@@ -106,10 +106,10 @@ let createInternals = (host: OUIPanelsetElement) => {
 	let mostRecentPanel: Panel
 
 	/** WeakMap from a slotted label to a panel. */
-	let panelBySlottedLabel = new WeakMap<SlottedPanel.Label, Panel>()
+	let panelBySlottedLabel = new WeakMap() as KnownWeakMap<SlottedPanel.Label, Panel>
 
 	/** WeakMap from a shadow label to a panel. */
-	let panelByShadowLabel = new WeakMap<ShadowPanel.Label, Panel>()
+	let panelByShadowLabel = new WeakMap() as KnownWeakMap<ShadowPanel.Label, Panel>
 
 
 
@@ -118,7 +118,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 	/** Run whenever the shadow label is clicked. */
 	let onclick = (event: EventWithCurrentTarget<PointerEvent, ShadowPanel.Label>) => {
-		panelToggledCallback(panelByShadowLabel.get(event.currentTarget) as Panel)
+		panelToggledCallback(panelByShadowLabel.get(event.currentTarget))
 	}
 
 	/** Run whenever the shadow label receives keyboard input while focused. */
@@ -140,10 +140,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 			event.preventDefault()
 			event.stopImmediatePropagation()
 
-			panelNavigatedCallback(
-				panelByShadowLabel.get(event.currentTarget) as Panel,
-				move
-			)
+			panelNavigatedCallback(panelByShadowLabel.get(event.currentTarget), move)
 		}
 	}
 
@@ -154,12 +151,16 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 	/** Run whenever nodes are added to or removed from the panelset host. */
 	let childrenChangedCallback = () => {
-		/** Any panel extracted from the panelset element. */
+		/** Panel extracted from the Panelset LightDOM child nodes. */
 		let panel = { slotted: { content: [] } } as unknown as Panel
-		let previous = null as unknown as Panel
 
+		/** Previously extracted Panel. */
+		let prevPanel: Panel | void
+
+		/** Current Panel index. */
 		let index = 0
 
+		// clear the current array of all panels in the panelset
 		panels.splice(0)
 
 		for (let node of hostChildNodes) {
@@ -222,17 +223,22 @@ let createInternals = (host: OUIPanelsetElement) => {
 					},
 				})
 
+				// bump the index using the current size of the panels array
 				index = panels.push(panel)
 
-				if (previous) {
-					panel.prev = previous
-					previous.next = panel
+				// conditionally link the previous and current panels
+				if (prevPanel) {
+					panel.prev = prevPanel
+
+					prevPanel.next = panel
 				}
 
-				previous = panel
+				prevPanel = panel
 
+				// conditionally define the most recent panel as an open panel
 				if (!mostRecentPanel) {
 					mostRecentPanel = panel
+
 					panel.open = true
 				}
 			} else if (node instanceof Element || node instanceof Text) {
@@ -559,3 +565,7 @@ type HTMLAttributes = Record<string, Primitive> & {
 }
 
 type EventWithCurrentTarget<T1 extends Event, T2 extends Element> = T1 & { currentTarget: T2 }
+
+interface KnownWeakMap<K extends object, V> extends WeakMap<K, V> {
+	get(key: K): V
+}

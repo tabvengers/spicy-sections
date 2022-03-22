@@ -92,10 +92,13 @@ let createInternals = (host) => {
     // -------------------------------------------------------------------------
     /** Run whenever nodes are added to or removed from the panelset host. */
     let childrenChangedCallback = () => {
-        /** Any panel extracted from the panelset element. */
+        /** Panel extracted from the Panelset LightDOM child nodes. */
         let panel = { slotted: { content: [] } };
-        let previous = null;
+        /** Previously extracted Panel. */
+        let prevPanel;
+        /** Current Panel index. */
         let index = 0;
+        // clear the current array of all panels in the panelset
         panels.splice(0);
         for (let node of hostChildNodes) {
             if (node instanceof HTMLHeadingElement) {
@@ -146,12 +149,15 @@ let createInternals = (host) => {
                         return panel;
                     },
                 });
+                // bump the index using the current size of the panels array
                 index = panels.push(panel);
-                if (previous) {
-                    panel.prev = previous;
-                    previous.next = panel;
+                // conditionally link the previous and current panels
+                if (prevPanel) {
+                    panel.prev = prevPanel;
+                    prevPanel.next = panel;
                 }
-                previous = panel;
+                prevPanel = panel;
+                // conditionally define the most recent panel as an open panel
                 if (!mostRecentPanel) {
                     mostRecentPanel = panel;
                     panel.open = true;
