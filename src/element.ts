@@ -320,33 +320,29 @@ let createInternals = (host: OUIPanelsetElement) => {
 		}
 	}
 
-	/** Run whenever the given panelset panel is toggled. */
-	let panelToggledCallback = (selectedSection: Panel) => {
-		let { open } = selectedSection
-
-		if (!open) {
-			mostRecentPanel = selectedSection
-		}
+	/** Run whenever the given panel is toggled. */
+	let panelToggledCallback = (toggledPanel: Panel) => {
+		let { open } = toggledPanel
 
 		switch (affordance) {
 			case 'disclosure': {
-				open = selectedSection.open = !open
+				open = toggledPanel.open = !open
 
-				selectedSection.shadow.section.part.toggle('open', open)
-				selectedSection.shadow.label.part.toggle('open', open)
-				selectedSection.shadow.marker.part.toggle('open', open)
-				selectedSection.shadow.content.part.toggle('open', open)
+				toggledPanel.shadow.section.part.toggle('open', open)
+				toggledPanel.shadow.label.part.toggle('open', open)
+				toggledPanel.shadow.marker.part.toggle('open', open)
+				toggledPanel.shadow.content.part.toggle('open', open)
 
 				break
 			}
 
 			case 'tablist': {
-				if (selectedSection.open) {
+				if (toggledPanel.open) {
 					return
 				}
 
 				for (let panel of panels) {
-					let open = panel.open = panel === selectedSection
+					let open = panel.open = panel === toggledPanel
 
 					panel.shadow.label.tabIndex = open ? 0 : -1
 
@@ -360,11 +356,17 @@ let createInternals = (host: OUIPanelsetElement) => {
 			}
 		}
 
+		// conditionally update the most recent panel if the panel is opened
+		if (toggledPanel.open) {
+			mostRecentPanel = toggledPanel
+		}
+
+		// dispatch an open event for the panel
 		host.dispatchEvent(
 			new CustomEvent('open', {
 				detail: {
-					label: selectedSection.slotted.label,
-					content: selectedSection.slotted.content.slice(0),
+					label: toggledPanel.slotted.label,
+					content: toggledPanel.slotted.content.slice(0),
 				}
 			})
 		)
