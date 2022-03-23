@@ -170,10 +170,10 @@
 	<c- d>}</c->
 <c- d>}</c->
 
-<c- d>/*</c-> use a tablist interface on wide width screens <c- d>*/</c->
+<c- d>/*</c-> use a tabset interface on wide width screens <c- d>*/</c->
 <c- v>@media</c-> <c- d>(</c-><c- n>min-width</c-><c- d>:</c-> <c- v>60em</c-><c- d>)</c-> <c- d>{</c->
 	<c- n>oui-panelset</c-> <c- d>{</c->
-		<c- n>--affordance</c-><c- d>:</c-> <c- n>tablist</c-><c- d>;</c->
+		<c- n>--affordance</c-><c- d>:</c-> <c- n>tabset</c-><c- d>;</c->
 	<c- d>}</c->
 <c- d>}</c-></code
 					></pre>
@@ -200,7 +200,7 @@
 							<td>Sequential sections of content that display one at a time.</td>
 						</tr>
 						<tr>
-							<td><code>tablist</code></td>
+							<td><code>tabset</code></td>
 							<td>Layered sections of content that display one at a time.</td>
 						</tr>
 						<tr>
@@ -235,8 +235,8 @@
 				</p>
 				<pre><code
 ><c- d>&lt;</c-><c- n>style</c-><c- d>&gt;</c->
-<c- n>oui-panelset</c-><c- d>::</c-><c- n>part</c-><c- d>(</c-><c- n>container</c-> <c- n>tablist</c-><c- d>)</c-> <c- d>{</c->
-	<c- d>/*</c-> panelset container styles during the tablist affordance <c- d>*/</c->
+<c- n>oui-panelset</c-><c- d>::</c-><c- n>part</c-><c- d>(</c-><c- n>container</c-> <c- n>tabset</c-><c- d>)</c-> <c- d>{</c->
+	<c- d>/*</c-> panelset container styles during the tabset affordance <c- d>*/</c->
 <c- d>}</c->
 <c- d>&lt;/</c-><c- n>style</c-><c- d>&gt;</c-></code
 				></pre>
@@ -254,7 +254,7 @@
 						</tr>
 						<tr>
 							<td><code>label-container</code></td>
-							<td>The container of all labels, available in the <strong>tablist</strong> affordance.</td>
+							<td>The container of all labels, available in the <strong>tabset</strong> affordance.</td>
 						</tr>
 						<tr>
 							<td><code>marker</code></td>
@@ -266,7 +266,7 @@
 						</tr>
 						<tr>
 							<td><code>panel-container</code></td>
-							<td>The container of all panels, available in the <strong>tablist</strong> affordance.</td>
+							<td>The container of all panels, available in the <strong>tabset</strong> affordance.</td>
 						</tr>
 						<tr>
 							<td><code>label</code></td>

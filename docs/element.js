@@ -22,7 +22,7 @@ export class OUIPanelsetElement extends HTMLElement {
 // Panelset internals factory
 // -----------------------------------------------------------------------------
 let createInternals = (host) => {
-    /** Current affordance, which is 'content', 'disclosure', or 'tablist'. */
+    /** Current affordance, which is 'content', 'disclosure', or 'tabset'. */
     let affordance = 'content';
     // LightDOM references
     // -------------------------------------------------------------------------
@@ -39,9 +39,9 @@ let createInternals = (host) => {
     /** Panelset ShadowDOM container of all default styles (used in tabbed affordance"). */
     let shadowStyle = createElement('style');
     /** Panelset ShadowDOM container of all panel labels. */
-    let shadowLabelset = createElement('div', { part: 'labelset is-tablist' });
+    let shadowLabelset = createElement('div', { part: 'labelset is-tabset' });
     /** Panelset ShadowDOM container of all panel contents. */
-    let shadowContentset = createElement('div', { part: 'contentset is-tablist' });
+    let shadowContentset = createElement('div', { part: 'contentset is-tabset' });
     // ShadowDOM styles
     // -------------------------------------------------------------------------
     // include the following default syles
@@ -50,8 +50,8 @@ let createInternals = (host) => {
     ':where(div){outline:none}', ':where(button){all:unset;outline:revert}', ':where(svg){display:none}', ':where([part~="content"]:not([part~="open"])){display:none}', 
     // default styles for the disclosure affordance
     ':where([part~="is-disclosure"][part~="section"]){display:flex;flex-direction:column}', ':where([part~="is-disclosure"][part~="label"]){align-items:center;display:flex;gap:.25em;padding-inline-end:1em}', ':where([part~="is-disclosure"][part~="marker"]){display:block;height:.75em;width:.75em;transform:rotate(90deg)}', ':where([part~="is-disclosure"][part~="marker"][part~="open"]){transform:rotate(180deg)}', 
-    // default styles for the tablist affordance
-    ':where([part~="is-tablist"][part~="labelset"]){display:flex;gap:1em}', ':where([part~="is-tablist"][part~="label"][part~="open"]) ::slotted(*){text-decoration:underline}');
+    // default styles for the tabset affordance
+    ':where([part~="is-tabset"][part~="labelset"]){display:flex;gap:1em}', ':where([part~="is-tabset"][part~="label"][part~="open"]) ::slotted(*){text-decoration:underline}');
     // ShadowDOM tree
     // -------------------------------------------------------------------------
     // append content and style containers to the ShadowDOM root
@@ -176,7 +176,7 @@ let createInternals = (host) => {
     /** Run whenever the panelset affordance is changed. */
     let affordanceChangedCallback = () => {
         setAttributes(shadowContents, { part: withAffordance('contents') });
-        if (affordance === 'tablist') {
+        if (affordance === 'tabset') {
             shadowContents.replaceChildren(shadowLabelset, shadowContentset);
         }
         else {
@@ -217,7 +217,7 @@ let createInternals = (host) => {
                     assignSlot(panel.shadow.contentSlot, ...panel.slotted.content);
                     break;
                 }
-                case 'tablist': {
+                case 'tabset': {
                     panel.open = mostRecentPanel === panel;
                     setAttributes(panel.shadow.label, {
                         'aria-selected': panel.open,
@@ -249,7 +249,7 @@ let createInternals = (host) => {
                 toggledPanel.shadow.content.part.toggle('open', open);
                 break;
             }
-            case 'tablist': {
+            case 'tabset': {
                 if (toggledPanel.open) {
                     return;
                 }
@@ -282,7 +282,7 @@ let createInternals = (host) => {
         let siblingSection = panel[move];
         if (siblingSection) {
             siblingSection.shadow.label.focus();
-            if (affordance === 'tablist') {
+            if (affordance === 'tabset') {
                 panelToggledCallback(siblingSection);
             }
         }
@@ -325,7 +325,7 @@ let createInternals = (host) => {
         },
         set affordance(value) {
             value = value.toLowerCase();
-            if (value === 'disclosure' || value === 'tablist' || value === 'content') {
+            if (value === 'disclosure' || value === 'tabset' || value === 'content') {
                 if (value !== affordance) {
                     affordance = value;
                     affordanceChangedCallback();

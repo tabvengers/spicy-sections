@@ -33,7 +33,7 @@ export class OUIPanelsetElement extends HTMLElement {
 // -----------------------------------------------------------------------------
 
 let createInternals = (host: OUIPanelsetElement) => {
-	/** Current affordance, which is 'content', 'disclosure', or 'tablist'. */
+	/** Current affordance, which is 'content', 'disclosure', or 'tabset'. */
 	let affordance: Affordance = 'content'
 
 
@@ -62,10 +62,10 @@ let createInternals = (host: OUIPanelsetElement) => {
 	let shadowStyle = createElement('style')
 
 	/** Panelset ShadowDOM container of all panel labels. */
-	let shadowLabelset = createElement('div', { part: 'labelset is-tablist' })
+	let shadowLabelset = createElement('div', { part: 'labelset is-tabset' })
 
 	/** Panelset ShadowDOM container of all panel contents. */
-	let shadowContentset = createElement('div', { part: 'contentset is-tablist' })
+	let shadowContentset = createElement('div', { part: 'contentset is-tabset' })
 
 
 
@@ -86,9 +86,9 @@ let createInternals = (host: OUIPanelsetElement) => {
 		':where([part~="is-disclosure"][part~="marker"]){display:block;height:.75em;width:.75em;transform:rotate(90deg)}',
 		':where([part~="is-disclosure"][part~="marker"][part~="open"]){transform:rotate(180deg)}',
 
-		// default styles for the tablist affordance
-		':where([part~="is-tablist"][part~="labelset"]){display:flex;gap:1em}',
-		':where([part~="is-tablist"][part~="label"][part~="open"]) ::slotted(*){text-decoration:underline}'
+		// default styles for the tabset affordance
+		':where([part~="is-tabset"][part~="labelset"]){display:flex;gap:1em}',
+		':where([part~="is-tabset"][part~="label"][part~="open"]) ::slotted(*){text-decoration:underline}'
 	)
 
 
@@ -258,7 +258,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 	let affordanceChangedCallback = () => {
 		setAttributes(shadowContents, { part: withAffordance('contents') })
 
-		if (affordance === 'tablist') {
+		if (affordance === 'tabset') {
 			shadowContents.replaceChildren(shadowLabelset, shadowContentset)
 		} else {
 			shadowContents.replaceChildren()
@@ -312,7 +312,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 					break
 				}
 
-				case 'tablist': {
+				case 'tabset': {
 					panel.open = mostRecentPanel === panel
 
 					setAttributes(panel.shadow.label, {
@@ -355,7 +355,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 				break
 			}
 
-			case 'tablist': {
+			case 'tabset': {
 				if (toggledPanel.open) {
 					return
 				}
@@ -400,7 +400,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 		if (siblingSection) {
 			siblingSection.shadow.label.focus()
 
-			if (affordance === 'tablist') {
+			if (affordance === 'tabset') {
 				panelToggledCallback(siblingSection)
 			}
 		}
@@ -467,7 +467,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 		set affordance(value: string) {
 			value = value.toLowerCase()
 
-			if (value === 'disclosure' || value === 'tablist' || value === 'content') {
+			if (value === 'disclosure' || value === 'tabset' || value === 'content') {
 				if (value !== affordance) {
 					affordance = value
 
@@ -580,7 +580,7 @@ let upsert = <K extends object, V>(map: WeakMap<K, V>, key: K, fns: { insert(key
 // -----------------------------------------------------------------------------
 
 /** Available affordances. */
-type Affordance = 'content' | 'disclosure' | 'tablist'
+type Affordance = 'content' | 'disclosure' | 'tabset'
 
 /** Panel generated from Panelset LightDOM child nodes. */
 declare interface Panel {
