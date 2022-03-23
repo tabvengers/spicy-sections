@@ -619,7 +619,7 @@ type EventWithCurrentTarget<E extends Event, T extends EventTarget> = E & {
 	currentTarget: T
 }
 
-/** WeakMap interface that always expects to get a Panel. */
+/** WeakMap interface that always expects to get a value. */
 interface SafeWeakMap<K extends object, V = Panel> {
 	get(key: K): V
 	has(key: K): boolean
