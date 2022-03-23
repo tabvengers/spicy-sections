@@ -3,20 +3,13 @@
 export class OUIPanelsetElement extends HTMLElement {
     #internals = createInternals(this);
     get affordance() {
-        return this.#internals.affordance;
+        return this.#internals.getAffordance();
     }
     set affordance(value) {
-        this.#internals.affordance = value;
+        this.#internals.setAffordance(String(value));
     }
     getActivePanels() {
         return this.#internals.getActivePanels();
-    }
-    connectedCallback() {
-        window.addEventListener('hashchange', this.#internals.onHashChange);
-        requestAnimationFrame(() => this.#internals.onHashChange({ currentTarget: window }));
-    }
-    disconnectedCallback() {
-        window.removeEventListener('hashchange', this.#internals.onHashChange);
     }
 }
 // Panelset internals factory
@@ -47,7 +40,7 @@ let createInternals = (host) => {
     // include the following default syles
     shadowStyle.append(
     // default styles for all affordances
-    ':where(div){outline:none}', ':where(button){all:unset;outline:revert}', ':where(svg){display:none}', ':where([part~="content"]:not([part~="open"])){display:none}', 
+    ':host{--affordance:content}', ':where(div){outline:none}', ':where(button){all:unset;outline:revert}', ':where(svg){display:none}', ':where([part~="content"]:not([part~="open"])){display:none}', 
     // default styles for the content affordance
     ':where([part~="is-content"]){display:contents}', 
     // default styles for the disclosure affordance
@@ -180,7 +173,7 @@ let createInternals = (host) => {
     };
     /** Run whenever the panelset affordance is changed. */
     let affordanceChangedCallback = () => {
-        setAttributes(shadowContents, { part: withAffordance('contents') });
+        setAttributes(shadowContents, { part: 'contents is-' + affordance });
         if (affordance === 'tabset') {
             shadowContents.replaceChildren(shadowLabelset, shadowContentset);
         }
@@ -188,10 +181,10 @@ let createInternals = (host) => {
             shadowContents.replaceChildren();
         }
         for (let panel of panels) {
-            setAttributes(panel.shadow.section, { part: withAffordance('section') });
-            setAttributes(panel.shadow.label, { part: withAffordance('label') });
-            setAttributes(panel.shadow.marker, { part: withAffordance('marker') });
-            setAttributes(panel.shadow.content, { part: withAffordance('content') });
+            setAttributes(panel.shadow.section, { part: 'section is-' + affordance });
+            setAttributes(panel.shadow.label, { part: 'label is-' + affordance });
+            setAttributes(panel.shadow.marker, { part: 'marker is-' + affordance });
+            setAttributes(panel.shadow.content, { part: 'content is-' + affordance });
             panel.shadow.label.removeAttribute('tabindex');
             panel.shadow.label.removeAttribute('aria-expanded');
             panel.shadow.label.removeAttribute('aria-selected');
@@ -241,12 +234,6 @@ let createInternals = (host) => {
                 }
             }
         }
-        // dispatch an affordancechange event for the panel
-        host.dispatchEvent(new CustomEvent('affordancechange', {
-            detail: {
-                affordance,
-            }
-        }));
     };
     /** Run whenever the given panel is toggled. */
     let panelToggledCallback = (toggledPanel) => {
@@ -281,55 +268,32 @@ let createInternals = (host) => {
             mostRecentPanel = toggledPanel;
         }
         // dispatch an open event for the panel
-        host.dispatchEvent(new CustomEvent('open', {
+        host.dispatchEvent(new CustomEvent('toggle', {
             detail: {
+                open: toggledPanel.open,
                 label: toggledPanel.slotted.label,
                 content: toggledPanel.slotted.content.slice(0),
             }
         }));
     };
-    // Utilities
-    // -------------------------------------------------------------------------
-    /** Returns the given part identifier and the current affordance. */
-    let withAffordance = (identifier) => identifier + ' is-' + affordance;
-    // Handle changes to any DOM child nodes
-    // -------------------------------------------------------------------------
-    new MutationObserver(childrenChangedCallback);
-    if (host.hasChildNodes())
-        childrenChangedCallback();
-    // Handle changes to the page hash
-    // -------------------------------------------------------------------------
-    window.addEventListener('hashchange', (event) => {
-        // ...
-    });
-    // Handle changes to the CSS --affordance property
-    // -------------------------------------------------------------------------
-    let oldValue = affordance;
-    let newValue = '';
-    let frameA = () => {
-        requestAnimationFrame(frameB);
-        newValue = hostComputedStyle.getPropertyValue('--affordance');
-    };
-    let frameB = () => {
-        requestAnimationFrame(frameA);
-        if (oldValue !== newValue) {
-            oldValue = newValue;
-            internals.affordance = newValue.trim() || 'content';
-        }
-    };
-    frameA();
     // Internals
     // -------------------------------------------------------------------------
     let internals = {
-        get affordance() {
+        getAffordance() {
             return affordance;
         },
-        set affordance(value) {
-            value = value.toLowerCase();
-            if (value === 'disclosure' || value === 'tabset' || value === 'content') {
+        setAffordance(value) {
+            value = value.trim().toLowerCase();
+            if (affordances.has(value)) {
                 if (value !== affordance) {
                     affordance = value;
                     affordanceChangedCallback();
+                    // dispatch an affordancechange event for the panel
+                    host.dispatchEvent(new CustomEvent('affordancechange', {
+                        detail: {
+                            affordance,
+                        }
+                    }));
                 }
             }
         },
@@ -345,33 +309,68 @@ let createInternals = (host) => {
             }
             return activePanels;
         },
-        onHashChange(event) {
-            let hash = event.currentTarget.location.hash;
-            if (hash) {
-                let element = document.querySelector(hash);
-                if (element) {
-                    for (let panel of panels) {
-                        if (panel.slotted.label.contains(element)) {
-                            console.log(panel);
+    };
+    // Handle changes to any DOM child nodes
+    // -------------------------------------------------------------------------
+    let observer = new MutationObserver(childrenChangedCallback);
+    // Handle changes to the page hash
+    // -------------------------------------------------------------------------
+    window.addEventListener('hashchange', () => {
+        if (!host.isConnected)
+            return;
+        let { hash } = window.location;
+        if (hash) {
+            let element = document.querySelector(hash);
+            if (element) {
+                for (let panel of panels) {
+                    if (panel.slotted.label.contains(element)) {
+                        panelToggledCallback(panel);
+                        return;
+                    }
+                    for (let content of panel.slotted.content) {
+                        if (content.contains(element)) {
                             panelToggledCallback(panel);
                             return;
-                        }
-                        for (let content of panel.slotted.content) {
-                            if (content.contains(element)) {
-                                console.log(panel);
-                                panelToggledCallback(panel);
-                                return;
-                            }
                         }
                     }
                 }
             }
-        },
+        }
+    });
+    // Handle changes to the CSS --affordance property
+    // -------------------------------------------------------------------------
+    let oldCSSValue = '';
+    let newCSSValue = '';
+    let frameA = () => {
+        requestAnimationFrame(frameB);
+        newCSSValue = hostComputedStyle.getPropertyValue('--affordance');
     };
+    let frameB = () => {
+        requestAnimationFrame(frameA);
+        if (oldCSSValue !== newCSSValue) {
+            oldCSSValue = newCSSValue;
+            internals.setAffordance(newCSSValue);
+        }
+    };
+    // initialize
+    // -------------------------------------------------------------------------
+    // activate the CSS --affordance property observer
+    frameA();
+    // format the initial --affordance property value
+    newCSSValue = oldCSSValue = newCSSValue.trim().toLowerCase();
+    // conditionally update the affordance by the `--affordance` property value
+    if (affordances.has(newCSSValue)) {
+        affordance = newCSSValue;
+    }
+    // observe the host for changes
+    observer.observe(host, { childList: true });
+    // initialize the current children
+    childrenChangedCallback();
     return internals;
 };
 // Utilities
 // -----------------------------------------------------------------------------
+let affordances = new Set(['disclosure', 'tabset', 'content']);
 /** Assigns to the given slot the given nodes (using manual slot assignment when supported). */
 let assignSlot = (slot, ...nodes) => {
     if (supportsSlotAssignment) {

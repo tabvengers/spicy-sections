@@ -5,25 +5,15 @@ export class OUIPanelsetElement extends HTMLElement {
 	#internals = createInternals(this)
 
 	get affordance() {
-		return this.#internals.affordance
+		return this.#internals.getAffordance()
 	}
 
 	set affordance(value) {
-		this.#internals.affordance = value
+		this.#internals.setAffordance(String(value))
 	}
 
 	getActivePanels() {
 		return this.#internals.getActivePanels()
-	}
-
-	connectedCallback() {
-		window.addEventListener('hashchange', this.#internals.onHashChange)
-
-		requestAnimationFrame(() => this.#internals.onHashChange({ currentTarget: window }))
-	}
-
-	disconnectedCallback() {
-		window.removeEventListener('hashchange', this.#internals.onHashChange)
 	}
 }
 
@@ -75,6 +65,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// include the following default syles
 	shadowStyle.append(
 		// default styles for all affordances
+		':host{--affordance:content}',
 		':where(div){outline:none}',
 		':where(button){all:unset;outline:revert}',
 		':where(svg){display:none}',
@@ -101,6 +92,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 	// append content and style containers to the ShadowDOM root
 	shadowRoot.append(shadowContents, shadowStyle)
+
 
 
 	// Panel references
@@ -262,7 +254,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 	/** Run whenever the panelset affordance is changed. */
 	let affordanceChangedCallback = () => {
-		setAttributes(shadowContents, { part: withAffordance('contents') })
+		setAttributes(shadowContents, { part: 'contents is-' + affordance })
 
 		if (affordance === 'tabset') {
 			shadowContents.replaceChildren(shadowLabelset, shadowContentset)
@@ -271,10 +263,10 @@ let createInternals = (host: OUIPanelsetElement) => {
 		}
 
 		for (let panel of panels) {
-			setAttributes(panel.shadow.section, { part: withAffordance('section') })
-			setAttributes(panel.shadow.label, { part: withAffordance('label') })
-			setAttributes(panel.shadow.marker, { part: withAffordance('marker') })
-			setAttributes(panel.shadow.content, { part: withAffordance('content') })
+			setAttributes(panel.shadow.section, { part: 'section is-' + affordance })
+			setAttributes(panel.shadow.label, { part: 'label is-' + affordance })
+			setAttributes(panel.shadow.marker, { part: 'marker is-' + affordance })
+			setAttributes(panel.shadow.content, { part: 'content is-' + affordance })
 
 			panel.shadow.label.removeAttribute('tabindex')
 			panel.shadow.label.removeAttribute('aria-expanded')
@@ -343,15 +335,6 @@ let createInternals = (host: OUIPanelsetElement) => {
 				}
 			}
 		}
-
-		// dispatch an affordancechange event for the panel
-		host.dispatchEvent(
-			new CustomEvent('affordancechange', {
-				detail: {
-					affordance,
-				}
-			})
-		)
 	}
 
 	/** Run whenever the given panel is toggled. */
@@ -399,8 +382,9 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 		// dispatch an open event for the panel
 		host.dispatchEvent(
-			new CustomEvent('open', {
+			new CustomEvent('toggle', {
 				detail: {
+					open: toggledPanel.open,
 					label: toggledPanel.slotted.label,
 					content: toggledPanel.slotted.content.slice(0),
 				}
@@ -410,75 +394,36 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 
 
-	// Utilities
-	// -------------------------------------------------------------------------
-
-	/** Returns the given part identifier and the current affordance. */
-	let withAffordance = (identifier: string) => identifier + ' is-' + affordance
-
-
-
-	// Handle changes to any DOM child nodes
-	// -------------------------------------------------------------------------
-
-	new MutationObserver(childrenChangedCallback)
-
-	if (host.hasChildNodes()) childrenChangedCallback()
-
-
-
-	// Handle changes to the page hash
-	// -------------------------------------------------------------------------
-
-	window.addEventListener('hashchange', (event) => {
-		// ...
-	})
-
-
-	// Handle changes to the CSS --affordance property
-	// -------------------------------------------------------------------------
-
-	let oldValue = affordance as string
-	let newValue = ''
-
-	let frameA = () => {
-		requestAnimationFrame(frameB)
-		newValue = hostComputedStyle.getPropertyValue('--affordance')
-	}
-
-	let frameB = () => {
-		requestAnimationFrame(frameA)
-		if (oldValue !== newValue) {
-			oldValue = newValue
-
-			internals.affordance = newValue.trim() || 'content'
-		}
-	}
-
-	frameA()
-
-
-
 	// Internals
 	// -------------------------------------------------------------------------
 
 	let internals = {
-		get affordance() {
+		getAffordance() {
 			return affordance
 		},
-		set affordance(value: string) {
-			value = value.toLowerCase()
+		setAffordance(value: string) {
+			value = value.trim().toLowerCase()
 
-			if (value === 'disclosure' || value === 'tabset' || value === 'content') {
+			if (affordances.has(value as Affordance)) {
 				if (value !== affordance) {
-					affordance = value
+					affordance = value as Affordance
 
 					affordanceChangedCallback()
+
+					// dispatch an affordancechange event for the panel
+					host.dispatchEvent(
+						new CustomEvent('affordancechange', {
+							detail: {
+								affordance,
+							}
+						})
+					)
 				}
 			}
 		},
 		getActivePanels() {
 			let activePanels = []
+
 			for (let panel of panels) {
 				if (panel.open) {
 					activePanels.push({
@@ -489,34 +434,91 @@ let createInternals = (host: OUIPanelsetElement) => {
 			}
 			return activePanels
 		},
-		onHashChange(event: any) {
-			let hash = (event.currentTarget as Window).location.hash
+	}
 
-			if (hash) {
-				let element = document.querySelector(hash)
 
-				if (element) {
-					for (let panel of panels) {
-						if (panel.slotted.label.contains(element)) {
-							console.log(panel)
+
+	// Handle changes to any DOM child nodes
+	// -------------------------------------------------------------------------
+
+	let observer = new MutationObserver(childrenChangedCallback)
+
+
+
+	// Handle changes to the page hash
+	// -------------------------------------------------------------------------
+
+	window.addEventListener('hashchange', () => {
+		if (!host.isConnected) return
+
+		let { hash } = window.location
+
+		if (hash) {
+			let element = document.querySelector(hash)
+
+			if (element) {
+				for (let panel of panels) {
+					if (panel.slotted.label.contains(element)) {
+						panelToggledCallback(panel)
+
+						return
+					}
+
+					for (let content of panel.slotted.content) {
+						if (content.contains(element)) {
 							panelToggledCallback(panel)
 
 							return
 						}
-
-						for (let content of panel.slotted.content) {
-							if (content.contains(element)) {
-								console.log(panel)
-								panelToggledCallback(panel)
-	
-								return
-							}
-						}
 					}
 				}
 			}
-		},
+		}
+	})
+
+
+
+	// Handle changes to the CSS --affordance property
+	// -------------------------------------------------------------------------
+
+	let oldCSSValue = ''
+	let newCSSValue = ''
+
+	let frameA = () => {
+		requestAnimationFrame(frameB)
+
+		newCSSValue = hostComputedStyle.getPropertyValue('--affordance')
 	}
+
+	let frameB = () => {
+		requestAnimationFrame(frameA)
+
+		if (oldCSSValue !== newCSSValue) {
+			oldCSSValue = newCSSValue
+
+			internals.setAffordance(newCSSValue)
+		}
+	}
+
+	// initialize
+	// -------------------------------------------------------------------------
+
+	// activate the CSS --affordance property observer
+	frameA()
+
+	// format the initial --affordance property value
+	newCSSValue = oldCSSValue = newCSSValue.trim().toLowerCase()
+
+	// conditionally update the affordance by the `--affordance` property value
+	if (affordances.has(newCSSValue as Affordance)) {
+		affordance = newCSSValue as Affordance
+	}
+
+	// observe the host for changes
+	observer.observe(host, { childList: true })
+
+	// initialize the current children
+	childrenChangedCallback()
 
 	return internals
 }
@@ -525,6 +527,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 // Utilities
 // -----------------------------------------------------------------------------
+
+let affordances = new Set([ 'disclosure', 'tabset', 'content' ] as const)
 
 /** Assigns to the given slot the given nodes (using manual slot assignment when supported). */
 let assignSlot = (slot: HTMLSlotElement, ...nodes: (Element | Text)[]) => {
@@ -568,7 +572,9 @@ let setProps = Object.assign as <O extends object>(o: O, ...p: object[]) => O
 // -----------------------------------------------------------------------------
 
 /** Available affordances. */
-type Affordance = 'content' | 'disclosure' | 'tabset'
+type Affordance = IterableValue<typeof affordances>
+
+type IterableValue<I> = I extends Iterable<infer T> ? T : never
 
 /** Panel generated from Panelset LightDOM child nodes. */
 declare interface Panel {
