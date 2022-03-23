@@ -17,16 +17,12 @@ export class OUIPanelsetElement extends HTMLElement {
 	}
 
 	connectedCallback() {
-		let window = this.ownerDocument.defaultView as Window
-
 		window.addEventListener('hashchange', this.#internals.onHashChange)
 
 		requestAnimationFrame(() => this.#internals.onHashChange({ currentTarget: window }))
 	}
 
 	disconnectedCallback() {
-		let window = this.ownerDocument.defaultView as Window
-
 		window.removeEventListener('hashchange', this.#internals.onHashChange)
 	}
 }
@@ -45,13 +41,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// LightDOM references
 	// -------------------------------------------------------------------------
 
-	/** Document associated with the current Panelset. */
-	let document = host.ownerDocument
-
-	/** Window associated with the current Panelset. */
-	let window = document.defaultView as Window
-
-	/** Panelset LightDOM child nodes. */
+	/** Panelset LightDOM live child nodes. */
 	let hostChildNodes = host.childNodes
 
 	/** Panelset LightDOM computed style. */
