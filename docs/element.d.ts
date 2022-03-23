@@ -4,6 +4,6 @@ export declare class OUIPanelsetElement extends HTMLElement {
     set affordance(value: "disclosure" | "tabset" | "content");
     getActivePanels(): {
         label: HTMLHeadingElement;
-        content: (Element | Text)[];
+        contents: (Element | Text)[];
     }[];
 }

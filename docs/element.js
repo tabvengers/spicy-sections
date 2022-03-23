@@ -25,20 +25,58 @@ let createInternals = (host) => {
     let hostComputedStyle = getComputedStyle(host);
     // ShadowDOM references
     // -------------------------------------------------------------------------
+    // ShadowDOM tree for container:
+    //
+    // <div part="container"><!-- affordance tree --></div>
+    // <style><!-- default styles --></style>
+    // ShadowDOM tree for the "content" affordance:
+    //
+    // <div part="section">
+    //   <button part="label">
+    //     <slot><!-- slotted panel label --></slot>
+    //   </button>
+    //   <div part="content">
+    //     <slot><!-- slotted panel contents --></slot>
+    //   </div>
+    // </div>
+    // ShadowDOM tree for the "disclosure" affordance:
+    //
+    // <div part="section">
+    //   <button part="label">
+    //     <slot><!-- slotted panel label --></slot>
+    //   </button>
+    //   <div part="content">
+    //     <slot><!-- slotted panel contents --></slot>
+    //   </div>
+    // </div>
+    // ShadowDOM tree for the "tabset" affordance:
+    //
+    // <div part="label-container">
+    //   <!-- for each panel -->
+    //   <button part="label">
+    //     <slot><!-- slotted panel label --></slot>
+    //   </button>
+    // </div>
+    // <div part="content-container">
+    //   <!-- for each panel -->
+    //   <div part="content">
+    //     <slot><!-- slotted panel contents --></slot>
+    //   </div>
+    // </div>
     /** Panelset ShadowDOM root. */
     let shadowRoot = host.attachShadow({ mode: 'closed', slotAssignment: 'manual' });
-    /** Panelset ShadowDOM container of all content. */
-    let shadowContents = createElement('div', { part: 'contents' });
+    /** Panelset ShadowDOM container of all ShadowDOM content. */
+    let shadowContainerElement = createElement('div', { part: 'container' });
     /** Panelset ShadowDOM container of all default styles (used in tabbed affordance"). */
-    let shadowStyle = createElement('style');
+    let shadowStyleElement = createElement('style');
     /** Panelset ShadowDOM container of all panel labels. */
-    let shadowLabelset = createElement('div', { part: 'labelset is-tabset' });
+    let shadowLabelContainerElement = createElement('div', { part: 'label-container is-tabset', role: 'tablist' });
     /** Panelset ShadowDOM container of all panel contents. */
-    let shadowContentset = createElement('div', { part: 'contentset is-tabset' });
+    let shadowContentContainerElement = createElement('div', { part: 'content-container is-tabset' });
     // ShadowDOM styles
     // -------------------------------------------------------------------------
     // include the following default syles
-    shadowStyle.append(
+    shadowStyleElement.append(
     // default styles for all affordances
     ':host{--affordance:content}', ':where(div){outline:none}', ':where(button){all:unset;outline:revert}', ':where(svg){display:none}', ':where([part~="content"]:not([part~="open"])){display:none}', 
     // default styles for the content affordance
@@ -46,11 +84,11 @@ let createInternals = (host) => {
     // default styles for the disclosure affordance
     ':where([part~="is-disclosure"][part~="section"]){display:flex;flex-direction:column}', ':where([part~="is-disclosure"][part~="label"]){align-items:center;display:flex;gap:.25em;padding-inline-end:1em}', ':where([part~="is-disclosure"][part~="marker"]){display:block;height:.75em;width:.75em;transform:rotate(90deg)}', ':where([part~="is-disclosure"][part~="marker"][part~="open"]){transform:rotate(180deg)}', 
     // default styles for the tabset affordance
-    ':where([part~="is-tabset"][part~="labelset"]){display:flex;gap:1em}', ':where([part~="is-tabset"][part~="label"][part~="open"]) ::slotted(*){text-decoration:underline}');
+    ':where([part~="is-tabset"][part~="label-container"]){display:flex;gap:1em}', ':where([part~="is-tabset"][part~="label"][part~="open"]) ::slotted(*){text-decoration:underline}');
     // ShadowDOM tree
     // -------------------------------------------------------------------------
     // append content and style containers to the ShadowDOM root
-    shadowRoot.append(shadowContents, shadowStyle);
+    shadowRoot.append(shadowContainerElement, shadowStyleElement);
     // Panel references
     // -------------------------------------------------------------------------
     /** Array of all panels in the panelset. */
@@ -104,7 +142,7 @@ let createInternals = (host) => {
     /** Run whenever nodes are added to or removed from the panelset host. */
     let childrenChangedCallback = () => {
         /** Panel extracted from the Panelset LightDOM child nodes. */
-        let panel = Object({ slotted: { content: [] } });
+        let panel = Object({ slotted: { contents: [] } });
         /** Previously extracted Panel. */
         let prevPanel;
         /** Current Panel index. */
@@ -121,18 +159,18 @@ let createInternals = (host) => {
                         open: false,
                         slotted: {
                             label: node,
-                            content: [],
+                            contents: [],
                         },
                         shadow: {
                             /** Section (`<div part="section">`). */
-                            section: createElement('div', { part: 'section' }),
+                            section: createElement('div'),
                             /** Label (`<button part="label">`). */
-                            label: createElement('button', { part: 'label', type: 'button' }),
+                            label: createElement('button', { part: '', role: 'button', type: 'button' }),
                             labelSlot: createElement('slot'),
                             /** Marker (`<svg part="marker">`). */
-                            marker: createElement('svg', { part: 'marker', viewBox: '0 0 270 240', xmlns: 'http://www.w3.org/2000/svg' }),
+                            marker: createElement('svg', { part: '', viewBox: '0 0 270 240', xmlns: 'http://www.w3.org/2000/svg' }),
                             /** Content (`<div part="content">`). */
-                            content: createElement('div', { part: 'content', role: 'region', tabindex: 0 }),
+                            content: createElement('div', { part: '', role: '', tabindex: 0 }),
                             contentSlot: createElement('slot'),
                         },
                         prev: null,
@@ -166,73 +204,73 @@ let createInternals = (host) => {
             }
             else if (node instanceof Element || node instanceof Text) {
                 // otherwise, append the child node to the existing panel
-                panel.slotted.content.push(node);
+                panel.slotted.contents.push(node);
             }
         }
         affordanceChangedCallback();
     };
     /** Run whenever the panelset affordance is changed. */
     let affordanceChangedCallback = () => {
-        setAttributes(shadowContents, { part: 'contents is-' + affordance });
+        // set the container affordance
+        setAttributes(shadowContainerElement, { part: 'container is-' + affordance });
+        // reset any container children
         if (affordance === 'tabset') {
-            shadowContents.replaceChildren(shadowLabelset, shadowContentset);
+            shadowContainerElement.replaceChildren(shadowLabelContainerElement, shadowContentContainerElement);
         }
         else {
-            shadowContents.replaceChildren();
+            shadowContainerElement.replaceChildren();
         }
         for (let panel of panels) {
+            // update all panel parts with the new affordance
             setAttributes(panel.shadow.section, { part: 'section is-' + affordance });
             setAttributes(panel.shadow.label, { part: 'label is-' + affordance });
             setAttributes(panel.shadow.marker, { part: 'marker is-' + affordance });
             setAttributes(panel.shadow.content, { part: 'content is-' + affordance });
-            panel.shadow.label.removeAttribute('tabindex');
             panel.shadow.label.removeAttribute('aria-expanded');
             panel.shadow.label.removeAttribute('aria-selected');
-            panel.shadow.content.removeAttribute('tabindex');
+            // by affordance; update attributes, parts, shadow tree
             switch (affordance) {
                 case 'content': {
+                    // update attributes
+                    setAttributes(panel.shadow.label, { role: 'none', tabindex: -1 });
+                    setAttributes(panel.shadow.content, { role: 'region', tabindex: -1 });
+                    // update parts
                     panel.shadow.content.part.toggle('open', true);
+                    // update shadow tree
                     panel.shadow.section.replaceChildren(panel.shadow.label, panel.shadow.content);
-                    shadowContents.append(panel.shadow.section);
-                    assignSlot(panel.shadow.labelSlot, panel.slotted.label);
-                    assignSlot(panel.shadow.contentSlot, ...panel.slotted.content);
+                    shadowContainerElement.append(panel.shadow.section);
                     break;
                 }
                 case 'disclosure': {
-                    setAttributes(panel.shadow.label, {
-                        'aria-expanded': panel.open,
-                        tabindex: 0
-                    });
-                    setAttributes(panel.shadow.content, {
-                        tabindex: 0
-                    });
+                    // update attributes
+                    setAttributes(panel.shadow.label, { role: 'button', 'aria-expanded': panel.open, tabindex: 0 });
+                    setAttributes(panel.shadow.content, { role: 'region', tabindex: 0 });
+                    // update parts
                     panel.shadow.content.part.toggle('open', panel.open);
                     panel.shadow.label.part.toggle('open', panel.open);
                     panel.shadow.marker.part.toggle('open', panel.open);
+                    // update shadow tree
                     panel.shadow.section.replaceChildren(panel.shadow.label, panel.shadow.content);
-                    shadowContents.append(panel.shadow.section);
-                    assignSlot(panel.shadow.labelSlot, panel.slotted.label);
-                    assignSlot(panel.shadow.contentSlot, ...panel.slotted.content);
+                    shadowContainerElement.append(panel.shadow.section);
                     break;
                 }
                 case 'tabset': {
                     panel.open = mostRecentPanel === panel;
-                    setAttributes(panel.shadow.label, {
-                        'aria-selected': panel.open,
-                        tabindex: panel.open ? 0 : -1
-                    });
-                    setAttributes(panel.shadow.content, {
-                        tabindex: 0
-                    });
+                    // update attributes
+                    setAttributes(panel.shadow.label, { role: 'tab', 'aria-selected': panel.open, tabindex: panel.open ? 0 : -1 });
+                    setAttributes(panel.shadow.content, { role: 'tabpanel', tabindex: 0 });
+                    // update parts
                     panel.shadow.label.part.toggle('open', panel.open);
                     panel.shadow.content.part.toggle('open', panel.open);
-                    shadowLabelset.append(panel.shadow.label);
-                    shadowContentset.append(panel.shadow.content);
-                    assignSlot(panel.shadow.labelSlot, panel.slotted.label);
-                    assignSlot(panel.shadow.contentSlot, ...panel.slotted.content);
+                    // update shadow tree
+                    shadowLabelContainerElement.append(panel.shadow.label);
+                    shadowContentContainerElement.append(panel.shadow.content);
                     break;
                 }
             }
+            // update assignments
+            assignSlot(panel.shadow.labelSlot, panel.slotted.label);
+            assignSlot(panel.shadow.contentSlot, ...panel.slotted.contents);
         }
     };
     /** Run whenever the given panel is toggled. */
@@ -272,7 +310,7 @@ let createInternals = (host) => {
             detail: {
                 open: toggledPanel.open,
                 label: toggledPanel.slotted.label,
-                content: toggledPanel.slotted.content.slice(0),
+                contents: toggledPanel.slotted.contents.slice(0),
             }
         }));
     };
@@ -303,7 +341,7 @@ let createInternals = (host) => {
                 if (panel.open) {
                     activePanels.push({
                         label: panel.slotted.label,
-                        content: panel.slotted.content.slice(0),
+                        contents: panel.slotted.contents.slice(0),
                     });
                 }
             }
@@ -327,7 +365,7 @@ let createInternals = (host) => {
                         panelToggledCallback(panel);
                         return;
                     }
-                    for (let content of panel.slotted.content) {
+                    for (let content of panel.slotted.contents) {
                         if (content.contains(element)) {
                             panelToggledCallback(panel);
                             return;

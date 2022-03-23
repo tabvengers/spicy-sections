@@ -29,7 +29,7 @@
 	<c- d>&lt;</c-><c- n>p</c-><c- d>&gt;</c->… News content …<c- d>&lt;/</c-><c- n>p</c-><c- d>&gt;</c->
 	<c- d>&lt;</c-><c- n>p</c-><c- d>&gt;</c->… News content …<c- d>&lt;/</c-><c- n>p</c-><c- d>&gt;</c->
 	<c- d>&lt;</c-><c- n>p</c-><c- d>&gt;</c->… News content …<c- d>&lt;/</c-><c- n>p</c-><c- d>&gt;</c->
-<c- d>&lt;/</c-><c- n>oui-panelset</c-><c- d>&gt;</c></code
+<c- d>&lt;/</c-><c- n>oui-panelset</c-><c- d>&gt;</c-></code
 			></pre>
 			<section id="installation">
 				<h2>
@@ -139,9 +139,41 @@
 						<a href="#dom-affordance-property-usage">Usage</a>
 					</h5>
 					<pre><code
-><c- k>const</c-> <c- v>panelset</c-> <c- d>=</c-> <c- n>document</c->.<c- np>querySelector</c->(<c- s>'oui-panelset'</c-><c- d>)</c->
+><c- k>const</c-> <c- v>panelset</c-> <c- d>=</c-> <c- n>document</c-><c- d>.</c-><c- np>querySelector</c-><c- d>(</c-><c- s>'oui-panelset'</c-><c- d>)</c->
 
-<c- v>panelset<c- d>.</c->affordance</c-> <c->=</c-> <c- s>'exclusive-disclosure'</c-></code
+<c- v>panelset</c-><c- d>.</c-><c- np>affordance</c-> <c->=</c-> <c- s>'exclusive-disclosure'</c-></code
+					></pre>
+				</section>
+				<section id="dom-methods">
+					<h3>
+						<a href="#dom-methods">Methods</a>
+					</h3>
+					<dl>
+						<dt id="dom-getactivepanels-method">
+							<a href="#dom-getactivepanels-method"><code>getActivePanels</code></a>
+						</dt>
+						<dd>
+							<p>
+								An array of objects representing the currently active panels in the panelset.
+							</p>
+							<p>
+								Each panel object has a <code>label</code> property which returns the element identified as the label of the given panel, and a <code>contents</code> property which returns the elements and text nodes identified as the contents of the given panel.
+							</p>
+						</dd>
+					</dl>
+					<h5 id="dom-getactivepanels-method-usage">
+						<a href="#dom-getactivepanels-method-usage">Usage</a>
+					</h5>
+					<pre><code
+><c- k>const</c-> <c- v>panelset</c-> <c- d>=</c-> <c- n>document</c-><c- d>.</c-><c- np>querySelector</c-><c- d>(</c-><c- s>'oui-panelset'</c-><c- d>)</c->
+<c- k>const</c-> <c- v>panels</c-> <c- d>=</c-> <c- v>panelset</c-><c- d>.</c-><c- np>getActivePanels</c-><c- d>(</c-><c- d>)</c-></c->
+
+<c- k>for</c-> <c- d>(</c-><c- k>const</c-> <c- v>panel</c-> <c- k>of</c-> <c- v>panelset</c-><c- d>)</c-> <c- d>{</c->
+	<c- n>console</c-><c- d>.</c-><c- np>log</c-><c- d>(</c-><c- v>panel</c-><c- d>)</c-> <c- d>/* {
+		panel: HTMLHeadingElement,
+		content: (Element | Text)[]
+	} */</c->
+<c- d>}</c-></code
 					></pre>
 				</section>
 				<section id="css-properties">
@@ -221,22 +253,50 @@
 				<pre><code
 >&lt;oui-panelset&gt;
 	::part(container)
-		::part(label-container)
-			::part(marker)
-			::part(label)
-
-		::part(panel-container) {
-			::part(panel)
-		::
+		affordance parts
 	::
 &lt;/oui-panelset&gt;</code
 				></pre>
+				<section>
+					<h4>
+						<a href="#content-affordance-parts">Content Affordance Parts</a>
+					</h4>
+					<pre><code
+>::part(section is-content)
+	::part(label is-content)
+	::part(content is-content)
+::</code
+					></pre>
+				</section>
+				<section>
+					<h4>
+						<a href="#disclosure-affordance-parts">Disclosure Affordance Parts</a>
+					</h4>
+					<pre><code
+>::part(section is-disclosure)
+	::part(label is-disclosure)
+	::part(content is-disclosure)
+::</code
+					></pre>
+				</section>
+				<section>
+					<h4>
+						<a href="#tabset-affordance-parts">Tabset Affordance Parts</a>
+					</h4>
+					<pre><code
+>::part(label-container is-tabset)
+	::part(label is-tabset)
+::part(content-container is-tabset)
+	::part(content is-tabset)
+::</code
+					></pre>
+				</section>
 				<p>
 					Any shadow tree part can be styled by a particular <a href="#affordances">affordance</a> by adding it to the part selector.
 				</p>
 				<pre><code
 ><c- d>&lt;</c-><c- n>style</c-><c- d>&gt;</c->
-<c- n>oui-panelset</c-><c- d>::</c-><c- n>part</c-><c- d>(</c-><c- n>container</c-> <c- n>tabset</c-><c- d>)</c-> <c- d>{</c->
+<c- n>oui-panelset</c-><c- d>::</c-><c- n>part</c-><c- d>(</c-><c- n>container</c-> <c- n>is-tabset</c-><c- d>)</c-> <c- d>{</c->
 	<c- d>/*</c-> panelset container styles during the tabset affordance <c- d>*/</c->
 <c- d>}</c->
 <c- d>&lt;/</c-><c- n>style</c-><c- d>&gt;</c-></code
