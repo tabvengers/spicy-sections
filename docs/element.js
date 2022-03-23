@@ -118,53 +118,49 @@ let createInternals = (host) => {
         panels.splice(0);
         for (let node of hostChildNodes) {
             if (node instanceof HTMLHeadingElement) {
-                panel = upsert(panelBySlottedLabel, node, {
-                    insert(label) {
-                        // add a new panel, if the child node is a heading
-                        panel = {
-                            index,
-                            open: false,
-                            slotted: {
-                                label,
-                                content: [],
-                            },
-                            shadow: {
-                                /** Section (`<div part="section">`). */
-                                section: createElement('div', { part: 'section' }),
-                                /** Label (`<button part="label">`). */
-                                label: createElement('button', { part: 'label', type: 'button' }),
-                                labelSlot: createElement('slot'),
-                                /** Label (`<button part="label">`). */
-                                nonLabel: createElement('div', { part: 'label is-content open' }),
-                                nonLabelSlot: createElement('slot'),
-                                /** Marker (`<svg part="marker">`). */
-                                marker: createElement('svg', { part: 'marker', viewBox: '0 0 270 240', xmlns: 'http://www.w3.org/2000/svg' }),
-                                /** Content (`<div part="content">`). */
-                                content: createElement('div', { part: 'content', role: 'region', tabindex: 0 }),
-                                contentSlot: createElement('slot'),
-                            },
-                            prev: null,
-                            next: null,
-                        };
-                        setProps(panel.shadow.label, { onclick, onkeydown });
-                        panel.shadow.marker.append(createElement('polygon', { points: '5,235 135,10 265,235', xmlns: 'http://www.w3.org/2000/svg' }));
-                        panel.shadow.label.append(panel.shadow.marker, panel.shadow.labelSlot);
-                        panel.shadow.nonLabel.append(panel.shadow.nonLabelSlot);
-                        panel.shadow.content.append(panel.shadow.contentSlot);
-                        panelBySlottedLabel.set(label, panel);
-                        panelByShadowLabel.set(panel.shadow.label, panel);
-                        return panel;
-                    },
-                    update(panel) {
-                        setAttributes(panel.shadow.label, { id: 'label-' + index, 'aria-controls': 'content-' + index });
-                        setAttributes(panel.shadow.labelSlot, { name: 'label-' + index });
-                        setAttributes(panel.shadow.nonLabel, { id: 'label-' + index });
-                        setAttributes(panel.shadow.nonLabelSlot, { name: 'label-' + index });
-                        setAttributes(panel.shadow.content, { id: 'content-' + index, 'aria-labelledby': 'label-' + index });
-                        setAttributes(panel.shadow.contentSlot, { name: 'content-' + index });
-                        return panel;
-                    },
-                });
+                panel = panelBySlottedLabel.get(node);
+                if (!panel) {
+                    // add a new panel, if the child node is a heading
+                    panel = {
+                        index,
+                        open: false,
+                        slotted: {
+                            label: node,
+                            content: [],
+                        },
+                        shadow: {
+                            /** Section (`<div part="section">`). */
+                            section: createElement('div', { part: 'section' }),
+                            /** Label (`<button part="label">`). */
+                            label: createElement('button', { part: 'label', type: 'button' }),
+                            labelSlot: createElement('slot'),
+                            /** Label (`<button part="label">`). */
+                            nonLabel: createElement('div', { part: 'label is-content open' }),
+                            nonLabelSlot: createElement('slot'),
+                            /** Marker (`<svg part="marker">`). */
+                            marker: createElement('svg', { part: 'marker', viewBox: '0 0 270 240', xmlns: 'http://www.w3.org/2000/svg' }),
+                            /** Content (`<div part="content">`). */
+                            content: createElement('div', { part: 'content', role: 'region', tabindex: 0 }),
+                            contentSlot: createElement('slot'),
+                        },
+                        prev: null,
+                        next: null,
+                    };
+                    setProps(panel.shadow.label, { onclick, onkeydown });
+                    panel.shadow.marker.append(createElement('polygon', { points: '5,235 135,10 265,235', xmlns: 'http://www.w3.org/2000/svg' }));
+                    panel.shadow.label.append(panel.shadow.marker, panel.shadow.labelSlot);
+                    panel.shadow.nonLabel.append(panel.shadow.nonLabelSlot);
+                    panel.shadow.content.append(panel.shadow.contentSlot);
+                    panelBySlottedLabel.set(node, panel);
+                    panelByShadowLabel.set(panel.shadow.label, panel);
+                }
+                // update the current label shadow dom
+                setAttributes(panel.shadow.label, { id: 'label-' + index, 'aria-controls': 'content-' + index });
+                setAttributes(panel.shadow.labelSlot, { name: 'label-' + index });
+                setAttributes(panel.shadow.nonLabel, { id: 'label-' + index });
+                setAttributes(panel.shadow.nonLabelSlot, { name: 'label-' + index });
+                setAttributes(panel.shadow.content, { id: 'content-' + index, 'aria-labelledby': 'label-' + index });
+                setAttributes(panel.shadow.contentSlot, { name: 'content-' + index });
                 // bump the index using the current size of the panels array
                 index = panels.push(panel);
                 // conditionally link the previous and current panels
@@ -404,11 +400,3 @@ let setAttributes = (element, props) => {
 };
 /** Returns the given object with the given properties set. */
 let setProps = Object.assign;
-/** Returns the value of the given weakmap with the given key, using the given options to add or update that value. */
-let upsert = (map, key, fns) => {
-    let value;
-    map.set(key, value = map.has(key)
-        ? fns.update(map.get(key))
-        : fns.update(fns.insert(key)));
-    return value;
-};

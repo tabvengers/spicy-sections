@@ -184,63 +184,58 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 		for (let node of hostChildNodes) {
 			if (node instanceof HTMLHeadingElement) {
-				panel = upsert(panelBySlottedLabel, node, {
-					insert(label) {
-						// add a new panel, if the child node is a heading
-						panel = {
-							index,
-							open: false,
-							slotted: {
-								label,
-								content: [],
-							},
-							shadow: {
-								/** Section (`<div part="section">`). */
-								section: createElement('div', { part: 'section' }),
+				panel = panelBySlottedLabel.get(node)
 
-								/** Label (`<button part="label">`). */
-								label: createElement('button', { part: 'label', type: 'button' }),
-								labelSlot: createElement('slot'),
+				if (!panel) {
+					// add a new panel, if the child node is a heading
+					panel = {
+						index,
+						open: false,
+						slotted: {
+							label: node,
+							content: [],
+						},
+						shadow: {
+							/** Section (`<div part="section">`). */
+							section: createElement('div', { part: 'section' }),
 
-								/** Label (`<button part="label">`). */
-								nonLabel: createElement('div', { part: 'label is-content open' }),
-								nonLabelSlot: createElement('slot'),
+							/** Label (`<button part="label">`). */
+							label: createElement('button', { part: 'label', type: 'button' }),
+							labelSlot: createElement('slot'),
 
-								/** Marker (`<svg part="marker">`). */
-								marker: createElement('svg', { part: 'marker', viewBox: '0 0 270 240', xmlns: 'http://www.w3.org/2000/svg' }),
+							/** Label (`<button part="label">`). */
+							nonLabel: createElement('div', { part: 'label is-content open' }),
+							nonLabelSlot: createElement('slot'),
 
-								/** Content (`<div part="content">`). */
-								content: createElement('div', { part: 'content', role: 'region', tabindex: 0 }),
-								contentSlot: createElement('slot'),
-							},
-							prev: null,
-							next: null,
-						}
+							/** Marker (`<svg part="marker">`). */
+							marker: createElement('svg', { part: 'marker', viewBox: '0 0 270 240', xmlns: 'http://www.w3.org/2000/svg' }),
 
-						setProps(panel.shadow.label, { onclick, onkeydown })
+							/** Content (`<div part="content">`). */
+							content: createElement('div', { part: 'content', role: 'region', tabindex: 0 }),
+							contentSlot: createElement('slot'),
+						},
+						prev: null,
+						next: null,
+					}
 
-						panel.shadow.marker.append(createElement('polygon', { points: '5,235 135,10 265,235', xmlns: 'http://www.w3.org/2000/svg' }))
-						panel.shadow.label.append(panel.shadow.marker, panel.shadow.labelSlot)
-						panel.shadow.nonLabel.append(panel.shadow.nonLabelSlot)
-						panel.shadow.content.append(panel.shadow.contentSlot)
+					setProps(panel.shadow.label, { onclick, onkeydown })
 
-						panelBySlottedLabel.set(label, panel)
-						panelByShadowLabel.set(panel.shadow.label, panel)
+					panel.shadow.marker.append(createElement('polygon', { points: '5,235 135,10 265,235', xmlns: 'http://www.w3.org/2000/svg' }))
+					panel.shadow.label.append(panel.shadow.marker, panel.shadow.labelSlot)
+					panel.shadow.nonLabel.append(panel.shadow.nonLabelSlot)
+					panel.shadow.content.append(panel.shadow.contentSlot)
 
-						return panel
-					},
-					update(panel) {
-						setAttributes(panel.shadow.label, { id: 'label-' + index, 'aria-controls': 'content-' + index })
-						setAttributes(panel.shadow.labelSlot, { name: 'label-' + index })
-						setAttributes(panel.shadow.nonLabel, { id: 'label-' + index })
-						setAttributes(panel.shadow.nonLabelSlot, { name: 'label-' + index })
+					panelBySlottedLabel.set(node, panel)
+					panelByShadowLabel.set(panel.shadow.label, panel)
+				}
 
-						setAttributes(panel.shadow.content, { id: 'content-' + index, 'aria-labelledby': 'label-' + index })
-						setAttributes(panel.shadow.contentSlot, { name: 'content-' + index })
-
-						return panel
-					},
-				})
+				// update the current label shadow dom
+				setAttributes(panel.shadow.label, { id: 'label-' + index, 'aria-controls': 'content-' + index })
+				setAttributes(panel.shadow.labelSlot, { name: 'label-' + index })
+				setAttributes(panel.shadow.nonLabel, { id: 'label-' + index })
+				setAttributes(panel.shadow.nonLabelSlot, { name: 'label-' + index })
+				setAttributes(panel.shadow.content, { id: 'content-' + index, 'aria-labelledby': 'label-' + index })
+				setAttributes(panel.shadow.contentSlot, { name: 'content-' + index })
 
 				// bump the index using the current size of the panels array
 				index = panels.push(panel)
@@ -561,20 +556,6 @@ let setAttributes = <E extends Element>(element: E, props: HTMLAttributes) => {
 
 /** Returns the given object with the given properties set. */
 let setProps = Object.assign as <O extends object>(o: O, ...p: object[]) => O
-
-/** Returns the value of the given weakmap with the given key, using the given options to add or update that value. */
-let upsert = <K extends object, V>(map: SafeWeakMap<K, V>, key: K, fns: { insert(key: K): V, update(old: V): V }) => {
-	let value: V
-
-	map.set(
-		key,
-		value = map.has(key)
-			? fns.update(map.get(key) as V)
-		: fns.update(fns.insert(key))
-	)
-
-	return value
-}
 
 
 
