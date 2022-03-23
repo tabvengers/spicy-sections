@@ -130,17 +130,17 @@ let createInternals = (host: OUIPanelsetElement) => {
 		switch (event.code) {
 			case 'ArrowUp':
 			case 'ArrowLeft':
-				onkeydownwithmovement(event, 'prev')
+				onkeydownwithfocusmove(event, 'prev')
 				break
 			case 'ArrowDown':
 			case 'ArrowRight':
-				onkeydownwithmovement(event, 'next')
+				onkeydownwithfocusmove(event, 'next')
 				break
 		}
 	}
 
 	/** Run whenever the shadow label receives keyboard input to move the focus. */
-	let onkeydownwithmovement = (event: EventWithCurrentTarget<KeyboardEvent, HTMLButtonElement>, move: 'prev' | 'next') => {
+	let onkeydownwithfocusmove = (event: EventWithCurrentTarget<KeyboardEvent, HTMLButtonElement>, move: 'prev' | 'next') => {
 		// stop the event
 		event.preventDefault()
 		event.stopImmediatePropagation()
@@ -148,15 +148,15 @@ let createInternals = (host: OUIPanelsetElement) => {
 		/** Panel being focused from. */
 		let currentPanel = panelByShadowLabel.get(event.currentTarget)
 
-		/** Panel being focused to. */
+		/** Panel being focused to, or null if there is none. */
 		let siblingPanel = currentPanel[move]
 
 		// if there is a panel to focus to
 		if (siblingPanel) {
-			// focus that panel’s label
+			// focus that panel label
 			siblingPanel.shadow.label.focus()
 
-			// conditionally toggle the panel
+			// conditionally toggle that panel
 			if (affordance === 'tabset') {
 				panelToggledCallback(siblingPanel)
 			}
