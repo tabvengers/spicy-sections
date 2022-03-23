@@ -110,10 +110,10 @@ let createInternals = (host: OUIPanelsetElement) => {
 	let mostRecentPanel: Panel
 
 	/** WeakMap from a slotted label to a panel. */
-	let panelBySlottedLabel = new WeakMap as PanelWeakMap<Panel['slotted']['label']>
+	let panelBySlottedLabel = new WeakMap as SafeWeakMap<HTMLHeadingElement, Panel>
 
 	/** WeakMap from a shadow label to a panel. */
-	let panelByShadowLabel = new WeakMap as PanelWeakMap<Panel['shadow']['label']>
+	let panelByShadowLabel = new WeakMap as SafeWeakMap<HTMLButtonElement, Panel>
 
 
 
@@ -121,12 +121,12 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// -------------------------------------------------------------------------
 
 	/** Run whenever the shadow label is clicked. */
-	let onclick = (event: EventWithCurrentTarget<PointerEvent, Panel['shadow']['label']>) => {
+	let onclick = (event: EventWithCurrentTarget<PointerEvent, HTMLButtonElement>) => {
 		panelToggledCallback(panelByShadowLabel.get(event.currentTarget))
 	}
 
 	/** Run whenever the shadow label receives keyboard input while focused. */
-	let onkeydown = (event: EventWithCurrentTarget<KeyboardEvent, Panel['shadow']['label']>) => {
+	let onkeydown = (event: EventWithCurrentTarget<KeyboardEvent, HTMLButtonElement>) => {
 		let move: '' | 'prev' | 'next' = ''
 
 		switch (event.code) {
@@ -561,7 +561,7 @@ let setAttributes = <E extends Element>(element: E, props: HTMLAttributes) => {
 let setProps = Object.assign as <O extends object>(o: O, ...p: object[]) => O
 
 /** Returns the value of the given weakmap with the given key, using the given options to add or update that value. */
-let upsert = <K extends object, V>(map: WeakMap<K, V>, key: K, fns: { insert(key: K): V, update(old: V): V }) => {
+let upsert = <K extends object, V>(map: SafeWeakMap<K, V>, key: K, fns: { insert(key: K): V, update(old: V): V }) => {
 	let value: V
 
 	map.set(
@@ -618,8 +618,10 @@ type EventWithCurrentTarget<E extends Event, T extends EventTarget> = E & {
 }
 
 /** WeakMap interface that always expects to get a Panel. */
-interface PanelWeakMap<K extends object, V = Panel> extends WeakMap<K, V> {
+interface SafeWeakMap<K extends object, V = Panel> {
 	get(key: K): V
+	has(key: K): boolean
+	set(key: K, value: V): this
 }
 
 /** Value that is not an object. */
