@@ -80,6 +80,9 @@ let createInternals = (host: OUIPanelsetElement) => {
 		':where(svg){display:none}',
 		':where([part~="content"]:not([part~="open"])){display:none}',
 
+		// default styles for the content affordance
+		':where([part~="is-content"]){display:contents}',
+
 		// default styles for the disclosure affordance
 		':where([part~="is-disclosure"][part~="section"]){display:flex;flex-direction:column}',
 		':where([part~="is-disclosure"][part~="label"]){align-items:center;display:flex;gap:.25em;padding-inline-end:1em}',
@@ -203,10 +206,6 @@ let createInternals = (host: OUIPanelsetElement) => {
 							label: createElement('button', { part: 'label', type: 'button' }),
 							labelSlot: createElement('slot'),
 
-							/** Label (`<button part="label">`). */
-							nonLabel: createElement('div', { part: 'label is-content open' }),
-							nonLabelSlot: createElement('slot'),
-
 							/** Marker (`<svg part="marker">`). */
 							marker: createElement('svg', { part: 'marker', viewBox: '0 0 270 240', xmlns: 'http://www.w3.org/2000/svg' }),
 
@@ -222,7 +221,6 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 					panel.shadow.marker.append(createElement('polygon', { points: '5,235 135,10 265,235', xmlns: 'http://www.w3.org/2000/svg' }))
 					panel.shadow.label.append(panel.shadow.marker, panel.shadow.labelSlot)
-					panel.shadow.nonLabel.append(panel.shadow.nonLabelSlot)
 					panel.shadow.content.append(panel.shadow.contentSlot)
 
 					panelBySlottedLabel.set(node, panel)
@@ -232,8 +230,6 @@ let createInternals = (host: OUIPanelsetElement) => {
 				// update the current label shadow dom
 				setAttributes(panel.shadow.label, { id: 'label-' + index, 'aria-controls': 'content-' + index })
 				setAttributes(panel.shadow.labelSlot, { name: 'label-' + index })
-				setAttributes(panel.shadow.nonLabel, { id: 'label-' + index })
-				setAttributes(panel.shadow.nonLabelSlot, { name: 'label-' + index })
 				setAttributes(panel.shadow.content, { id: 'content-' + index, 'aria-labelledby': 'label-' + index })
 				setAttributes(panel.shadow.contentSlot, { name: 'content-' + index })
 
@@ -289,11 +285,11 @@ let createInternals = (host: OUIPanelsetElement) => {
 				case 'content': {
 					panel.shadow.content.part.toggle('open', true)
 
-					panel.shadow.section.replaceChildren(panel.shadow.nonLabel, panel.shadow.content)
+					panel.shadow.section.replaceChildren(panel.shadow.label, panel.shadow.content)
 
 					shadowContents.append(panel.shadow.section)
 
-					assignSlot(panel.shadow.nonLabelSlot, panel.slotted.label)
+					assignSlot(panel.shadow.labelSlot, panel.slotted.label)
 					assignSlot(panel.shadow.contentSlot, ...panel.slotted.content)
 
 					break
@@ -347,6 +343,15 @@ let createInternals = (host: OUIPanelsetElement) => {
 				}
 			}
 		}
+
+		// dispatch an affordancechange event for the panel
+		host.dispatchEvent(
+			new CustomEvent('affordancechange', {
+				detail: {
+					affordance,
+				}
+			})
+		)
 	}
 
 	/** Run whenever the given panel is toggled. */
@@ -580,8 +585,6 @@ declare interface Panel {
 		label: HTMLButtonElement
 		labelSlot: HTMLSlotElement
 		marker: SVGSVGElement
-		nonLabel: HTMLDivElement
-		nonLabelSlot: HTMLSlotElement
 		content: HTMLDivElement
 		contentSlot: HTMLSlotElement
 	}

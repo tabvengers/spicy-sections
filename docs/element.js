@@ -48,6 +48,8 @@ let createInternals = (host) => {
     shadowStyle.append(
     // default styles for all affordances
     ':where(div){outline:none}', ':where(button){all:unset;outline:revert}', ':where(svg){display:none}', ':where([part~="content"]:not([part~="open"])){display:none}', 
+    // default styles for the content affordance
+    ':where([part~="is-content"]){display:contents}', 
     // default styles for the disclosure affordance
     ':where([part~="is-disclosure"][part~="section"]){display:flex;flex-direction:column}', ':where([part~="is-disclosure"][part~="label"]){align-items:center;display:flex;gap:.25em;padding-inline-end:1em}', ':where([part~="is-disclosure"][part~="marker"]){display:block;height:.75em;width:.75em;transform:rotate(90deg)}', ':where([part~="is-disclosure"][part~="marker"][part~="open"]){transform:rotate(180deg)}', 
     // default styles for the tabset affordance
@@ -134,9 +136,6 @@ let createInternals = (host) => {
                             /** Label (`<button part="label">`). */
                             label: createElement('button', { part: 'label', type: 'button' }),
                             labelSlot: createElement('slot'),
-                            /** Label (`<button part="label">`). */
-                            nonLabel: createElement('div', { part: 'label is-content open' }),
-                            nonLabelSlot: createElement('slot'),
                             /** Marker (`<svg part="marker">`). */
                             marker: createElement('svg', { part: 'marker', viewBox: '0 0 270 240', xmlns: 'http://www.w3.org/2000/svg' }),
                             /** Content (`<div part="content">`). */
@@ -149,7 +148,6 @@ let createInternals = (host) => {
                     setProps(panel.shadow.label, { onclick, onkeydown });
                     panel.shadow.marker.append(createElement('polygon', { points: '5,235 135,10 265,235', xmlns: 'http://www.w3.org/2000/svg' }));
                     panel.shadow.label.append(panel.shadow.marker, panel.shadow.labelSlot);
-                    panel.shadow.nonLabel.append(panel.shadow.nonLabelSlot);
                     panel.shadow.content.append(panel.shadow.contentSlot);
                     panelBySlottedLabel.set(node, panel);
                     panelByShadowLabel.set(panel.shadow.label, panel);
@@ -157,8 +155,6 @@ let createInternals = (host) => {
                 // update the current label shadow dom
                 setAttributes(panel.shadow.label, { id: 'label-' + index, 'aria-controls': 'content-' + index });
                 setAttributes(panel.shadow.labelSlot, { name: 'label-' + index });
-                setAttributes(panel.shadow.nonLabel, { id: 'label-' + index });
-                setAttributes(panel.shadow.nonLabelSlot, { name: 'label-' + index });
                 setAttributes(panel.shadow.content, { id: 'content-' + index, 'aria-labelledby': 'label-' + index });
                 setAttributes(panel.shadow.contentSlot, { name: 'content-' + index });
                 // bump the index using the current size of the panels array
@@ -203,9 +199,9 @@ let createInternals = (host) => {
             switch (affordance) {
                 case 'content': {
                     panel.shadow.content.part.toggle('open', true);
-                    panel.shadow.section.replaceChildren(panel.shadow.nonLabel, panel.shadow.content);
+                    panel.shadow.section.replaceChildren(panel.shadow.label, panel.shadow.content);
                     shadowContents.append(panel.shadow.section);
-                    assignSlot(panel.shadow.nonLabelSlot, panel.slotted.label);
+                    assignSlot(panel.shadow.labelSlot, panel.slotted.label);
                     assignSlot(panel.shadow.contentSlot, ...panel.slotted.content);
                     break;
                 }
@@ -245,6 +241,12 @@ let createInternals = (host) => {
                 }
             }
         }
+        // dispatch an affordancechange event for the panel
+        host.dispatchEvent(new CustomEvent('affordancechange', {
+            detail: {
+                affordance,
+            }
+        }));
     };
     /** Run whenever the given panel is toggled. */
     let panelToggledCallback = (toggledPanel) => {

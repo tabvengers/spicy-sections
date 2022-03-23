@@ -99,6 +99,7 @@
 		document.querySelectorAll('oui-panelset').forEach(
 			element => {
 				element.addEventListener('open', event => console.log(event.type, event.detail))
+				element.addEventListener('affordancechange', event => console.log(event.type, event.detail))
 			}
 		)
 		</script>
