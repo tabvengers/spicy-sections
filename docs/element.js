@@ -74,21 +74,34 @@ let createInternals = (host) => {
     };
     /** Run whenever the shadow label receives keyboard input while focused. */
     let onkeydown = (event) => {
-        let move = '';
         switch (event.code) {
             case 'ArrowUp':
             case 'ArrowLeft':
-                move = 'prev';
+                onkeydownwithmovement(event, 'prev');
                 break;
             case 'ArrowDown':
             case 'ArrowRight':
-                move = 'next';
+                onkeydownwithmovement(event, 'next');
                 break;
         }
-        if (move) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            panelNavigatedCallback(panelByShadowLabel.get(event.currentTarget), move);
+    };
+    /** Run whenever the shadow label receives keyboard input to move the focus. */
+    let onkeydownwithmovement = (event, move) => {
+        // stop the event
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        /** Panel being focused from. */
+        let currentPanel = panelByShadowLabel.get(event.currentTarget);
+        /** Panel being focused to. */
+        let siblingPanel = currentPanel[move];
+        // if there is a panel to focus to
+        if (siblingPanel) {
+            // focus that panel’s label
+            siblingPanel.shadow.label.focus();
+            // conditionally toggle the panel
+            if (affordance === 'tabset') {
+                panelToggledCallback(siblingPanel);
+            }
         }
     };
     // Panelset callbacks
@@ -96,7 +109,7 @@ let createInternals = (host) => {
     /** Run whenever nodes are added to or removed from the panelset host. */
     let childrenChangedCallback = () => {
         /** Panel extracted from the Panelset LightDOM child nodes. */
-        let panel = { slotted: { content: [] } };
+        let panel = Object({ slotted: { content: [] } });
         /** Previously extracted Panel. */
         let prevPanel;
         /** Current Panel index. */
@@ -276,16 +289,6 @@ let createInternals = (host) => {
                 content: toggledPanel.slotted.content.slice(0),
             }
         }));
-    };
-    /** Run whenever a panel is being navigated from. */
-    let panelNavigatedCallback = (panel, move) => {
-        let siblingSection = panel[move];
-        if (siblingSection) {
-            siblingSection.shadow.label.focus();
-            if (affordance === 'tabset') {
-                panelToggledCallback(siblingSection);
-            }
-        }
     };
     // Utilities
     // -------------------------------------------------------------------------
