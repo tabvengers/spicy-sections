@@ -165,12 +165,12 @@ let createInternals = (host) => {
                             /** Section (`<div part="section">`). */
                             section: createElement('div'),
                             /** Label (`<button part="label">`). */
-                            label: createElement('button', { part: '', role: 'button', type: 'button' }),
+                            label: createElement('button', { part: '', type: 'button' }),
                             labelSlot: createElement('slot'),
                             /** Marker (`<svg part="marker">`). */
                             marker: createElement('svg', { part: '', viewBox: '0 0 270 240', xmlns: 'http://www.w3.org/2000/svg' }),
                             /** Content (`<div part="content">`). */
-                            content: createElement('div', { part: '', role: '', tabindex: 0 }),
+                            content: createElement('div', { part: '' }),
                             contentSlot: createElement('slot'),
                         },
                         prev: null,
@@ -223,17 +223,14 @@ let createInternals = (host) => {
         for (let panel of panels) {
             // update all panel parts with the new affordance
             setAttributes(panel.shadow.section, { part: 'section is-' + affordance });
-            setAttributes(panel.shadow.label, { part: 'label is-' + affordance });
+            setAttributes(panel.shadow.label, { part: 'label is-' + affordance, role: null, tabindex: null, 'aria-expanded': null, 'aria-selected': null });
             setAttributes(panel.shadow.marker, { part: 'marker is-' + affordance });
-            setAttributes(panel.shadow.content, { part: 'content is-' + affordance });
-            panel.shadow.label.removeAttribute('aria-expanded');
-            panel.shadow.label.removeAttribute('aria-selected');
+            setAttributes(panel.shadow.content, { part: 'content is-' + affordance, tabindex: null });
             // by affordance; update attributes, parts, shadow tree
             switch (affordance) {
                 case 'content': {
                     // update attributes
-                    setAttributes(panel.shadow.label, { role: 'none', tabindex: -1 });
-                    setAttributes(panel.shadow.content, { role: 'region', tabindex: -1 });
+                    setAttributes(panel.shadow.label, { tabindex: -1 });
                     // update parts
                     panel.shadow.content.part.toggle('open', true);
                     // update shadow tree
@@ -243,8 +240,7 @@ let createInternals = (host) => {
                 }
                 case 'disclosure': {
                     // update attributes
-                    setAttributes(panel.shadow.label, { role: 'button', 'aria-expanded': panel.open, tabindex: 0 });
-                    setAttributes(panel.shadow.content, { role: 'region', tabindex: 0 });
+                    setAttributes(panel.shadow.label, { 'aria-expanded': panel.open, tabindex: 0 });
                     // update parts
                     panel.shadow.content.part.toggle('open', panel.open);
                     panel.shadow.label.part.toggle('open', panel.open);
@@ -428,7 +424,12 @@ let createElement = (name, attrs = null) => {
 /** Returns the given element with the given attributes set. */
 let setAttributes = (element, props) => {
     for (let prop in props) {
-        element.setAttribute(prop, props[prop]);
+        if (props[prop] === null) {
+            element.removeAttribute(prop);
+        }
+        else {
+            element.setAttribute(prop, props[prop]);
+        }
     }
     return element;
 };
