@@ -283,6 +283,7 @@ let createInternals = (host) => {
                 toggledPanel.shadow.label.part.toggle('open', open);
                 toggledPanel.shadow.marker.part.toggle('open', open);
                 toggledPanel.shadow.content.part.toggle('open', open);
+                setAttributes(toggledPanel.shadow.label, { 'aria-expanded': open });
                 break;
             }
             case 'tabset': {

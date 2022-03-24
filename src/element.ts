@@ -388,6 +388,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 				toggledPanel.shadow.marker.part.toggle('open', open)
 				toggledPanel.shadow.content.part.toggle('open', open)
 
+				setAttributes(toggledPanel.shadow.label, { 'aria-expanded': open })
+
 				break
 			}
 
