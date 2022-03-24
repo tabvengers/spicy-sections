@@ -50,9 +50,9 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// ShadowDOM tree for the "content" affordance:
 	//
 	// <div part="section">
-	//   <button part="label">
+	//   <div part="label">
 	//     <slot><!-- slotted panel label --></slot>
-	//   </button>
+	//   </div>
 	//   <div part="content">
 	//     <slot><!-- slotted panel contents --></slot>
 	//   </div>
@@ -61,9 +61,9 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// ShadowDOM tree for the "disclosure" affordance:
 	//
 	// <div part="section">
-	//   <button part="label">
+	//   <div part="label">
 	//     <slot><!-- slotted panel label --></slot>
-	//   </button>
+	//   </div>
 	//   <div part="content">
 	//     <slot><!-- slotted panel contents --></slot>
 	//   </div>
@@ -73,9 +73,9 @@ let createInternals = (host: OUIPanelsetElement) => {
 	//
 	// <div part="label-container">
 	//   <!-- for each panel -->
-	//   <button part="label">
+	//   <div part="label">
 	//     <slot><!-- slotted panel label --></slot>
-	//   </button>
+	//   </div>
 	// </div>
 	// <div part="content-container">
 	//   <!-- for each panel -->
@@ -108,8 +108,6 @@ let createInternals = (host: OUIPanelsetElement) => {
 	shadowStyleElement.append(
 		// default styles for all affordances
 		':host{--affordance:content;--affordance:' + (host.getAttribute('affordance') || 'content') + '}',
-		':where(div){outline:none}',
-		':where(button){all:unset;outline:revert}',
 		':where(svg){display:none}',
 		':where([part~="content"]:not([part~="open"])){display:none}',
 
@@ -150,7 +148,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 	let panelBySlottedLabel = new WeakMap as SafeWeakMap<HTMLHeadingElement, Panel>
 
 	/** WeakMap from a shadow label to a panel. */
-	let panelByShadowLabel = new WeakMap as SafeWeakMap<HTMLButtonElement, Panel>
+	let panelByShadowLabel = new WeakMap as SafeWeakMap<HTMLDivElement, Panel>
 
 
 
@@ -158,13 +156,13 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// -------------------------------------------------------------------------
 
 	/** Run whenever the shadow label is clicked. */
-	let onclick = (event: EventWithCurrentTarget<PointerEvent, HTMLButtonElement>) => {
+	let onclick = (event: EventWithCurrentTarget<PointerEvent, HTMLDivElement>) => {
 		panelToggledCallback(panelByShadowLabel.get(event.currentTarget))
 	}
 
 	/** Run whenever the shadow label receives keyboard input while focused. */
-	let onkeydown = (event: EventWithCurrentTarget<KeyboardEvent, HTMLButtonElement>) => {
-		switch (event.code) {
+	let onkeydown = (event: EventWithCurrentTarget<KeyboardEvent, HTMLDivElement>) => {
+		switch (lastKeydownCode = event.code) {
 			case 'ArrowUp':
 			case 'ArrowLeft':
 				onkeydownwithfocusmove(event, 'prev')
@@ -173,11 +171,24 @@ let createInternals = (host: OUIPanelsetElement) => {
 			case 'ArrowRight':
 				onkeydownwithfocusmove(event, 'next')
 				break
+			case 'Space':
+				event.preventDefault()
+				break
+			case 'Enter':
+				event.preventDefault()
+				panelToggledCallback(panelByShadowLabel.get(event.currentTarget))
+		}
+	}
+
+	let onkeyup = (event: EventWithCurrentTarget<KeyboardEvent, HTMLDivElement>) => {
+		if (event.code === 'Space' && lastKeydownCode === 'Space') {
+			event.preventDefault()
+			panelToggledCallback(panelByShadowLabel.get(event.currentTarget))
 		}
 	}
 
 	/** Run whenever the shadow label receives keyboard input to move the focus. */
-	let onkeydownwithfocusmove = (event: EventWithCurrentTarget<KeyboardEvent, HTMLButtonElement>, move: 'prev' | 'next') => {
+	let onkeydownwithfocusmove = (event: EventWithCurrentTarget<KeyboardEvent, HTMLDivElement>, move: 'prev' | 'next') => {
 		// stop the event
 		event.preventDefault()
 		event.stopImmediatePropagation()
@@ -199,6 +210,9 @@ let createInternals = (host: OUIPanelsetElement) => {
 			}
 		}
 	}
+
+	/** Code value of the most recent keydown event. */
+	let lastKeydownCode: string
 
 
 
@@ -236,8 +250,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 							/** Section (`<div part="section">`). */
 							section: createElement('div'),
 
-							/** Label (`<button part="label">`). */
-							label: createElement('button', { part: '', type: 'button' }),
+							/** Label (`<div part="label">`). */
+							label: createElement('div', { part: '' }),
 							labelSlot: createElement('slot'),
 
 							/** Marker (`<svg part="marker">`). */
@@ -251,7 +265,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 						next: null,
 					}
 
-					setProps(panel.shadow.label, { onclick, onkeydown })
+					setProps(panel.shadow.label, { onclick, onkeydown, onkeyup })
 
 					panel.shadow.marker.append(createElement('polygon', { points: '5,235 135,10 265,235', xmlns: 'http://www.w3.org/2000/svg' }))
 					panel.shadow.label.append(panel.shadow.marker, panel.shadow.labelSlot)
@@ -316,9 +330,6 @@ let createInternals = (host: OUIPanelsetElement) => {
 			// by affordance; update attributes, parts, shadow tree
 			switch (affordance) {
 				case 'content': {
-					// update attributes
-					setAttributes(panel.shadow.label, { tabindex: -1 })
-
 					// update parts
 					panel.shadow.content.part.toggle('open', true)
 
@@ -331,7 +342,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 				case 'disclosure': {
 					// update attributes
-					setAttributes(panel.shadow.label, { 'aria-expanded': panel.open, tabindex: 0 })
+					setAttributes(panel.shadow.label, { role: 'button', 'aria-expanded': panel.open, tabindex: 0 })
 
 					// update parts
 					panel.shadow.content.part.toggle('open', panel.open)
@@ -621,7 +632,7 @@ declare interface Panel {
 
 	shadow: {
 		section: HTMLDivElement
-		label: HTMLButtonElement
+		label: HTMLDivElement
 		labelSlot: HTMLSlotElement
 		marker: SVGSVGElement
 		content: HTMLDivElement
