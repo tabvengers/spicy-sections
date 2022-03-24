@@ -8,8 +8,8 @@ export class OUIPanelsetElement extends HTMLElement {
     set affordance(value) {
         this.#internals.setAffordance(String(value));
     }
-    getActivePanels() {
-        return this.#internals.getActivePanels();
+    getPanels() {
+        return this.#internals.getPanels();
     }
 }
 // Panelset internals factory
@@ -78,7 +78,7 @@ let createInternals = (host) => {
     // include the following default syles
     shadowStyleElement.append(
     // default styles for all affordances
-    ':host{--affordance:content}', ':where(div){outline:none}', ':where(button){all:unset;outline:revert}', ':where(svg){display:none}', ':where([part~="content"]:not([part~="open"])){display:none}', 
+    ':host{--affordance:content;--affordance:' + (host.getAttribute('affordance') || 'content') + '}', ':where(div){outline:none}', ':where(button){all:unset;outline:revert}', ':where(svg){display:none}', ':where([part~="content"]:not([part~="open"])){display:none}', 
     // default styles for the content affordance
     ':where([part~="is-content"]){display:contents}', 
     // default styles for the disclosure affordance
@@ -335,17 +335,12 @@ let createInternals = (host) => {
                 }
             }
         },
-        getActivePanels() {
-            let activePanels = [];
-            for (let panel of panels) {
-                if (panel.open) {
-                    activePanels.push({
-                        label: panel.slotted.label,
-                        contents: panel.slotted.contents.slice(0),
-                    });
-                }
-            }
-            return activePanels;
+        getPanels() {
+            return panels.map(panel => ({
+                open: panel.open,
+                label: panel.slotted.label,
+                contents: panel.slotted.contents.slice(0),
+            }));
         },
     };
     // Handle changes to any DOM child nodes
@@ -386,8 +381,7 @@ let createInternals = (host) => {
     let frameB = () => {
         requestAnimationFrame(frameA);
         if (oldCSSValue !== newCSSValue) {
-            oldCSSValue = newCSSValue;
-            internals.setAffordance(newCSSValue);
+            internals.setAffordance(oldCSSValue = newCSSValue);
         }
     };
     // initialize

@@ -41,6 +41,15 @@
 				<pre><code
 ><c- d>&lt;</c-><c- n>script</c-> <c- np>src</c-><c- o>=</c-><c- s>"https://tabvengers.github.io/spicy-sections/register.js"</c-><c- d>&gt;</c-><c- d>&lt;/</c-><c- n>script</c-><c- d>&gt;</c-></code></pre>
 			</section>
+			<section id="how-it-works">
+				<h2>
+					<a href="#how-it-works">How it works</a>
+				</h2>
+				<p>
+					Any heading element child of the panelset represents the beginning of a panel.
+					All content proceeding the heading element that is not another heading element represents the content of the given panel.
+				</p>
+			</section>
 			<section id="dom-interface">
 				<h3>
 					<a href="#dom-interface"><code>OUIPanelsetElement</code></a>
@@ -94,7 +103,7 @@
 						<a href="#html-properties">Attributes</a>
 					</h3>
 					<p>
-						Inherits attributes from its parent, HTMLElement.
+						The <code>OUIPanelsetElement</code> interface inherits attributes from its parent, <code>HTMLElement</code>.
 					</p>
 					<dl>
 						<dt id="html-affordance-attribute">
@@ -121,7 +130,7 @@
 						<a href="#dom-properties">Properties</a>
 					</h3>
 					<p>
-						Inherits properties from its parent, HTMLElement.
+						The <code>OUIPanelsetElement</code> interface inherits properties from its parent, <code>HTMLElement</code>.
 					</p>
 					<dl>
 						<dt id="dom-affordance-property">
@@ -149,28 +158,29 @@
 						<a href="#dom-methods">Methods</a>
 					</h3>
 					<dl>
-						<dt id="dom-getactivepanels-method">
-							<a href="#dom-getactivepanels-method"><code>getActivePanels</code></a>
+						<dt id="dom-getpanels-method">
+							<a href="#dom-getpanels-method"><code>getPanels</code></a>
 						</dt>
 						<dd>
 							<p>
-								An array of objects representing the currently active panels in the panelset.
+								An array of objects representing the sections of content as panels in the panelset.
 							</p>
 							<p>
-								Each panel object has a <code>label</code> property which returns the element identified as the label of the given panel, and a <code>contents</code> property which returns the elements and text nodes identified as the contents of the given panel.
+								Each panel object has a <code>label</code> property which returns the element identified as the label of the given panel, a <code>contents</code> property which returns the elements and text nodes identified as the contents of the given panel, and an <code>open</code> property which returns whether the given panel is open.
 							</p>
 						</dd>
 					</dl>
-					<h5 id="dom-getactivepanels-method-usage">
-						<a href="#dom-getactivepanels-method-usage">Usage</a>
+					<h5 id="dom-getpanels-method-usage">
+						<a href="#dom-getpanels-method-usage">Usage</a>
 					</h5>
 					<pre><code
 ><c- k>const</c-> <c- v>panelset</c-> <c- d>=</c-> <c- n>document</c-><c- d>.</c-><c- np>querySelector</c-><c- d>(</c-><c- s>'oui-panelset'</c-><c- d>)</c->
-<c- k>const</c-> <c- v>panels</c-> <c- d>=</c-> <c- v>panelset</c-><c- d>.</c-><c- np>getActivePanels</c-><c- d>(</c-><c- d>)</c-></c->
+<c- k>const</c-> <c- v>panels</c-> <c- d>=</c-> <c- v>panelset</c-><c- d>.</c-><c- np>getPanels</c-><c- d>(</c-><c- d>)</c-></c->
 
 <c- k>for</c-> <c- d>(</c-><c- k>const</c-> <c- v>panel</c-> <c- k>of</c-> <c- v>panelset</c-><c- d>)</c-> <c- d>{</c->
 	<c- n>console</c-><c- d>.</c-><c- np>log</c-><c- d>(</c-><c- v>panel</c-><c- d>)</c-> <c- d>/* {
-		panel: HTMLHeadingElement,
+		open: boolean
+		label: HTMLHeadingElement,
 		content: (Element | Text)[]
 	} */</c->
 <c- d>}</c-></code
@@ -211,6 +221,57 @@
 <c- d>}</c-></code
 					></pre>
 				</section>
+				<section id="dom-events">
+					<h3>
+						<a href="#dom-events">Events</a>
+					</h3>
+					<p>
+						In addition to the usual events supported by HTML elements, the <code>&lt;oui-panelset&gt;</code> element supports <code>toggle</code> and <code>affordancechange</code> events.
+					</p>
+					<dl>
+						<dt id="dom-toggle-event">
+							<a href="#dom-toggle-event"><code>toggle</code></a>
+						</dt>
+						<dd>
+							<p>
+								The <code>toggle</code> event is dispatched to the <code>&lt;oui-panelset&gt;</code> element whenever one of its panel states changes between open and closed.
+								This event is dispatched after the state is changed.
+							</p>
+						</dd>
+						<dt id="dom-affordancechange-event">
+							<a href="#dom-affordancechange-event"><code>affordancechange</code></a>
+						</dt>
+						<dd>
+							<p>
+								The <code>affordancechange</code> event is dispatched to the <code>&lt;oui-panelset&gt;</code> element whenever its affordance state changes.
+								This event is dispatched after the affordance state is changed, and it is not dispatched by the initial affordance state.
+							</p>
+						</dd>
+					</dl>
+					<h5 id="dom-events-usage">
+						<a href="#dom-events-usage">Usage</a>
+					</h5>
+					<pre><code
+><c- k>const</c-> <c- v>panelset</c-> <c- d>=</c-> <c- n>document</c-><c- d>.</c-><c- np>querySelector</c-><c- d>(</c-><c- s>'oui-panelset'</c-><c- d>)</c->
+
+<c- v>panelset</c-><c- d>.</c-><c- np>addEventListener</c-><c- d>(</c-><c- s>'toggle'</c-><c- d>,</c-> <c- d>()</c-> <c- d>=&gt;</c-> <c- d>{</c->
+	<c- k>const</c-> <c- v>panels</c-> <c- d>=</c-> <c- v>panelset</c-><c- d>.</c-><c- np>getPanels</c-><c- d>(</c-><c- d>)</c-></c->
+<c- d>}</c-><c- d>)</c-></c->
+
+<c- v>panelset</c-><c- d>.</c-><c- np>addEventListener</c-><c- d>(</c-><c- s>'affordancechange'</c-><c- d>,</c-> <c- d>()</c-> <c- d>=&gt;</c-> <c- d>{</c->
+	<c- k>switch</c-> <c- d>(</c-><c- v>panelset</c-><c- >.</c-><c- np>affordance</c-><c- d>)</c-> <c- d>{</c->
+		<c- k>case</c-> <c- s>'content'</c-><c- d>:</c->
+			<c- k>break</c->
+		<c- k>case</c-> <c- s>'disclosure'</c-><c- d>:</c->
+			<c- k>break</c->
+		<c- k>case</c-> <c- s>'exclusive-disclosure'</c-><c- d>:</c->
+			<c- k>break</c->
+		<c- k>case</c-> <c- s>'tabset'</c-><c- d>:</c->
+			<c- k>break</c->
+	<c- d>}</c->
+<c- d>}</c-><c- d>)</c-></c-></code
+					></pre>
+				</section>
 			</section>
 			<section id="affordances">
 				<h3>
@@ -238,7 +299,7 @@
 						</tr>
 						<tr>
 							<td><code>content</code></td>
-							<td>Contents display as they are authored.</td>
+							<td>Sequential sections of content display as they are authored.</td>
 						</tr>
 					</tbody>
 				</table>

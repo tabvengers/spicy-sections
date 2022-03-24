@@ -12,8 +12,8 @@ export class OUIPanelsetElement extends HTMLElement {
 		this.#internals.setAffordance(String(value))
 	}
 
-	getActivePanels() {
-		return this.#internals.getActivePanels()
+	getPanels() {
+		return this.#internals.getPanels()
 	}
 }
 
@@ -107,7 +107,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// include the following default syles
 	shadowStyleElement.append(
 		// default styles for all affordances
-		':host{--affordance:content}',
+		':host{--affordance:content;--affordance:' + (host.getAttribute('affordance') || 'content') + '}',
 		':where(div){outline:none}',
 		':where(button){all:unset;outline:revert}',
 		':where(svg){display:none}',
@@ -459,19 +459,14 @@ let createInternals = (host: OUIPanelsetElement) => {
 				}
 			}
 		},
-		getActivePanels() {
-			let activePanels = []
-
-			for (let panel of panels) {
-				if (panel.open) {
-					activePanels.push({
-						label: panel.slotted.label,
-						contents: panel.slotted.contents.slice(0),
-					})
-				}
-			}
-
-			return activePanels
+		getPanels() {
+			return panels.map(
+				panel => ({
+					open: panel.open,
+					label: panel.slotted.label,
+					contents: panel.slotted.contents.slice(0),
+				})
+			)
 		},
 	}
 
@@ -533,9 +528,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 		requestAnimationFrame(frameA)
 
 		if (oldCSSValue !== newCSSValue) {
-			oldCSSValue = newCSSValue
-
-			internals.setAffordance(newCSSValue)
+			internals.setAffordance(oldCSSValue = newCSSValue)
 		}
 	}
 
