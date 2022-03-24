@@ -108,11 +108,10 @@ let createInternals = (host: OUIPanelsetElement) => {
 	shadowStyleElement.append(
 		// default styles for all affordances
 		':host{--affordance:content;--affordance:' + (host.getAttribute('affordance') || 'content') + '}',
+		':where(div){display:contents}',
 		':where(svg){display:none}',
+		':where([part~="content"]){outline:unset}',
 		':where([part~="content"]:not([part~="open"])){display:none}',
-
-		// default styles for the content affordance
-		':where([part~="is-content"]){display:contents}',
 
 		// default styles for the disclosure affordance
 		':where([part~="is-disclosure"][part~="section"]){display:flex;flex-direction:column}',
@@ -122,6 +121,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 		// default styles for the tabset affordance
 		':where([part~="is-tabset"][part~="label-container"]){display:flex;gap:1em}',
+		':where([part~="is-tabset"]:is([part~="label"],[part~="content"][part~="open"])){display:block}',
 		':where([part~="is-tabset"][part~="label"][part~="open"]) ::slotted(*){text-decoration:underline}'
 	)
 

@@ -78,13 +78,11 @@ let createInternals = (host) => {
     // include the following default syles
     shadowStyleElement.append(
     // default styles for all affordances
-    ':host{--affordance:content;--affordance:' + (host.getAttribute('affordance') || 'content') + '}', ':where(svg){display:none}', ':where([part~="content"]:not([part~="open"])){display:none}', 
-    // default styles for the content affordance
-    ':where([part~="is-content"]){display:contents}', 
+    ':host{--affordance:content;--affordance:' + (host.getAttribute('affordance') || 'content') + '}', ':where(div){display:contents}', ':where(svg){display:none}', ':where([part~="content"]){outline:unset}', ':where([part~="content"]:not([part~="open"])){display:none}', 
     // default styles for the disclosure affordance
     ':where([part~="is-disclosure"][part~="section"]){display:flex;flex-direction:column}', ':where([part~="is-disclosure"][part~="label"]){align-items:center;display:flex;gap:.25em;padding-inline-end:1em}', ':where([part~="is-disclosure"][part~="marker"]){display:block;height:.75em;width:.75em;transform:rotate(90deg)}', ':where([part~="is-disclosure"][part~="marker"][part~="open"]){transform:rotate(180deg)}', 
     // default styles for the tabset affordance
-    ':where([part~="is-tabset"][part~="label-container"]){display:flex;gap:1em}', ':where([part~="is-tabset"][part~="label"][part~="open"]) ::slotted(*){text-decoration:underline}');
+    ':where([part~="is-tabset"][part~="label-container"]){display:flex;gap:1em}', ':where([part~="is-tabset"]:is([part~="label"],[part~="content"][part~="open"])){display:block}', ':where([part~="is-tabset"][part~="label"][part~="open"]) ::slotted(*){text-decoration:underline}');
     // ShadowDOM tree
     // -------------------------------------------------------------------------
     // append content and style containers to the ShadowDOM root
