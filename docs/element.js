@@ -198,8 +198,8 @@ let createInternals = (host) => {
                     panelByShadowLabel.set(panel.shadow.label, panel);
                 }
                 // update the current label shadow dom
-                setAttributes(panel.shadow.label, { id: 'label-' + index, 'aria-controls': 'content-' + index });
-                setAttributes(panel.shadow.labelSlot, { name: 'label-' + index });
+                setAttributes(panel.shadow.label, { id: 'label-' + index, 'aria-controls': 'content-' + index, 'aria-labelledby': 'labelslot-' + index });
+                setAttributes(panel.shadow.labelSlot, { name: 'label-' + index, id: 'labelslot-' + index, 'aria-hidden': 'true' });
                 setAttributes(panel.shadow.content, { id: 'content-' + index, 'aria-labelledby': 'label-' + index });
                 setAttributes(panel.shadow.contentSlot, { name: 'content-' + index });
                 // bump the index using the current size of the panels array
