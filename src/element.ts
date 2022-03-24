@@ -255,7 +255,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 							labelSlot: createElement('slot'),
 
 							/** Marker (`<svg part="marker">`). */
-							marker: createElement('svg', { part: '', viewBox: '0 0 270 240', xmlns: 'http://www.w3.org/2000/svg' }),
+							marker: createElement('svg', { part: '', viewBox: '0 0 270 240', xmlns: 'http://www.w3.org/2000/svg', role: 'presentation' }),
 
 							/** Content (`<div part="content">`). */
 							content: createElement('div', { part: '' }),
