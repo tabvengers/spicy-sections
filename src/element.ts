@@ -273,6 +273,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 					panelBySlottedLabel.set(node, panel)
 					panelByShadowLabel.set(panel.shadow.label, panel)
+
+					slottedLabelObserver.observe(panel.slotted.label, { characterData: true, childList: true })
 				}
 
 				// update the current label shadow dom
@@ -323,13 +325,17 @@ let createInternals = (host: OUIPanelsetElement) => {
 		for (let panel of panels) {
 			// update all panel parts with the new affordance
 			setAttributes(panel.shadow.section, { part: 'section is-' + affordance })
-			setAttributes(panel.shadow.label, { part: 'label is-' + affordance, role: null, tabindex: null, 'aria-expanded': null, 'aria-selected': null })
+			setAttributes(panel.shadow.label, { part: 'label is-' + affordance, 'aria-expanded': null, 'aria-selected': null })
 			setAttributes(panel.shadow.marker, { part: 'marker is-' + affordance })
 			setAttributes(panel.shadow.content, { part: 'content is-' + affordance, tabindex: null })
 
 			// by affordance; update attributes, parts, shadow tree
 			switch (affordance) {
 				case 'content': {
+					// update attributes
+					setAttributes(panel.shadow.label, { 'role': null, tabindex: null, 'aria-label': null })
+					setAttributes(panel.shadow.labelSlot, { 'aria-hidden': null })
+
 					// update parts
 					panel.shadow.content.part.toggle('open', true)
 
@@ -342,7 +348,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 				case 'disclosure': {
 					// update attributes
-					setAttributes(panel.shadow.label, { role: 'button', 'aria-expanded': panel.open, tabindex: 0 })
+					setAttributes(panel.shadow.label, { role: 'button', 'aria-expanded': panel.open, 'aria-label': panel.slotted.label.textContent, tabindex: 0 })
+					setAttributes(panel.shadow.labelSlot, { 'aria-hidden': 'true' })
 
 					// update parts
 					panel.shadow.content.part.toggle('open', panel.open)
@@ -360,7 +367,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 					panel.open = mostRecentPanel === panel
 
 					// update attributes
-					setAttributes(panel.shadow.label, { role: 'tab', 'aria-selected': panel.open, tabindex: panel.open ? 0 : -1 })
+					setAttributes(panel.shadow.label, { role: 'tab', 'aria-label': panel.slotted.label.textContent, 'aria-selected': panel.open, tabindex: panel.open ? 0 : -1 })
+					setAttributes(panel.shadow.labelSlot, { 'aria-hidden': 'true' })
 					setAttributes(panel.shadow.content, { role: 'tabpanel', tabindex: 0 })
 
 					// update parts
@@ -483,7 +491,19 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// Handle changes to any DOM child nodes
 	// -------------------------------------------------------------------------
 
-	let observer = new MutationObserver(childrenChangedCallback)
+	let childListObserver = new MutationObserver(childrenChangedCallback)
+
+
+	// Handle changes to any label
+	// -------------------------------------------------------------------------
+
+	let slottedLabelObserver = new MutationObserver(([{ target }]) => {
+		let panel = panelBySlottedLabel.get(target as HTMLHeadingElement)
+
+		if (panel) {
+			setAttributes(panel.shadow.label, { 'aria-label': panel.slotted.label.textContent })
+		}
+	})
 
 
 
@@ -555,7 +575,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 	}
 
 	// observe the host for changes
-	observer.observe(host, { childList: true })
+	childListObserver.observe(host, { childList: true })
 
 	// initialize the current children
 	childrenChangedCallback()
