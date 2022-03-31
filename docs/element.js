@@ -64,7 +64,7 @@ let createInternals = (host) => {
     //   </div>
     // </div>
     /** Panelset ShadowDOM root. */
-    let shadowRoot = host.attachShadow({ mode: 'closed', slotAssignment: 'manual' });
+    let shadowRoot = host.attachShadow({ mode: 'open', slotAssignment: 'manual' });
     /** Panelset ShadowDOM container of all ShadowDOM content. */
     let shadowContainerElement = createElement('div', { part: 'container' });
     /** Panelset ShadowDOM container of all default styles (used in tabbed affordance"). */

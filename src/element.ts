@@ -85,7 +85,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// </div>
 
 	/** Panelset ShadowDOM root. */
-	let shadowRoot = host.attachShadow({ mode: 'closed', slotAssignment: 'manual' })
+	let shadowRoot = host.attachShadow({ mode: 'open', slotAssignment: 'manual' })
 
 	/** Panelset ShadowDOM container of all ShadowDOM content. */
 	let shadowContainerElement = createElement('div', { part: 'container' })

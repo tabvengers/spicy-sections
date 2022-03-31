@@ -1,5 +1,6 @@
 {
   "name": "spicy-sections",
+  "type": "module",
   "version": "0.9.0",
   "description": "A custom element that allows authors to employ tabs, accordions and summary+detail like UI affordances via CSS over otherwise good semantic content",
   "main": "index.js",
@@ -7,7 +8,8 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "start": "serve docs",
-    "test": "testcafe \"firefox:headless\" test/*.tests.js -e"
+    "test": "npm run build && npm run test:cafe",
+    "test:cafe": "testcafe firefox:headless --app \"serve docs\" test/*.tests.js --skip-js-errors"
   },
   "author": "Brian Kardell <bkardell@igalia.com>",
   "contributors": [

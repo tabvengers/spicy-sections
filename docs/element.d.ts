@@ -1,7 +1,7 @@
 export declare class OUIPanelsetElement extends HTMLElement {
     #private;
-    get affordance(): "disclosure" | "tabset" | "content";
-    set affordance(value: "disclosure" | "tabset" | "content");
+    get affordance(): "content" | "disclosure" | "tabset";
+    set affordance(value: "content" | "disclosure" | "tabset");
     getPanels(): {
         open: boolean;
         label: HTMLHeadingElement;
