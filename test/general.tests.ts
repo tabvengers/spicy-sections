@@ -22,11 +22,19 @@ const panelset = t.querySelectorAll('oui-panelset').addCustomMethods({
 		return target.outerHTML
 	},
 }).addCustomMethods({
-	assignedElements(target: Element) {
-		return target instanceof HTMLSlotElement ? target.assignedElements() as Element[] : []
+	assignedElements(elements: Element[]) {
+		const nodeList = []
+		for (const target of elements as HTMLSlotElement[]) {
+			nodeList.push(...target.assignedElements())
+		}
+		return nodeList
 	},
-	querySelectorAll(target: Element, selector: string) {
-		return target.querySelectorAll(selector)
+	querySelectorAll(elements: Element[], selector: string) {
+		const nodeList = []
+		for (const target of elements) {
+			nodeList.push(...target.querySelectorAll(selector))
+		}
+		return nodeList
 	},
 }, { returnDOMNodes: true })
 
@@ -88,11 +96,13 @@ test(`Supports toggling an individual 'disclosure' panel`, async (t) => {
 	await t.expect(openLabel.matches('[part~="open"]')).eql(true)
 })
 
-test(`WIP - get slot assignedElements`, async (t) => {
+test(`Correctly assigns content to ShadowDOM`, async (t) => {
 	await t.resizeWindow(BREAKPOINTS.tabset, WINDOW_HEIGHT)
 
 	const openLabel = panelset.shadowRoot().find('[part~="label"]').nth(0)
-	const slot = openLabel.find('slot')
+	const h3 = openLabel.querySelectorAll('slot').assignedElements()
 
-	await t.expect(slot.tagName).eql('slot')
+	await t.expect(h3.count).eql(1)
+	await t.expect(h3.tagName).eql('h3')
+	await t.expect(h3.textContent).eql('Tabset')
 })

@@ -409,7 +409,7 @@ export interface SelectorAPI {
 
 	/** Adds custom selector methods. */
 	addCustomMethods<T extends {
-		[method: string]: (node?: Element, ...methodParams: any[]) => any
+		[method: string]: (node?: any, ...methodParams: any[]) => any
 	}, B extends true | false = false>(
 		methods: T,
 		opts?: {
@@ -417,10 +417,8 @@ export interface SelectorAPI {
 		}
 	): this & (
 		B extends true
-			? WithCustomMethods<this, T>
-		: {
-			[K in keyof T]: T[K] extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never
-		}
+			? WithCustomDOMMethods<this, T>
+		: WithCustomMethods<this, T>
 	);
 
 	/**
@@ -432,10 +430,16 @@ export interface SelectorAPI {
 	with(options?: SelectorOptions): this;
 }
 
+type WithCustomDOMMethods<T extends SelectorAPI, M extends {
+	[method: string]: (node?: Element[], ...methodParams: any[]) => any
+}> = T & {
+	[K in keyof M]: M[K] extends (x: any, ...args: infer P) => any ? (...args: P) => WithCustomDOMMethods<T, M> : never
+}
+
 type WithCustomMethods<T extends SelectorAPI, M extends {
 	[method: string]: (node?: Element, ...methodParams: any[]) => any
 }> = T & {
-	[K in keyof M]: M[K] extends (x: any, ...args: infer P) => any ? (...args: P) => WithCustomMethods<T, M> : never
+	[K in keyof M]: M[K] extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never
 }
 
 export interface SelectorFactory {
