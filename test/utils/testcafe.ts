@@ -1,6 +1,14 @@
 import * as t from 'testcafe'
 
-export interface SelectorAPI {
+interface CustomMethodsConfiguration {
+	returnDOMNodes?: boolean
+}
+
+interface CustomMethodsSource<O extends CustomMethodsConfiguration> {
+	[method: string]: (arg0: O['returnDOMNodes'] extends true ? Element[] : Element, ...args: any[]) => any
+}
+
+interface SelectorAPI extends Selector {
 	/**
 	 * The number of child HTML elements.
 	 */
@@ -228,7 +236,7 @@ export interface SelectorAPI {
 	 * @param dependencies - Predicate dependencies.
 	 */
 	filter(filterFn: (node: Element, idx: number) => boolean,
-		   dependencies?: {[key: string]: any}): this;
+		dependencies?: {[key: string]: any}): this;
 	/**
 	 * Creates a selector that filters a matching set leaving only visible elements.
 	 */
@@ -253,7 +261,7 @@ export interface SelectorAPI {
 	 * @param dependencies - Predicate dependencies.
 	 */
 	find(filterFn: (node: Element, idx: number, originNode: Element) => boolean,
-		 dependencies?: {[key: string]: any}): this;
+		dependencies?: {[key: string]: any}): this;
 	/**
 	 * Finds all parents of all nodes in the matching set (first element in the set will be the closest parent).
 	 */
@@ -280,7 +288,7 @@ export interface SelectorAPI {
 	 * @param dependencies - Predicate dependencies.
 	 */
 	parent(filterFn: (node: Element, idx: number, originNode: Element) => boolean,
-		   dependencies?: {[key: string]: any}): this;
+		dependencies?: {[key: string]: any}): this;
 	/**
 	 * Finds all child elements (not nodes) of all nodes in the matching set.
 	 */
@@ -307,7 +315,7 @@ export interface SelectorAPI {
 	 * @param dependencies - Predicate dependencies.
 	 */
 	child(filterFn: (node: Element, idx: number, originNode: Element) => boolean,
-		  dependencies?: {[key: string]: any}): this;
+		dependencies?: {[key: string]: any}): this;
 	/**
 	 * Finds all sibling elements (not nodes) of all nodes in the matching set.
 	 */
@@ -408,18 +416,13 @@ export interface SelectorAPI {
 	addCustomDOMProperties(props: {[prop: string]: (node: Element) => any}): this;
 
 	/** Adds custom selector methods. */
-	addCustomMethods<T extends {
-		[method: string]: (node?: any, ...methodParams: any[]) => any
-	}, B extends true | false = false>(
-		methods: T,
-		opts?: {
-			returnDOMNodes?: B
-		}
-	): this & (
-		B extends true
-			? WithCustomDOMMethods<this, T>
-		: WithCustomMethods<this, T>
-	);
+	addCustomMethods<
+		O extends CustomMethodsConfiguration,
+		M extends CustomMethodsSource<O>
+	>(
+		methods: M,
+		opts?: O
+	): SelectorWithCustomMethods<this, M, O>;
 
 	/**
 	 * Returns a new selector with a different set of options that includes options from the
@@ -430,17 +433,19 @@ export interface SelectorAPI {
 	with(options?: SelectorOptions): this;
 }
 
-type WithCustomDOMMethods<T extends SelectorAPI, M extends {
-	[method: string]: (node?: Element[], ...methodParams: any[]) => any
-}> = T & {
-	[K in keyof M]: M[K] extends (x: any, ...args: infer P) => any ? (...args: P) => WithCustomDOMMethods<T, M> : never
-}
-
-type WithCustomMethods<T extends SelectorAPI, M extends {
-	[method: string]: (node?: Element, ...methodParams: any[]) => any
-}> = T & {
-	[K in keyof M]: M[K] extends (x: any, ...args: infer P) => infer R ? (...args: P) => R : never
-}
+type SelectorWithCustomMethods<S extends SelectorAPI, M extends CustomMethodsSource<O>, O extends CustomMethodsConfiguration> = S & (
+	O['returnDOMNodes'] extends true
+		? {
+			[K in keyof M]: M[K] extends (x: any, ...args: infer P) => any
+				? (...args: P) => SelectorWithCustomMethods<S, M, O>
+			: never
+		}
+	: {
+		[K in keyof M]: M[K] extends (x: any, ...args: infer P) => infer R
+			? (...args: P) => R
+		: never
+	}
+)
 
 export interface SelectorFactory {
 	(
@@ -455,4 +460,69 @@ export interface SelectorFactory {
 	): SelectorAPI;
 }
 
-export const querySelectorAll = t.Selector as unknown as SelectorFactory
+const queryAll = t.Selector as unknown as SelectorFactory
+
+export const document = () => queryAll(() => window.document).addCustomMethods({
+	getProperty(element, property: PropertyKey) {
+		return element === Object(element) ? Reflect.get(element, property) : undefined;
+	},
+	matches(element, selector: string) {
+		return element instanceof Element ? Element.prototype.matches.call(element, selector) as boolean : false
+	},
+	hasPart(element, parts: string) {
+		if (!Element.prototype.isPrototypeOf(element)) return false
+
+		parts = parts.trim().split(/\s+/).map(part => `[part~="${part}"]`).join('')
+
+		return Element.prototype.matches.call(element, parts) as boolean
+	},
+}).addCustomMethods({
+	slotted(elements) {
+		const nodeList: Element[] = []
+
+		for (const element of elements) {
+			if (element instanceof HTMLSlotElement) {
+				nodeList.push(...element.assignedElements())
+			} else {
+				for (const slot of element.querySelectorAll('slot')) {
+					nodeList.push(...slot.assignedElements())
+				}
+			}
+		}
+
+		return nodeList
+	},
+	part(elements, parts: string) {
+		parts = parts.trim().split(/\s+/).map(part => `[part~="${part}"]`).join('')
+
+		const nodeList: Element[] = []
+
+		for (const element of elements) {
+			const { shadowRoot } = element
+
+			nodeList.push(...shadowRoot.querySelectorAll(parts))
+		}
+
+		return nodeList
+	},
+	query(elements, selector: string) {
+		for (const target of elements) {
+			const result = target.querySelector(selector)
+
+			if (result !== null) return result
+		}
+
+		return null
+	},
+	queryAll(elements, selector: string) {
+		const nodeList: Element[] = []
+
+		for (const target of elements) {
+			nodeList.push(...target.querySelectorAll(selector))
+		}
+
+		return nodeList
+	},
+}, {
+	returnDOMNodes: true
+})
