@@ -6,29 +6,12 @@ const BREAKPOINTS = {
 	tabset: [ 960 + 60, 520 ],
 } as const
 
-fixture('Panelset').clientScripts({
-	content: ['(', () => {
-		const __shadowRoot = globalThis.__shadowRoot = new WeakMap()
-
-		const { attachShadow } = Element.prototype
-
-		Object.assign(Element.prototype, {
-			attachShadow(...args) {
-				const returnValue = Function.call.call(attachShadow, this, ...args)
-
-				__shadowRoot.set(this, returnValue)
-
-				return returnValue
-			}
-		})
-	}, ')()'].join('')
-}).page('http://localhost:3000/demonstration/');
+fixture('Panelset').page('http://localhost:3000/demonstration/')
 
 const document = $.document()
-
 const panelset = document.query('oui-panelset')
 
-test(`Supports 'disclosure' affordance when window is ${BREAKPOINTS.disclosure.join('x')} wide`, async (t) => {
+test(`Supports 'disclosure' affordance when window is ${BREAKPOINTS.disclosure.join('x')} wide`, async t => {
 	await t.resizeWindow(...BREAKPOINTS.disclosure)
 
 	await t.expect(panelset.getProperty('affordance')).notEql('content')
@@ -95,4 +78,24 @@ test(`Correctly assigns content to ShadowDOM`, async (t) => {
 	await t.expect(h3.count).eql(1)
 	await t.expect(h3.tagName).eql('h3')
 	await t.expect(h3.textContent).eql('Tabset')
+})
+
+test('Verify a "tab"', async t => {
+	await t.resizeWindow(...BREAKPOINTS.tabset)
+
+	const openLabel = panelset.part('label is-tabset open')
+
+	await t.expect(openLabel.count).eql(1)
+
+	await t.expect(openLabel.slotted().textContent).eql('Tabset')
+
+	await t.expect(openLabel.attributes).eql({
+		role: 'tab',
+		id: 'label-0',
+		tabindex: '0',
+		part: 'label is-tabset open',
+		'aria-controls': 'content-0',
+		'aria-label': 'Tabset',
+		'aria-selected': 'true',
+	})
 })
