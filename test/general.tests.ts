@@ -28,46 +28,74 @@ const panelset = $.document().find('oui-panelset')
 
 test(`Supports 'disclosure' affordance when window is ${BREAKPOINTS.disclosure.join('x')} wide`, async t => {
 	await t.resizeWindow(...BREAKPOINTS.disclosure)
-
-	await t.expect(panelset.getProperty('affordance')).notEql('content')
+	
+	// panelset element should switch to a `disclosure` affordance at the given breakpoint
 	await t.expect(panelset.getProperty('affordance')).eql('disclosure')
-	await t.expect(panelset.getProperty('affordance')).notEql('tabset')
 
+	/** Label elements contained by the Panelset element. */
 	const labels = panelset.findByPart('label')
-
+	
+	// panelset element should contain 3 elements matching the label part
 	await t.expect(labels.count).eql(3)
 
-	async function verifyDisclosureButton(label: typeof labels, isSelected: boolean) {
+	// verify qualities of each label
+	async function verifyDisclosureLabel(label: typeof labels, opts: { isOpen: boolean }) {
+		// label should have a `button` role
 		await t.expect(label.role).eql('button')
-		await t.expect(label.part).contains('label')
-		await t.expect(label.part).contains('is-disclosure')
-		await t.expect(label.part).notContains('is-content')
-		await t.expect(label.part).notContains('is-tabset')
 
-		if (isSelected) {
+		// label should not have an `aria-selected` attribute
+		await t.expect(label.hasAttribute('aria-selected')).eql(false)
+
+		if (opts.isOpen) {
+			// opened label should have an `open` part
 			await t.expect(label.part).contains('open')
+
+			// opened label should have an `aria-expanded` value of `true`
+			await t.expect(label.getAttribute('aria-expanded')).eql('true')
 		} else {
+			// closed label should not have an `open` part
 			await t.expect(label.part).notContains('open')
+
+			// closed label should have an `aria-expanded` value of `false`
+			await t.expect(label.getAttribute('aria-expanded')).eql('false')
 		}
 	}
 
-	await verifyDisclosureButton(labels.at(0), true)
-	await verifyDisclosureButton(labels.at(1), false)
-	await verifyDisclosureButton(labels.at(2), false)
+	await verifyDisclosureLabel(labels.at(0), { isOpen: true })
+	await verifyDisclosureLabel(labels.at(1), { isOpen: false })
+	await verifyDisclosureLabel(labels.at(2), { isOpen: false })
 })
 
 test(`Supports 'content' affordance when window is ${BREAKPOINTS.content.join('x')} wide`, async t => {
 	await t.resizeWindow(...BREAKPOINTS.content)
-
+	
+	// panelset element should switch to a `content` affordance at the given breakpoint
 	await t.expect(panelset.getProperty('affordance')).eql('content')
-	await t.expect(panelset.getProperty('affordance')).notEql('disclosure')
-	await t.expect(panelset.getProperty('affordance')).notEql('tabset')
 
-	const labels = panelset.findByPart('label,content')
+	/** Label elements contained by the Panelset element. */
+	const labels = panelset.findByPart('label')
+	
+	// panelset element should contain 3 elements matching the label part
+	await t.expect(labels.count).eql(3)
 
-	await t.expect(labels.matches('[part~="is-content"]')).eql(true)
-	await t.expect(labels.matches('[part~="is-disclosure"]')).notEql(true)
-	await t.expect(labels.matches('[part~="is-tabset"]')).notEql(true)
+	// verify qualities of each label
+	async function verifyContentLabel(label: typeof labels) {
+		// label should have no role
+		await t.expect(label.role).eql(null)
+
+		// label should not have an `aria-expanded` attribute
+		await t.expect(label.hasAttribute('aria-expanded')).eql(false)
+
+		// label should not have an `aria-selected` attribute
+		await t.expect(label.hasAttribute('aria-selected')).eql(false)
+
+		// label should have an `open` part
+		await t.expect(label.part).contains('open')
+	}
+
+	await verifyContentLabel(labels.at(0))
+	await verifyContentLabel(labels.at(1))
+	await verifyContentLabel(labels.at(2))
 })
 
 test(`Supports 'tabset' affordance when window is ${BREAKPOINTS.tabset.join('x')} wide`, async t => {
