@@ -9,7 +9,7 @@
     "build:watch": "tsc --watch",
     "start": "serve docs",
     "test": "npm run build && npm run test:cafe",
-    "test:cafe": "testcafe firefox:headless --app \"serve docs\" test/general.tests.ts --skip-js-errors"
+    "test:cafe": "testcafe firefox:headless --app \"serve docs\" test/general.tests.ts"
   },
   "author": "Brian Kardell <bkardell@igalia.com>",
   "contributors": [
@@ -20,6 +20,7 @@
   ],
   "license": "W3C",
   "devDependencies": {
+    "@testing-library/dom": "^8.12.0",
     "serve": "^13.0.2",
     "testcafe": "^1.18.5",
     "typescript": "^4.6.3"

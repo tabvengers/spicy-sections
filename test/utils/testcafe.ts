@@ -1,11 +1,15 @@
-import * as t from 'testcafe'
+import * as testcafe from 'testcafe'
 
 interface CustomMethodsConfiguration {
 	returnDOMNodes?: boolean
 }
 
 interface CustomMethodsSource<O extends CustomMethodsConfiguration> {
-	[method: string]: (arg0: O['returnDOMNodes'] extends true ? Element[] : Element, ...args: any[]) => any
+	[method: string]: (arg0: O['returnDOMNodes'] extends true ? Element[] : Element, ...args: any) => any | null
+}
+
+interface CustomPropertiesSource {
+	[property: string]: (arg0: Element, ...args: any) => any | null
 }
 
 interface SelectorAPI extends Selector {
@@ -413,7 +417,7 @@ interface SelectorAPI extends Selector {
 	 * @param props `[prop]` - The function that calculate property values. Executed on the client side in the browser.
 	 * @param props `node` - The matching DOM node for which custom property is calculated.
 	 */
-	addCustomDOMProperties(props: {[prop: string]: (node: Element) => any}): this
+	addCustomDOMProperties<P extends CustomPropertiesSource>(props: P): SelectorWithCustomProps<this, P>
 
 	/** Adds custom selector methods. */
 	addCustomMethods<
@@ -447,11 +451,17 @@ type SelectorWithCustomMethods<S extends SelectorAPI, M extends CustomMethodsSou
 	}
 )
 
+type SelectorWithCustomProps<S extends SelectorAPI, P extends CustomPropertiesSource> = S & {
+	[K in keyof P]: P[K] extends (x: any, ...args: any) => infer R
+		? Promise<R>
+	: never
+}
+
 export interface SelectorFactory {
 	(
 		init:
 			| string
-			| ((...args: any[]) => Node | Node[] | NodeList | HTMLCollection)
+			| ((...args: any) => Node | Node[] | NodeList | HTMLCollection)
 			| Selector
 			| SelectorAPI
 			| NodeSnapshot
@@ -460,72 +470,4 @@ export interface SelectorFactory {
 	): SelectorAPI
 }
 
-const queryAll = t.Selector as unknown as SelectorFactory
-
-export const document = () => queryAll(() => window.document).addCustomMethods({
-	getProperty(element, property: PropertyKey) {
-		return element === Object(element) ? Reflect.get(element, property) : undefined
-	},
-	matches(element, selector: string) {
-		return element instanceof Element ? Element.prototype.matches.call(element, selector) as boolean : false
-	},
-	hasPart(element, parts: string) {
-		if (!Element.prototype.isPrototypeOf(element)) return false
-
-		parts = parts.trim().split(/\s+/).map(part => `[part~="${part}"]`).join('')
-
-		return Element.prototype.matches.call(element, parts) as boolean
-	},
-	hasRole(element, role: string) {
-		return element.getAttribute('role') === role
-	},
-}).addCustomMethods({
-	slotted(elements) {
-		const nodeList: Element[] = []
-
-		for (const element of elements) {
-			if (element instanceof HTMLSlotElement) {
-				nodeList.push(...element.assignedElements())
-			} else {
-				for (const slot of element.querySelectorAll('slot')) {
-					nodeList.push(...slot.assignedElements())
-				}
-			}
-		}
-
-		return nodeList
-	},
-	part(elements, parts: string) {
-		parts = parts.trim().split(/\s+/).map(part => `[part~="${part}"]`).join('')
-
-		const nodeList: Element[] = []
-
-		for (const element of elements) {
-			const { shadowRoot } = element
-
-			nodeList.push(...shadowRoot.querySelectorAll(parts))
-		}
-
-		return nodeList
-	},
-	query(elements, selector: string) {
-		for (const target of elements) {
-			const result = target.querySelector(selector)
-
-			if (result !== null) return result
-		}
-
-		return null
-	},
-	queryAll(elements, selector: string) {
-		const nodeList: Element[] = []
-
-		for (const target of elements) {
-			nodeList.push(...target.querySelectorAll(selector))
-		}
-
-		return nodeList
-	},
-}, {
-	returnDOMNodes: true
-})
+export const find = testcafe.Selector as unknown as SelectorFactory
