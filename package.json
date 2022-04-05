@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "start": "serve docs",
+    "start": "tsc && serve docs",
     "test": "npm run build && npm run test:cafe",
     "test:cafe": "testcafe firefox:headless --app \"serve docs\" test/general.tests.ts"
   },

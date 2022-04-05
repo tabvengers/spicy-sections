@@ -80,8 +80,8 @@ test(`Supports 'content' affordance when window is ${BREAKPOINTS.content.join('x
 
 	// verify qualities of each label
 	async function verifyContentLabel(label: typeof labels) {
-		// label should have no role
-		await t.expect(label.role).eql(null)
+		// label should have no role / the generic role
+		await t.expect(label.role).eql('generic')
 
 		// label should not have an `aria-expanded` attribute
 		await t.expect(label.hasAttribute('aria-expanded')).eql(false)

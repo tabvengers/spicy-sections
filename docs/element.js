@@ -243,10 +243,9 @@ let createInternals = (host) => {
             switch (affordance) {
                 case 'content': {
                     // update attributes
-                    setAttributes(panel.shadow.label, { 'role': null, tabindex: null, 'aria-label': null });
+                    setAttributes(panel.shadow.label, { 'role': null, 'aria-controls': null, 'aria-label': null, tabindex: null });
                     setAttributes(panel.shadow.labelSlot, { 'aria-hidden': null });
-                    // update parts
-                    panel.shadow.content.part.toggle('open', true);
+                    setAttributes(panel.shadow.content, { 'aria-labelledby': null });
                     // update shadow tree
                     panel.shadow.section.replaceChildren(panel.shadow.label, panel.shadow.content);
                     shadowContainerElement.append(panel.shadow.section);
@@ -254,12 +253,9 @@ let createInternals = (host) => {
                 }
                 case 'disclosure': {
                     // update attributes
-                    setAttributes(panel.shadow.label, { role: 'button', 'aria-expanded': panel.open, 'aria-label': panel.slotted.label.textContent, tabindex: 0 });
+                    setAttributes(panel.shadow.label, { role: 'button', 'aria-controls': panel.shadow.content.id, 'aria-expanded': panel.open, 'aria-label': panel.slotted.label.textContent, tabindex: 0 });
                     setAttributes(panel.shadow.labelSlot, { 'aria-hidden': 'true' });
-                    // update parts
-                    panel.shadow.content.part.toggle('open', panel.open);
-                    panel.shadow.label.part.toggle('open', panel.open);
-                    panel.shadow.marker.part.toggle('open', panel.open);
+                    setAttributes(panel.shadow.content, { 'aria-labelledby': panel.shadow.label.id });
                     // update shadow tree
                     panel.shadow.section.replaceChildren(panel.shadow.label, panel.shadow.content);
                     shadowContainerElement.append(panel.shadow.section);
@@ -268,18 +264,20 @@ let createInternals = (host) => {
                 case 'tabset': {
                     panel.open = mostRecentPanel === panel;
                     // update attributes
-                    setAttributes(panel.shadow.label, { role: 'tab', 'aria-label': panel.slotted.label.textContent, 'aria-selected': panel.open, tabindex: panel.open ? 0 : -1 });
+                    setAttributes(panel.shadow.label, { role: 'tab', 'aria-controls': panel.shadow.content.id, 'aria-label': panel.slotted.label.textContent, 'aria-selected': panel.open, tabindex: panel.open ? 0 : -1 });
                     setAttributes(panel.shadow.labelSlot, { 'aria-hidden': 'true' });
-                    setAttributes(panel.shadow.content, { role: 'tabpanel', tabindex: 0 });
-                    // update parts
-                    panel.shadow.label.part.toggle('open', panel.open);
-                    panel.shadow.content.part.toggle('open', panel.open);
+                    setAttributes(panel.shadow.content, { role: 'tabpanel', 'aria-labelledby': panel.shadow.label.id, tabindex: 0 });
                     // update shadow tree
                     shadowLabelContainerElement.append(panel.shadow.label);
                     shadowContentContainerElement.append(panel.shadow.content);
                     break;
                 }
             }
+            // update parts
+            panel.shadow.section.part.toggle('open', affordance === 'content' || panel.open);
+            panel.shadow.content.part.toggle('open', affordance === 'content' || panel.open);
+            panel.shadow.label.part.toggle('open', affordance === 'content' || panel.open);
+            panel.shadow.marker.part.toggle('open', affordance === 'content' || panel.open);
             // update assignments
             assignSlot(panel.shadow.labelSlot, panel.slotted.label);
             assignSlot(panel.shadow.contentSlot, ...panel.slotted.contents);

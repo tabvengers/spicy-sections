@@ -6,6 +6,9 @@ declare const TestingLibraryDom: typeof tld
 export const clientScript = '@testing-library/dom/dist/@testing-library/dom.umd.js'
 
 export const document = () => testcafe.find(() => window.document).addCustomDOMProperties({
+	outerHTML(element): string {
+		return Reflect.get(element, 'outerHTML')
+	},
 	part(element): string[] {
 		return Array.from(Reflect.get(element, 'part'))
 	},
