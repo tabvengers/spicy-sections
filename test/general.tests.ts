@@ -1,4 +1,4 @@
-import * as $ from './utils/testing-library'
+import * as $ from './utils/document'
 
 // Constants
 // -----------------------------------------------------------------------------
@@ -33,15 +33,27 @@ test(`Supports 'disclosure' affordance when window is ${BREAKPOINTS.disclosure.j
 	await t.expect(panelset.getProperty('affordance')).eql('disclosure')
 	await t.expect(panelset.getProperty('affordance')).notEql('tabset')
 
-	const label = panelset.findByPart('label')
+	const labels = panelset.findByPart('label')
 
-	await t.expect(label.count).eql(3)
+	await t.expect(labels.count).eql(3)
 
-	await t.expect(label.role).eql('button')
-	await t.expect(label.part).contains('label')
-	await t.expect(label.part).contains('is-disclosure')
-	await t.expect(label.part).notContains('is-content')
-	await t.expect(label.part).notContains('is-tabset')
+	async function verifyDisclosureButton(label: typeof labels, isSelected: boolean) {
+		await t.expect(label.role).eql('button')
+		await t.expect(label.part).contains('label')
+		await t.expect(label.part).contains('is-disclosure')
+		await t.expect(label.part).notContains('is-content')
+		await t.expect(label.part).notContains('is-tabset')
+
+		if (isSelected) {
+			await t.expect(label.part).contains('open')
+		} else {
+			await t.expect(label.part).notContains('open')
+		}
+	}
+
+	await verifyDisclosureButton(labels.at(0), true)
+	await verifyDisclosureButton(labels.at(1), false)
+	await verifyDisclosureButton(labels.at(2), false)
 })
 
 test(`Supports 'content' affordance when window is ${BREAKPOINTS.content.join('x')} wide`, async t => {
@@ -75,7 +87,7 @@ test(`Supports 'tabset' affordance when window is ${BREAKPOINTS.tabset.join('x')
 test(`Supports toggling an individual 'disclosure' panel`, async t => {
 	await t.resizeWindow(...BREAKPOINTS.disclosure)
 
-	const openLabel = panelset.findByPart('label').nth(0)
+	const openLabel = panelset.findByPart('label').at(0)
 
 	await t.expect(openLabel.part).contains('open')
 
@@ -91,7 +103,7 @@ test(`Supports toggling an individual 'disclosure' panel`, async t => {
 test(`Correctly assigns content to ShadowDOM`, async (t) => {
 	await t.resizeWindow(...BREAKPOINTS.tabset)
 
-	const openLabel = panelset.findByPart('label').nth(0)
+	const openLabel = panelset.findByPart('label').at(0)
 	const h3 = openLabel.assigned()
 
 	await t.expect(h3.count).eql(1)

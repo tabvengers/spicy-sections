@@ -10,7 +10,7 @@ export const document = () => testcafe.find(() => window.document).addCustomDOMP
 		return Array.from(Reflect.get(element, 'part'))
 	},
 	role(element): string | null {
-		for (const [ role, elements ] of Object.entries(TestingLibraryDom.getRoles(element as HTMLElement))) {
+		for (let [ role, elements ] of Object.entries(TestingLibraryDom.getRoles(element as HTMLElement))) {
 			if (elements.includes(element as HTMLElement)) {
 				return role
 			}
@@ -19,29 +19,38 @@ export const document = () => testcafe.find(() => window.document).addCustomDOMP
 		return null
 	},
 }).addCustomMethods({
-	getProperty(element, property: PropertyKey) {
+	getProperty(element, property: PropertyKey): any {
 		return element === Object(element) ? Reflect.get(element, property) : undefined
 	},
-	matches(element, selector: string) {
+	matches(element, selector: string): boolean {
 		return element instanceof Element ? Element.prototype.matches.call(element, selector) as boolean : false
 	},
 }).addCustomMethods({
-	assigned(elements) {
-		let nodes: Node[] = []
+	assigned(elements): Node[] {
+		let results: Node[] = []
 
 		for (let element of elements) {
 			if (element instanceof HTMLSlotElement) {
-				nodes.push(...element.assignedNodes())
+				results.push(...element.assignedNodes())
 			} else {
 				for (let slot of element.querySelectorAll('slot')) {
-					nodes.push(...slot.assignedNodes())
+					results.push(...slot.assignedNodes())
 				}
 			}
 		}
 
-		return nodes
+		return results
 	},
-	find(elements, selector: string) {
+	at(elements, index: number): Element | null {
+		index = Math.trunc(index) || 0
+	
+		if (index < 0) index += elements.length;
+	
+		if (index < 0 || index >= elements.length) return null;
+	
+		return elements[index];
+	},
+	find(elements, selector: string): Element[] {
 		let [ , liteSelector, darkSelector = '' ] = selector.match(/^([\W\w]+?)(?:\::part\((.+)\))?$/)
 		let results: Element[] = []
 
@@ -63,22 +72,22 @@ export const document = () => testcafe.find(() => window.document).addCustomDOMP
 
 		return results
 	},
-	findByPart(elements, parts: string) {
+	findByPart(elements, parts: string): Element[] {
 		parts = parts.trim().split(',').map(
 			parts => parts.trim().split(/\s+/).map(part => `[part~="${part}"]`).join('')
 		).join(',')
 
-		const nodeList: Element[] = []
+		let results: Element[] = []
 
-		for (const element of elements) {
-			const { shadowRoot } = element
+		for (let element of elements) {
+			let { shadowRoot } = element
 
-			nodeList.push(...shadowRoot.querySelectorAll(parts))
+			results.push(...shadowRoot.querySelectorAll(parts))
 		}
 
-		return nodeList
+		return results
 	},
-	findByRole(elements, match: tld.ByRoleMatcher, options?: tld.ByRoleOptions) {
+	findByRole(elements, match: tld.ByRoleMatcher, options?: tld.ByRoleOptions): Element[] {
 		let results: Element[] = []
 
 		for (let element of elements) {
