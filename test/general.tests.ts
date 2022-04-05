@@ -100,16 +100,42 @@ test(`Supports 'content' affordance when window is ${BREAKPOINTS.content.join('x
 
 test(`Supports 'tabset' affordance when window is ${BREAKPOINTS.tabset.join('x')} wide`, async t => {
 	await t.resizeWindow(...BREAKPOINTS.tabset)
-
+	
+	// panelset element should switch to a `tabset` affordance at the given breakpoint
 	await t.expect(panelset.getProperty('affordance')).eql('tabset')
-	await t.expect(panelset.getProperty('affordance')).notEql('disclosure')
-	await t.expect(panelset.getProperty('affordance')).notEql('content')
 
+	/** Label elements contained by the Panelset element. */
 	const labels = panelset.findByPart('label')
+	
+	// panelset element should contain 3 elements matching the label part
+	await t.expect(labels.count).eql(3)
 
-	await t.expect(labels.matches('[part~="is-content"]')).notEql(true)
-	await t.expect(labels.matches('[part~="is-disclosure"]')).notEql(true)
-	await t.expect(labels.matches('[part~="is-tabset"]')).eql(true)
+	// verify qualities of each label
+	async function verifyTabsetLabel(label: typeof labels, opts: { isOpen: boolean }) {
+		// label should have a `tab` role
+		await t.expect(label.role).eql('tab')
+
+		// label should not have an `aria-expanded` attribute
+		await t.expect(label.hasAttribute('aria-expanded')).eql(false)
+
+		if (opts.isOpen) {
+			// opened label should have an `open` part
+			await t.expect(label.part).contains('open')
+
+			// opened label should have an `aria-selected` value of `true`
+			await t.expect(label.getAttribute('aria-selected')).eql('true')
+		} else {
+			// closed label should not have an `open` part
+			await t.expect(label.part).notContains('open')
+
+			// closed label should have an `aria-selected` value of `false`
+			await t.expect(label.getAttribute('aria-selected')).eql('false')
+		}
+	}
+
+	await verifyTabsetLabel(labels.at(0), { isOpen: true })
+	await verifyTabsetLabel(labels.at(1), { isOpen: false })
+	await verifyTabsetLabel(labels.at(2), { isOpen: false })
 })
 
 test(`Supports toggling an individual 'disclosure' panel`, async t => {
@@ -132,7 +158,7 @@ test(`Correctly assigns content to ShadowDOM`, async (t) => {
 	await t.resizeWindow(...BREAKPOINTS.tabset)
 
 	const openLabel = panelset.findByPart('label').at(0)
-	const h3 = openLabel.assigned()
+	const h3 = openLabel.slotted('h3')
 
 	await t.expect(h3.count).eql(1)
 	await t.expect(h3.tagName).eql('h3')
@@ -146,7 +172,7 @@ test(`Verify a "tab"`, async t => {
 
 	await t.expect(openLabel.count).eql(1)
 
-	await t.expect(openLabel.assigned().textContent).eql('Tabset')
+	await t.expect(openLabel.slotted().textContent).eql('Tabset')
 
 	await t.expect(openLabel.getAttribute('aria-controls')).eql('content-0')
 	await t.expect(openLabel.getAttribute('aria-selected')).eql('true')

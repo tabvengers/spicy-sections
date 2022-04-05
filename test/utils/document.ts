@@ -25,25 +25,10 @@ export const document = () => testcafe.find(() => window.document).addCustomDOMP
 	getProperty(element, property: PropertyKey): any {
 		return element === Object(element) ? Reflect.get(element, property) : undefined
 	},
-	matches(element, selector: string): boolean {
-		return element instanceof Element ? Element.prototype.matches.call(element, selector) as boolean : false
+	matches(element, match: string): boolean {
+		return element instanceof Element ? Element.prototype.matches.call(element, match) as boolean : false
 	},
 }).addCustomMethods({
-	assigned(elements): Node[] {
-		let results: Node[] = []
-
-		for (let element of elements) {
-			if (element instanceof HTMLSlotElement) {
-				results.push(...element.assignedNodes())
-			} else {
-				for (let slot of element.querySelectorAll('slot')) {
-					results.push(...slot.assignedNodes())
-				}
-			}
-		}
-
-		return results
-	},
 	at(elements, index: number): Element | null {
 		index = Math.trunc(index) || 0
 	
@@ -53,8 +38,8 @@ export const document = () => testcafe.find(() => window.document).addCustomDOMP
 	
 		return elements[index];
 	},
-	find(elements, selector: string): Element[] {
-		let [ , liteSelector, darkSelector = '' ] = selector.match(/^([\W\w]+?)(?:\::part\((.+)\))?$/)
+	find(elements, match: string): Element[] {
+		let [ , liteSelector, darkSelector = '' ] = match.match(/^([\W\w]+?)(?:\::part\((.+)\))?$/)
 		let results: Element[] = []
 
 		for (let element of elements) {
@@ -100,6 +85,33 @@ export const document = () => testcafe.find(() => window.document).addCustomDOMP
 		}
 
 		results = [ ...new Set(results) ]
+
+		return results
+	},
+	slotted(elements, match?: string): Node[] {
+		let results: Node[] = []
+
+		for (let element of elements) {
+			if (element instanceof HTMLSlotElement) {
+				addSlot(element)
+			} else {
+				for (let slot of element.querySelectorAll('slot')) {
+					addSlot(slot)
+				}
+			}
+		}
+
+		function addSlot(slot: HTMLSlotElement) {
+			for (const node of slot.assignedNodes()) {
+				addNode(node)
+			}
+		}
+
+		function addNode(node: Node) {
+			if (match == null || (node instanceof Element && node.matches(match))) {
+				results.push(node)
+			}
+		}
 
 		return results
 	},
