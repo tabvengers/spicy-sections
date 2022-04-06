@@ -11,6 +11,7 @@ export const document = () => testcafe.find(() => window.document).addCustomDOMP
 }).addCustomMethods({
 	getProperty: js.getProperty,
 	matches: dom.matches,
+	setProperty: js.setProperty,
 }).addCustomMethods({
 	assignedNodes: shadow.assignedNodes,
 	assignedSlot: shadow.assignedSlot,

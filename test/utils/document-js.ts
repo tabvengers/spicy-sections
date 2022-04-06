@@ -1,12 +1,3 @@
-/** Returns the value of the given property on the element. */
-export const getProperty = Function(
-	'element',
-	'property',
-	[
-		'return element === Object(element) ? Reflect.get(element, property) : undefined'
-	].join('\n')
-) as (element: Element, property: PropertyKey) => any
-
 /** Returns the element at the given index of elements. */
 export const at = Function(
 	'elements',
@@ -21,3 +12,22 @@ export const at = Function(
 		'return elements[index]',
 	].join('\n')
 ) as (elements: Element[], index: number) => Element | null
+
+/** Returns the value of the given property on the element. */
+export const getProperty = Function(
+	'element',
+	'property',
+	[
+		'return element === Object(element) ? Reflect.get(element, property) : undefined'
+	].join('\n')
+) as (element: Element, property: PropertyKey) => any
+
+/** Sets the value of the given property on the element and returns whether the set was successful. */
+export const setProperty = Function(
+	'element',
+	'property',
+	'value',
+	[
+		'return element === Object(element) ? Reflect.set(element, property, value) : false'
+	].join('\n')
+) as (element: Element, property: PropertyKey, value: any) => boolean

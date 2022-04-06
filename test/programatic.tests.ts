@@ -14,7 +14,7 @@ const BREAKPOINTS = {
 // Fixture
 // -----------------------------------------------------------------------------
 
-fixture('Panelset Responsive Affordances').page(PAGE_URL)
+fixture('Panelset Programatic Affordances').page(PAGE_URL)
 
 // Testing Setup
 // -----------------------------------------------------------------------------
@@ -82,10 +82,15 @@ const validateLabelInDisclosureAffordance = async (t: $.TestController, label: $
 // Testing
 // -----------------------------------------------------------------------------
 
-test(`Implements responsive 'disclosure' affordance`, async t => {
-	await t.resizeWindow(...BREAKPOINTS.disclosure)
+test(`Implements programatic 'disclosure' affordance`, async t => {
+	await t.resizeWindow(800, 520)
 
-	// panelset element should switch to a `disclosure` affordance at the given breakpoint
+	// panelset element should switch to a `disclosure` affordance with the given property assignment
+
+	await t.expect(panelset.getProperty('affordance')).eql('content')
+
+	await t.expect(panelset.setProperty('affordance', 'disclosure')).eql(true)
+
 	await t.expect(panelset.getProperty('affordance')).eql('disclosure')
 
 	const headings = panelset.find('h3')
@@ -105,28 +110,15 @@ test(`Implements responsive 'disclosure' affordance`, async t => {
 	await validateLabelInDisclosureAffordance(t, shadowLabels.at(2), { isOpen: false })
 })
 
-test(`Implements responsive 'content' affordance`, async t => {
-	await t.resizeWindow(...BREAKPOINTS.content)
+test(`Implements programatic 'tabset' affordance`, async t => {
+	await t.resizeWindow(800, 520)
 
-	// panelset element should switch to a `content` affordance at the given breakpoint
+	// panelset element should switch to a `tabset` affordance with the given property assignment
+
 	await t.expect(panelset.getProperty('affordance')).eql('content')
 
-	/** Label elements contained by the Panelset element. */
-	const shadowLabels = panelset.findByShadowPart('label')
+	await t.expect(panelset.setProperty('affordance', 'tabset')).eql(true)
 
-	// panelset element should contain 3 elements matching the label part
-	await t.expect(shadowLabels.count).eql(3)
-
-	// verify qualities of each label
-	await validateLabelInContentAffordance(t, shadowLabels.at(0))
-	await validateLabelInContentAffordance(t, shadowLabels.at(1))
-	await validateLabelInContentAffordance(t, shadowLabels.at(2))
-})
-
-test(`Implements responsive 'tabset' affordance`, async t => {
-	await t.resizeWindow(...BREAKPOINTS.tabset)
-
-	// panelset element should switch to a `tabset` affordance at the given breakpoint
 	await t.expect(panelset.getProperty('affordance')).eql('tabset')
 
 	/** Label elements contained by the Panelset element. */
