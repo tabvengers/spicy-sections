@@ -13,7 +13,7 @@ export const at = Function(
 	].join('\n')
 ) as (elements: Element[], index: number) => Element | null
 
-/** Returns the value of the given property on the element. */
+/** Returns the value of the given DOM property for the element. */
 export const getProperty = Function(
 	'element',
 	'property',
@@ -22,7 +22,7 @@ export const getProperty = Function(
 	].join('\n')
 ) as (element: Element, property: PropertyKey) => any
 
-/** Sets the value of the given property on the element and returns whether the set was successful. */
+/** Sets the value of the given DOM property for the element. Returns whether the operation completed successfully. */
 export const setProperty = Function(
 	'element',
 	'property',

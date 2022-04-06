@@ -1,4 +1,4 @@
-/** Returns an array of parts assigned to the element. */
+/** Returns the part names for the element. */
 export const part = Function(
 	'element',
 	[
@@ -6,7 +6,7 @@ export const part = Function(
 	].join('\n')
 ) as (element: Element) => string[]
 
-/** Returns nodes assigned to the slot elements. */
+/** Returns nodes assigned to the `<slot>` elements. */
 export const assignedNodes = Function(
 	'elements',
 	[
@@ -22,7 +22,7 @@ export const assignedNodes = Function(
 	].join('\n')
 ) as (elements: Element[]) => Node[]
 
-/** Returns slot elements assigned to the elements. */
+/** Returns slot elements assigned the elements. */
 export const assignedSlot = Function(
 	'elements',
 	[
@@ -40,15 +40,15 @@ export const assignedSlot = Function(
 	].join('\n')
 ) as (elements: Element[]) => Element[]
 
-/** Returns shadow elements matching the given part selector. */
+/** Returns shadow elements matching the given part names. */
 export const findByShadowPart = Function(
 	'elements',
-	'partSelector = null',
+	'parts = null',
 	[
-		'partSelector = partSelector == null ? "" : String(partSelector).trim()',
+		'parts = parts == null ? "" : String(parts).trim()',
 
-		'let selector = partSelector.split(/\\s*,\\s*/).map(',
-			'parts => parts.split(/\\s+/).map(part => part ? `[part~="${part}"]` : "[part]").join("")',
+		'let selector = parts.split(/\\s*,\\s*/).map(',
+			'partNames => partNames.split(/\\s+/).map(partName => partName ? `[part~="${partName}"]` : "[part]").join("")',
 		').join(",")',
 
 		'let results = []',
@@ -63,7 +63,7 @@ export const findByShadowPart = Function(
 	].join('\n')
 ) as (elements: Element[], parts: string) => HTMLSlotElement[]
 
-/** Returns slotted elements optionally matching the given selector. */
+/** Returns slotted elements matching the (optional) given selector. */
 export const slotted = Function(
 	'elements',
 	'match = null',

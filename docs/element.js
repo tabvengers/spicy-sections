@@ -226,6 +226,8 @@ let createInternals = (host) => {
     let affordanceChangedCallback = () => {
         // set the container affordance
         setAttributes(shadowContainerElement, { part: 'container is-' + affordance });
+        // @ts-ignore update css `--affordance` property
+        shadowStyleElement.sheet.cssRules[0].style.setProperty('--affordance', affordance);
         // reset any container children
         if (affordance === 'tabset') {
             shadowContainerElement.replaceChildren(shadowLabelContainerElement, shadowContentContainerElement);
