@@ -20,10 +20,11 @@ fixture('Panelset').page(PAGE_URL)
 // -----------------------------------------------------------------------------
 
 const panelset = $.document().find('oui-panelset')
+const shadow = panelset.shadowRoot()
 
-const verifyTabsetLabel = async (t: $.TestController, label: $.SelectorAPI, opts: { isOpen: boolean }) => {
+const validateLabelInTabsetAffordance = async (t: $.TestController, label: $.SelectorAPI, opts: { isOpen: boolean }) => {
 	// label should have a `tab` role
-	await t.expect(label.role).contains('tab')
+	await t.expect(label.getAttribute('role')).eql('tab')
 
 	// label should not have an `aria-expanded` attribute
 	await t.expect(label.hasAttribute('aria-expanded')).eql(false)
@@ -43,9 +44,9 @@ const verifyTabsetLabel = async (t: $.TestController, label: $.SelectorAPI, opts
 	}
 }
 
-const verifyContentLabel = async (t: $.TestController, label: $.SelectorAPI) => {
-	// label should have no role / the generic role
-	await t.expect(label.role).contains('generic')
+const validateLabelInContentAffordance = async (t: $.TestController, label: $.SelectorAPI) => {
+	// label should have no role
+	await t.expect(label.hasAttribute('role')).eql(false)
 
 	// label should not have an `aria-expanded` attribute
 	await t.expect(label.hasAttribute('aria-expanded')).eql(false)
@@ -57,9 +58,9 @@ const verifyContentLabel = async (t: $.TestController, label: $.SelectorAPI) => 
 	await t.expect(label.part).contains('open')
 }
 
-const verifyDisclosureLabel = async (t: $.TestController, label: $.SelectorAPI, opts: { isOpen: boolean }) => {
+const validateLabelInDisclosureAffordance = async (t: $.TestController, label: $.SelectorAPI, opts: { isOpen: boolean }) => {
 	// label should have a `button` role
-	await t.expect(label.role).contains('button')
+	await t.expect(label.getAttribute('role')).eql('button')
 
 	// label should not have an `aria-selected` attribute
 	await t.expect(label.hasAttribute('aria-selected')).eql(false)
@@ -88,21 +89,21 @@ test(`Supports 'disclosure' affordance when window is ${BREAKPOINTS.disclosure.j
 	// panelset element should switch to a `disclosure` affordance at the given breakpoint
 	await t.expect(panelset.getProperty('affordance')).eql('disclosure')
 
-	const headings = panelset.findByRole('heading')
+	const headings = panelset.find('h3')
 
 	// panelset element should contain 3 elements matching the label part
 	await t.expect(headings.count).eql(3)
 
-	/** Label elements contained by the Panelset element. */
-	const labels = panelset.findByPart('label')
+	/** ShadowDOM label elements which the headings are slotted into. */
+	const shadowLabels = headings.assignedSlot().closest('[part~="label"]')
 
 	// panelset element should contain 3 elements matching the label part
-	await t.expect(labels.count).eql(3)
+	await t.expect(shadowLabels.count).eql(3)
 
 	// verify qualities of each label
-	await verifyDisclosureLabel(t, labels.at(0), { isOpen: true })
-	await verifyDisclosureLabel(t, labels.at(1), { isOpen: false })
-	await verifyDisclosureLabel(t, labels.at(2), { isOpen: false })
+	await validateLabelInDisclosureAffordance(t, shadowLabels.at(0), { isOpen: true })
+	await validateLabelInDisclosureAffordance(t, shadowLabels.at(1), { isOpen: false })
+	await validateLabelInDisclosureAffordance(t, shadowLabels.at(2), { isOpen: false })
 })
 
 test(`Supports 'content' affordance when window is ${BREAKPOINTS.content.join('x')} wide`, async t => {
@@ -112,15 +113,15 @@ test(`Supports 'content' affordance when window is ${BREAKPOINTS.content.join('x
 	await t.expect(panelset.getProperty('affordance')).eql('content')
 
 	/** Label elements contained by the Panelset element. */
-	const labels = panelset.findByPart('label')
+	const shadowLabels = panelset.findByShadowPart('label')
 
 	// panelset element should contain 3 elements matching the label part
-	await t.expect(labels.count).eql(3)
+	await t.expect(shadowLabels.count).eql(3)
 
 	// verify qualities of each label
-	await verifyContentLabel(t, labels.at(0))
-	await verifyContentLabel(t, labels.at(1))
-	await verifyContentLabel(t, labels.at(2))
+	await validateLabelInContentAffordance(t, shadowLabels.at(0))
+	await validateLabelInContentAffordance(t, shadowLabels.at(1))
+	await validateLabelInContentAffordance(t, shadowLabels.at(2))
 })
 
 test(`Supports 'tabset' affordance when window is ${BREAKPOINTS.tabset.join('x')} wide`, async t => {
@@ -130,83 +131,83 @@ test(`Supports 'tabset' affordance when window is ${BREAKPOINTS.tabset.join('x')
 	await t.expect(panelset.getProperty('affordance')).eql('tabset')
 
 	/** Label elements contained by the Panelset element. */
-	const labels = panelset.findByPart('label')
+	const shadowLabels = panelset.findByShadowPart('label')
 
 	// panelset element should contain 3 elements matching the label part
-	await t.expect(labels.count).eql(3)
+	await t.expect(shadowLabels.count).eql(3)
 
 	// verify qualities of each label
-	await verifyTabsetLabel(t, labels.at(0), { isOpen: true })
-	await verifyTabsetLabel(t, labels.at(1), { isOpen: false })
-	await verifyTabsetLabel(t, labels.at(2), { isOpen: false })
+	await validateLabelInTabsetAffordance(t, shadowLabels.at(0), { isOpen: true })
+	await validateLabelInTabsetAffordance(t, shadowLabels.at(1), { isOpen: false })
+	await validateLabelInTabsetAffordance(t, shadowLabels.at(2), { isOpen: false })
 })
 
 test(`Supports toggling an individual 'disclosure' panel`, async t => {
 	await t.resizeWindow(...BREAKPOINTS.disclosure)
 
-	const labels = panelset.findByPart('label')
+	const shadowLabels = panelset.findByShadowPart('label')
 
-	await t.expect(labels.at(0).part).contains('open')
-	await t.expect(labels.at(1).part).notContains('open')
-	await t.expect(labels.at(2).part).notContains('open')
+	await t.expect(shadowLabels.at(0).part).contains('open')
+	await t.expect(shadowLabels.at(1).part).notContains('open')
+	await t.expect(shadowLabels.at(2).part).notContains('open')
 
-	await t.click(labels.at(0))
+	await t.click(shadowLabels.at(0))
 
-	await t.expect(labels.at(0).part).notContains('open')
-	await t.expect(labels.at(1).part).notContains('open')
-	await t.expect(labels.at(2).part).notContains('open')
+	await t.expect(shadowLabels.at(0).part).notContains('open')
+	await t.expect(shadowLabels.at(1).part).notContains('open')
+	await t.expect(shadowLabels.at(2).part).notContains('open')
 
-	await t.click(labels.at(0))
+	await t.click(shadowLabels.at(0))
 
-	await t.expect(labels.at(0).part).contains('open')
-	await t.expect(labels.at(1).part).notContains('open')
-	await t.expect(labels.at(2).part).notContains('open')
+	await t.expect(shadowLabels.at(0).part).contains('open')
+	await t.expect(shadowLabels.at(1).part).notContains('open')
+	await t.expect(shadowLabels.at(2).part).notContains('open')
 })
 
 test(`Supports toggling an individual 'tabset' panel`, async t => {
 	await t.resizeWindow(...BREAKPOINTS.tabset)
 
-	const labels = panelset.findByPart('label')
+	const shadowLabels = panelset.findByShadowPart('label')
 
-	await t.expect(labels.at(0).part).contains('open')
-	await t.expect(labels.at(1).part).notContains('open')
-	await t.expect(labels.at(2).part).notContains('open')
+	await t.expect(shadowLabels.at(0).part).contains('open')
+	await t.expect(shadowLabels.at(1).part).notContains('open')
+	await t.expect(shadowLabels.at(2).part).notContains('open')
 
-	await t.click(labels.at(0))
+	await t.click(shadowLabels.at(0))
 
-	await t.expect(labels.at(0).part).contains('open')
-	await t.expect(labels.at(1).part).notContains('open')
-	await t.expect(labels.at(2).part).notContains('open')
+	await t.expect(shadowLabels.at(0).part).contains('open')
+	await t.expect(shadowLabels.at(1).part).notContains('open')
+	await t.expect(shadowLabels.at(2).part).notContains('open')
 
-	await t.click(labels.at(0))
+	await t.click(shadowLabels.at(0))
 
-	await t.expect(labels.at(0).part).contains('open')
-	await t.expect(labels.at(1).part).notContains('open')
-	await t.expect(labels.at(2).part).notContains('open')
+	await t.expect(shadowLabels.at(0).part).contains('open')
+	await t.expect(shadowLabels.at(1).part).notContains('open')
+	await t.expect(shadowLabels.at(2).part).notContains('open')
 
-	await t.click(labels.at(1))
+	await t.click(shadowLabels.at(1))
 
-	await t.expect(labels.at(0).part).notContains('open')
-	await t.expect(labels.at(1).part).contains('open')
-	await t.expect(labels.at(2).part).notContains('open')
+	await t.expect(shadowLabels.at(0).part).notContains('open')
+	await t.expect(shadowLabels.at(1).part).contains('open')
+	await t.expect(shadowLabels.at(2).part).notContains('open')
 
-	await t.click(labels.at(2))
+	await t.click(shadowLabels.at(2))
 
-	await t.expect(labels.at(0).part).notContains('open')
-	await t.expect(labels.at(1).part).notContains('open')
-	await t.expect(labels.at(2).part).contains('open')
+	await t.expect(shadowLabels.at(0).part).notContains('open')
+	await t.expect(shadowLabels.at(1).part).notContains('open')
+	await t.expect(shadowLabels.at(2).part).contains('open')
 
-	await t.click(labels.at(0))
+	await t.click(shadowLabels.at(0))
 
-	await t.expect(labels.at(0).part).contains('open')
-	await t.expect(labels.at(1).part).notContains('open')
-	await t.expect(labels.at(2).part).notContains('open')
+	await t.expect(shadowLabels.at(0).part).contains('open')
+	await t.expect(shadowLabels.at(1).part).notContains('open')
+	await t.expect(shadowLabels.at(2).part).notContains('open')
 })
 
 test(`Verify a "tab"`, async t => {
 	await t.resizeWindow(...BREAKPOINTS.tabset)
 
-	const openLabel = panelset.findByPart('label is-tabset open')
+	const openLabel = panelset.findByShadowPart('label is-tabset open')
 
 	await t.expect(openLabel.count).eql(1)
 
