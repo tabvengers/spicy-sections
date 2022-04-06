@@ -14,7 +14,7 @@ const BREAKPOINTS = {
 // Fixture
 // -----------------------------------------------------------------------------
 
-fixture('Panelset').page(PAGE_URL)
+fixture('Panelset Affordances').page(PAGE_URL)
 
 // Testing Setup
 // -----------------------------------------------------------------------------
@@ -139,83 +139,4 @@ test(`Supports 'tabset' affordance when window is ${BREAKPOINTS.tabset.join('x')
 	await validateLabelInTabsetAffordance(t, shadowLabels.at(0), { isOpen: true })
 	await validateLabelInTabsetAffordance(t, shadowLabels.at(1), { isOpen: false })
 	await validateLabelInTabsetAffordance(t, shadowLabels.at(2), { isOpen: false })
-})
-
-test(`Supports toggling an individual 'disclosure' panel`, async t => {
-	await t.resizeWindow(...BREAKPOINTS.disclosure)
-
-	const shadowLabels = panelset.findByShadowPart('label')
-
-	await t.expect(shadowLabels.at(0).part).contains('open')
-	await t.expect(shadowLabels.at(1).part).notContains('open')
-	await t.expect(shadowLabels.at(2).part).notContains('open')
-
-	await t.click(shadowLabels.at(0))
-
-	await t.expect(shadowLabels.at(0).part).notContains('open')
-	await t.expect(shadowLabels.at(1).part).notContains('open')
-	await t.expect(shadowLabels.at(2).part).notContains('open')
-
-	await t.click(shadowLabels.at(0))
-
-	await t.expect(shadowLabels.at(0).part).contains('open')
-	await t.expect(shadowLabels.at(1).part).notContains('open')
-	await t.expect(shadowLabels.at(2).part).notContains('open')
-})
-
-test(`Supports toggling an individual 'tabset' panel`, async t => {
-	await t.resizeWindow(...BREAKPOINTS.tabset)
-
-	const shadowLabels = panelset.findByShadowPart('label')
-
-	await t.expect(shadowLabels.at(0).part).contains('open')
-	await t.expect(shadowLabels.at(1).part).notContains('open')
-	await t.expect(shadowLabels.at(2).part).notContains('open')
-
-	await t.click(shadowLabels.at(0))
-
-	await t.expect(shadowLabels.at(0).part).contains('open')
-	await t.expect(shadowLabels.at(1).part).notContains('open')
-	await t.expect(shadowLabels.at(2).part).notContains('open')
-
-	await t.click(shadowLabels.at(0))
-
-	await t.expect(shadowLabels.at(0).part).contains('open')
-	await t.expect(shadowLabels.at(1).part).notContains('open')
-	await t.expect(shadowLabels.at(2).part).notContains('open')
-
-	await t.click(shadowLabels.at(1))
-
-	await t.expect(shadowLabels.at(0).part).notContains('open')
-	await t.expect(shadowLabels.at(1).part).contains('open')
-	await t.expect(shadowLabels.at(2).part).notContains('open')
-
-	await t.click(shadowLabels.at(2))
-
-	await t.expect(shadowLabels.at(0).part).notContains('open')
-	await t.expect(shadowLabels.at(1).part).notContains('open')
-	await t.expect(shadowLabels.at(2).part).contains('open')
-
-	await t.click(shadowLabels.at(0))
-
-	await t.expect(shadowLabels.at(0).part).contains('open')
-	await t.expect(shadowLabels.at(1).part).notContains('open')
-	await t.expect(shadowLabels.at(2).part).notContains('open')
-})
-
-test(`Verify a "tab"`, async t => {
-	await t.resizeWindow(...BREAKPOINTS.tabset)
-
-	const openLabel = panelset.findByShadowPart('label is-tabset open')
-
-	await t.expect(openLabel.count).eql(1)
-
-	await t.expect(openLabel.slotted().textContent).eql('Tabset')
-
-	await t.expect(openLabel.getAttribute('aria-controls')).eql('content-0')
-	await t.expect(openLabel.getAttribute('aria-selected')).eql('true')
-	await t.expect(openLabel.getAttribute('id')).eql('label-0')
-	await t.expect(openLabel.getAttribute('part')).eql('label is-tabset open')
-	await t.expect(openLabel.getAttribute('role')).eql('tab')
-	await t.expect(openLabel.getAttribute('tabindex')).eql('0')
 })

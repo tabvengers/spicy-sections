@@ -9,7 +9,7 @@
     "build:watch": "tsc --watch",
     "start": "tsc && serve docs",
     "test": "npm run build && npm run test:cafe",
-    "test:cafe": "testcafe firefox:headless --app \"serve docs\" test/general.tests.ts"
+    "test:cafe": "testcafe firefox:headless --app \"serve docs\" test/*.tests.ts"
   },
   "author": "Brian Kardell <bkardell@igalia.com>",
   "contributors": [
