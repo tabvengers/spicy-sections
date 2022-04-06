@@ -20,7 +20,6 @@ fixture('Panelset').page(PAGE_URL)
 // -----------------------------------------------------------------------------
 
 const panelset = $.document().find('oui-panelset')
-const shadow = panelset.shadowRoot()
 
 const validateLabelInTabsetAffordance = async (t: $.TestController, label: $.SelectorAPI, opts: { isOpen: boolean }) => {
 	// label should have a `tab` role
