@@ -63,6 +63,7 @@ export const findByShadowPart = Function(
 	].join('\n')
 ) as (elements: Element[], parts: string) => HTMLSlotElement[]
 
+/** Returns slotted elements optionally matching the given selector. */
 export const slotted = Function(
 	'elements',
 	'match = null',

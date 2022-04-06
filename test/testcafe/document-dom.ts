@@ -25,3 +25,12 @@ export const closest = Function(
 		'return results',
 	].join('\n')
 ) as (elements: Element[], selector: string) => Element[]
+
+/** Returns the style value of the given css property for the element. */
+export const getCSSProperty = Function(
+	'element',
+	'property',
+	[
+		'return getComputedStyle(element).getPropertyValue(property)',
+	].join('\n')
+) as (element: Element, property: string) => string
