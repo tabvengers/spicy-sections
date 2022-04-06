@@ -20,7 +20,6 @@
   ],
   "license": "W3C",
   "devDependencies": {
-    "@testing-library/dom": "^8.12.0",
     "serve": "^13.0.2",
     "testcafe": "^1.18.5",
     "typescript": "^4.6.3"
