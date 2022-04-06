@@ -1,4 +1,4 @@
-import * as $ from './utils/document'
+import * as $ from './testcafe'
 
 // Constants
 // -----------------------------------------------------------------------------

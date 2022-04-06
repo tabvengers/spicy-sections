@@ -4,7 +4,9 @@ import * as dom from './document-dom'
 import * as js from './document-js'
 import * as shadow from './document-shadow'
 
-export const document = () => testcafe.find(() => window.document).addCustomDOMProperties({
+export * from './testcafe'
+
+export const document = () => testcafe.Selector(() => window.document).addCustomDOMProperties({
 	part: shadow.part,
 	computedHeadingLevel: aria.computedHeadingLevel,
 	computedRoles: aria.computedRoles,
@@ -24,5 +26,5 @@ export const document = () => testcafe.find(() => window.document).addCustomDOMP
 	returnDOMNodes: true
 })
 
-export type SelectorAPI = ReturnType<typeof document>
+export type DocumentSelector = ReturnType<typeof document>
 export type TestController = globalThis.TestController

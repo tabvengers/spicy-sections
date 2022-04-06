@@ -2,6 +2,8 @@
 
 import * as testcafe from 'testcafe'
 
+export * from 'testcafe'
+
 interface CustomMethodsConfiguration {
 	returnDOMNodes?: boolean
 }
@@ -14,7 +16,7 @@ interface CustomPropertiesSource {
 	[property: string]: (arg0: Element, ...args: any) => any | null
 }
 
-interface SelectorAPI extends Selector {
+interface Selector extends globalThis.Selector {
 	/**
 	 * The number of child HTML elements.
 	 */
@@ -439,7 +441,7 @@ interface SelectorAPI extends Selector {
 	with(options?: SelectorOptions): this
 }
 
-type SelectorWithCustomMethods<S extends SelectorAPI, M extends CustomMethodsSource<O>, O extends CustomMethodsConfiguration> = S & (
+type SelectorWithCustomMethods<S extends Selector, M extends CustomMethodsSource<O>, O extends CustomMethodsConfiguration> = S & (
 	O['returnDOMNodes'] extends true
 		? {
 			[K in keyof M]: M[K] extends (x: any, ...args: infer P) => any
@@ -453,7 +455,7 @@ type SelectorWithCustomMethods<S extends SelectorAPI, M extends CustomMethodsSou
 	}
 )
 
-type SelectorWithCustomProps<S extends SelectorAPI, P extends CustomPropertiesSource> = S & {
+type SelectorWithCustomProps<S extends Selector, P extends CustomPropertiesSource> = S & {
 	[K in keyof P]: P[K] extends (x: any, ...args: any) => infer R
 		? Promise<R>
 	: never
@@ -467,9 +469,10 @@ export interface SelectorFactory {
 			| Selector
 			| SelectorAPI
 			| NodeSnapshot
-			| SelectorPromise,
+			| SelectorPromise
+			| globalThis.Selector,
 		options?: SelectorOptions
-	): SelectorAPI
+	): Selector
 }
 
-export const find = testcafe.Selector as unknown as SelectorFactory
+export const Selector = testcafe.Selector as SelectorFactory
