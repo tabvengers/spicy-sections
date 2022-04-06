@@ -82,7 +82,7 @@ const validateLabelInDisclosureAffordance = async (t: $.TestController, label: $
 // Testing
 // -----------------------------------------------------------------------------
 
-test(`Supports 'disclosure' affordance when window is ${BREAKPOINTS.disclosure.join('x')} wide`, async t => {
+test(`Implements responsive 'disclosure' affordance`, async t => {
 	await t.resizeWindow(...BREAKPOINTS.disclosure)
 
 	// panelset element should switch to a `disclosure` affordance at the given breakpoint
@@ -105,7 +105,7 @@ test(`Supports 'disclosure' affordance when window is ${BREAKPOINTS.disclosure.j
 	await validateLabelInDisclosureAffordance(t, shadowLabels.at(2), { isOpen: false })
 })
 
-test(`Supports 'content' affordance when window is ${BREAKPOINTS.content.join('x')} wide`, async t => {
+test(`Implements responsive 'content' affordance`, async t => {
 	await t.resizeWindow(...BREAKPOINTS.content)
 
 	// panelset element should switch to a `content` affordance at the given breakpoint
@@ -123,7 +123,7 @@ test(`Supports 'content' affordance when window is ${BREAKPOINTS.content.join('x
 	await validateLabelInContentAffordance(t, shadowLabels.at(2))
 })
 
-test(`Supports 'tabset' affordance when window is ${BREAKPOINTS.tabset.join('x')} wide`, async t => {
+test(`Implements responsive 'tabset' affordance`, async t => {
 	await t.resizeWindow(...BREAKPOINTS.tabset)
 
 	// panelset element should switch to a `tabset` affordance at the given breakpoint

@@ -24,7 +24,7 @@ const panelset = $.document().find('oui-panelset')
 // Testing
 // -----------------------------------------------------------------------------
 
-test(`Supports toggling an individual 'disclosure' panel`, async t => {
+test(`Toggles panel in 'disclosure' affordance independently`, async t => {
 	await t.resizeWindow(...BREAKPOINTS.disclosure)
 
 	const shadowLabels = panelset.findByShadowPart('label')
@@ -46,7 +46,7 @@ test(`Supports toggling an individual 'disclosure' panel`, async t => {
 	await t.expect(shadowLabels.at(2).part).notContains('open')
 })
 
-test(`Supports toggling an individual 'tabset' panel`, async t => {
+test(`Toggles panel in 'tabset' affordance co-dependently`, async t => {
 	await t.resizeWindow(...BREAKPOINTS.tabset)
 
 	const shadowLabels = panelset.findByShadowPart('label')

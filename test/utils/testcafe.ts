@@ -1,3 +1,5 @@
+// testcafe with corrected typing
+
 import * as testcafe from 'testcafe'
 
 interface CustomMethodsConfiguration {
