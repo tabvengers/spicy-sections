@@ -18,6 +18,8 @@ export const document = () => testcafe.Selector(() => window.document).addCustom
 	getProperty: js.getProperty,
 	/** Returns the computed value of the given CSS property for the element. */
 	getCSSProperty: dom.getCSSProperty,
+	/** Returns the value of the given DOM method for the element. */
+	invokeProperty: js.invokeProperty,
 	/** Returns whether the given selector matches the element. */
 	matches: dom.matches,
 	/** Sets the value of the given attribute for the element. Returns whether the operation completed successfully. */

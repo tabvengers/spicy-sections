@@ -477,7 +477,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 		getPanels() {
 			return panels.map(
 				panel => ({
-					open: panel.open,
+					open: affordance === 'content' || panel.open,
 					label: panel.slotted.label,
 					contents: panel.slotted.contents.slice(0),
 				})

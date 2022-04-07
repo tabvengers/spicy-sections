@@ -57,3 +57,13 @@ export async function validateLabelInDisclosureAffordance(t: $.TestController, l
 		await t.expect(label.getAttribute('aria-expanded')).eql('false')
 	}
 }
+
+export async function validatePanelObject(t: $.TestController, panel: any, details: { open?: boolean, label?: { [property: string]: any } }) {
+	if (details.open) {
+		await t.expect(panel.open).eql(details.open)
+	}
+
+	for (let property in details.label) {
+		await t.expect(panel.label[property]).eql(details.label[property])
+	}
+}
