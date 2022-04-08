@@ -25,6 +25,7 @@ The net result being that we establish a simple pattern upon which we can expose
   * [Design Discussion](#design-discussion)
      * [Parts and Styling](#parts-and-styling)
      * [API](#api)
+     * [Open Questions](#open-questions)
   * [Considered Alternatives](#considered-alternatives)
      * [Independent Elements](#independent-elements)
      * [Other Markup Forms](#other-markup-forms)  
@@ -146,10 +147,18 @@ for (const panel of panelset) {
 }
 ```
 
+### Open Questions
+
+There are some broad open questions into which we are focusing additional experiments, discussions and research around:
+
+* [Web vs RIA controls](https://github.com/tabvengers/spicy-sections/issues/65)
+* What makes the magic of all of this work, and is it an appropriate amount/implementable/able to be spec'ed.
+	* We are watching and trying to coordinate related work in CSS Toggles and Focus Groups
+
 ## Considered Alternatives
 
 ### Independent elements 
-
+ 
 The seemingly obvious alternative here would be to create independent elements, like `<tabset>` perhaps even with the idea that this is "for ARIA parity". However, we determined that for the time, at least, it seemed this was more costly and less valueable than it seemed.
 
 * It wouldn't be a direct parity anyway as there not a good 1:1 between roles and UI patterns. There is no overarching 'tabset' role, nor an 'accordion' role, for example.
