@@ -4,7 +4,13 @@ const ariaVars = 'let roleRefs={roletype:["roletype"],command:["widget"],composi
 export const ariaLevel = Function(
 	'element',
 	[
-		'return Number(element.localName.replace(/^h(\d+)$/, "$1")) || Number(element.getAttribute("aria-level")) || null',
+		'if (!Element.prototype.isPrototypeOf(element)) return 2',
+
+		'return Number(',
+			'element.getAttribute("aria-level") || String(',
+				'element.localName || element.tagName || ""',
+			').replace(/^[Hh]([\\d])$/, "$1")',
+		') || 2',
 	].join('\n')
 ) as (element: Element) => number | null
 
@@ -13,11 +19,12 @@ export const ariaRole = Function(
 	'element',
 	[
 		ariaVars,
+		'if (!Element.prototype.isPrototypeOf(element)) return []',
 
-		'let roles = element.hasAttribute("role") ? element.getAttribute("role").trim().split(/\s+/) : []',
+		'if (element.hasAttribute("role")) return element.getAttribute("role").trim().split(/\\s+/).filter(Boolean)',
 
 		'for (let role in queryRefs) {',
-			'if (element.matches(getRoleSelectors(role).join(','))) {',
+			'if (element.matches(getRoleSelectors(role).join(","))) {',
 				'roles.push(role)',
 			'}',
 		'}',
@@ -38,6 +45,8 @@ export const findByAriaRole = Function(
 		'let results = []',
 
 		'for (let element of elements) {',
+			'if (!Element.prototype.isPrototypeOf(element)) continue',
+
 			'results.push(...element.querySelectorAll(selector))',
 		'}',
 

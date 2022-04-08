@@ -3,7 +3,7 @@ export const matches = Function(
 	'element',
 	'selector',
 	[
-		'return element instanceof Element && element.matches(selector)'
+		'return Element.prototype.isPrototypeOf(element) && element.matches(selector)'
 	].join('\n')
 ) as (element: Element, match: string) => boolean
 
@@ -15,6 +15,8 @@ export const closest = Function(
 		'let results = []',
 
 		'for (let element of elements) {',
+			'if (!Element.prototype.isPrototypeOf(element)) continue',
+
 			'let closestElement = element.closest(selector)',
 
 			'if (closestElement) {',
@@ -32,6 +34,8 @@ export const setAttribute = Function(
 	'attribute',
 	'value',
 	[
+		'if (!Element.prototype.isPrototypeOf(element)) return false',
+
 		'element.setAttribute(attribute, value); return true',
 	].join('\n')
 ) as (element: Element, attribute: string, value: string) => boolean
@@ -41,6 +45,8 @@ export const getCSSProperty = Function(
 	'element',
 	'property',
 	[
+		'if (!Element.prototype.isPrototypeOf(element)) return undefined',
+
 		'return getComputedStyle(element).getPropertyValue(property)',
 	].join('\n')
 ) as (element: Element, property: string) => string
@@ -51,6 +57,8 @@ export const setCSSProperty = Function(
 	'property',
 	'value',
 	[
+		'if (!Element.prototype.isPrototypeOf(element)) return false',
+
 		'element.style.setProperty(property, value); return true',
 	].join('\n')
 ) as (element: Element, property: string, value: string) => boolean

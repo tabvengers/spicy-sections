@@ -6,7 +6,7 @@ import * as shadow from './document-shadow'
 
 export * from './testcafe'
 
-export const document = () => testcafe.Selector(() => window.document).addCustomDOMProperties({
+export const Selector = (init: Parameters<SelectorFactory>[0], options?: SelectorOptions) => testcafe.Selector(init, options).addCustomDOMProperties({
 	/** Returns the computed ARIA level for the element. */
 	ariaLevel: aria.ariaLevel,
 	/** Returns the computed ARIA roles for the element. */
@@ -47,5 +47,10 @@ export const document = () => testcafe.Selector(() => window.document).addCustom
 	returnDOMNodes: true
 })
 
-export type DocumentSelector = ReturnType<typeof document>
+export const document = () => Selector(() => window.document)
+
+export const documentFragment = () => Selector(() => new DocumentFragment)
+
+export type Selector = ReturnType<typeof Selector>
+
 export type TestController = globalThis.TestController

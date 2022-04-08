@@ -1,6 +1,6 @@
 import * as $ from './testcafe'
 
-export async function validateLabelInTabsetAffordance(t: $.TestController, label: $.DocumentSelector, opts: { isOpen: boolean }) {
+export async function validateLabelInTabsetAffordance(t: $.TestController, label: $.Selector, opts: { isOpen: boolean }) {
 	// label should have a `tab` role
 	await t.expect(label.getAttribute('role')).eql('tab')
 
@@ -22,7 +22,7 @@ export async function validateLabelInTabsetAffordance(t: $.TestController, label
 	}
 }
 
-export async function validateLabelInContentAffordance(t: $.TestController, label: $.DocumentSelector) {
+export async function validateLabelInContentAffordance(t: $.TestController, label: $.Selector) {
 	// label should have no role
 	await t.expect(label.hasAttribute('role')).eql(false)
 
@@ -36,7 +36,7 @@ export async function validateLabelInContentAffordance(t: $.TestController, labe
 	await t.expect(label.part).contains('open')
 }
 
-export async function validateLabelInDisclosureAffordance(t: $.TestController, label: $.DocumentSelector, opts: { isOpen: boolean }) {
+export async function validateLabelInDisclosureAffordance(t: $.TestController, label: $.Selector, opts: { isOpen: boolean }) {
 	// label should have a `button` role
 	await t.expect(label.getAttribute('role')).eql('button')
 

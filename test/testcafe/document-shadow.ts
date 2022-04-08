@@ -2,6 +2,8 @@
 export const part = Function(
 	'element',
 	[
+		'if (!Element.prototype.isPrototypeOf(element)) return []',
+
 		'return Array.from(Reflect.get(element, "part"))'
 	].join('\n')
 ) as (element: Element) => string[]
@@ -29,6 +31,8 @@ export const assignedSlot = Function(
 		'let results = []',
 
 		'for (let element of elements) {',
+			'if (!Element.prototype.isPrototypeOf(element)) continue',
+
 			'const assignedSlot = element.assignedSlot',
 
 			'if (assignedSlot) {',
@@ -54,7 +58,11 @@ export const findByShadowPart = Function(
 		'let results = []',
 
 		'for (let element of elements) {',
+			'if (!Element.prototype.isPrototypeOf(element)) continue',
+
 			'let { shadowRoot } = element',
+			
+			'if (!ShadowRoot.prototype.isPrototypeOf(shadowRoot)) continue',
 
 			'results.push(...shadowRoot.querySelectorAll(selector))',
 		'}',
@@ -71,12 +79,15 @@ export const slotted = Function(
 		'let results = []',
 
 		'for (let element of elements) {',
+			'if (!Element.prototype.isPrototypeOf(element)) continue',
+
 			'if (element instanceof HTMLSlotElement) {',
 				'addSlotAssignedNodes(element)',
-			'} else {',
-				'for (let slot of element.querySelectorAll("slot")) {',
-					'addSlotAssignedNodes(slot)',
-				'}',
+				'continue',
+			'}',
+
+			'for (let slot of element.querySelectorAll("slot")) {',
+				'addSlotAssignedNodes(slot)',
 			'}',
 		'}',
 
