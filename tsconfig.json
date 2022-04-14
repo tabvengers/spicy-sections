@@ -23,6 +23,7 @@
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
-    "strictPropertyInitialization": true
+    "strictPropertyInitialization": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2021"]
   }
 }

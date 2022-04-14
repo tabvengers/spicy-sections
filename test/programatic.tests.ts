@@ -4,16 +4,13 @@ import * as utils from './utils'
 // Constants
 // -----------------------------------------------------------------------------
 
-const defaultPageURL = 'http://localhost:3000/demonstration/default/'
-const disclosurePageURL = 'http://localhost:3000/demonstration/disclosure/'
-
 const panelset = $.document().find('oui-panelset')
 const shadowLabels = panelset.findByShadowPart('label')
 
 // Testing: Panelset Programatic Affordances (with no "affordance" attribute)
 // -----------------------------------------------------------------------------
 
-fixture('Panelset Programatic Affordances (with no "affordance" attribute)').page(defaultPageURL)
+fixture('Panelset Programatic Affordances (with no "affordance" attribute)').page('http://localhost:3000/demonstration/default/')
 
 test(`By default, the affordance is set to "content"`, async t => {
 	// attribute of `affordance` is non-existant
@@ -135,7 +132,7 @@ test(`Using the "affordance" attribute will not change the affordance`, async t 
 // Testing: Panelset Programatic Affordances (with affordance="disclosure")
 // -----------------------------------------------------------------------------
 
-fixture('Panelset Programatic Affordances (with affordance="disclosure")').page(disclosurePageURL)
+fixture('Panelset Programatic Affordances (with affordance="disclosure")').page('http://localhost:3000/demonstration/disclosure/')
 
 test(`When defined in HTML, the affordance can be set to "disclosure"`, async t => {
 	// attribute of `affordance` is "disclosure"
@@ -157,14 +154,14 @@ test(`Using the "affordance" DOM property, the affordance can be set to "tabset"
 	// value of `affordance` DOM property is set to "tabset"
 	await t.expect(panelset.setProperty('affordance', 'tabset')).eql(true)
 
-	// attribute of `affordance` remains "disclosure"
-	await t.expect(panelset.getAttribute('affordance')).eql('disclosure')
-
 	// value of `affordance` DOM property is set to "tabset"
 	await t.expect(panelset.getProperty('affordance')).eql('tabset')
 
 	// value of `affordance` CSS property is set "tabset"
 	await t.expect(panelset.getCSSProperty('--affordance')).eql('tabset')
+
+	// attribute of `affordance` remains "disclosure"
+	await t.expect(panelset.getAttribute('affordance')).eql('disclosure')
 
 	// verify qualities of each shadow label
 	await utils.validateLabelInTabsetAffordance(t, shadowLabels.at(0), { isOpen: true })
@@ -213,7 +210,7 @@ test(`Using the "affordance" DOM property, the affordance can be set to "content
 // Testing: Panelset Programatic Affordances (using "getPanels()")
 // -----------------------------------------------------------------------------
 
-fixture('Panelset Programatic Affordances (using "getPanels()")').page(defaultPageURL)
+fixture('Panelset Programatic Affordances (using "getPanels()")').page('http://localhost:3000/demonstration/default/')
 
 test(`By default, the affordance is set to "content"`, async t => {
 	// verify qualities of each shadow label

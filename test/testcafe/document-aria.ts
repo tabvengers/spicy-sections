@@ -23,6 +23,8 @@ export const ariaRole = Function(
 
 		'if (element.hasAttribute("role")) return element.getAttribute("role").trim().split(/\\s+/).filter(Boolean)',
 
+		'let roles = []',
+
 		'for (let role in queryRefs) {',
 			'if (element.matches(getRoleSelectors(role).join(","))) {',
 				'roles.push(role)',

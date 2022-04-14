@@ -4,8 +4,6 @@ import * as utils from './utils'
 // Constants
 // -----------------------------------------------------------------------------
 
-const PAGE_URL = 'http://localhost:3000/demonstration/'
-
 const BREAKPOINTS = {
 	disclosure: [ 640 - 60, 520 ],
 	content: [ 800, 520 ],
@@ -15,12 +13,14 @@ const BREAKPOINTS = {
 // Fixture
 // -----------------------------------------------------------------------------
 
-fixture('Panelset Responsive Affordances').page(PAGE_URL)
+fixture('Panelset Responsive Affordances').page('http://localhost:3000/demonstration/default/')
 
 // Testing Setup
 // -----------------------------------------------------------------------------
 
 const panelset = $.document().find('oui-panelset')
+const getScreenWidth = $.ClientFunction(() => window.screen.availWidth);
+const setScreenWidth = $.ClientFunction((size) => window.screen.availWidth);
 
 // Testing
 // -----------------------------------------------------------------------------

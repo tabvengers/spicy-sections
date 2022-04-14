@@ -24,9 +24,9 @@ export class OUIPanelsetElement extends HTMLElement {
 
 let createInternals = (host: OUIPanelsetElement) => {
 	/** Current affordance, which is 'content', 'disclosure', or 'tabset'. */
-	let affordance: Affordance = 'content'
+	let affordance: Affordance = (host.getAttribute('disclosure') || '').toLowerCase() as Affordance
 
-
+	affordance = allowedAffordances.has(affordance) ? affordance : 'content'
 
 	// LightDOM references
 	// -------------------------------------------------------------------------
@@ -99,6 +99,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 	/** Panelset ShadowDOM container of all panel contents. */
 	let shadowContentContainerElement = createElement('div', { part: 'content-container is-tabset' })
 
+	let shadowStyleText = new Text(affordance)
+
 
 
 	// ShadowDOM styles
@@ -107,7 +109,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 	// include the following default syles
 	shadowStyleElement.append(
 		// default styles for all affordances
-		':host{--affordance:content;--affordance:' + (host.getAttribute('affordance') || 'content') + '}',
+		':host{--affordance:', shadowStyleText, '}',
 		':where(div){display:contents}',
 		':where(svg){display:none}',
 		':where([part~="content"]){outline:unset}',
@@ -124,8 +126,6 @@ let createInternals = (host: OUIPanelsetElement) => {
 		':where([part~="is-tabset"]:is([part~="label"],[part~="content"][part~="open"])){display:block}',
 		':where([part~="is-tabset"][part~="label"][part~="open"]) ::slotted(*){text-decoration:underline}'
 	)
-
-
 
 	// ShadowDOM tree
 	// -------------------------------------------------------------------------
@@ -145,10 +145,10 @@ let createInternals = (host: OUIPanelsetElement) => {
 	let mostRecentPanel: Panel
 
 	/** WeakMap from a slotted label to a panel. */
-	let panelBySlottedLabel = new WeakMap as SafeWeakMap<HTMLHeadingElement, Panel>
+	let panelBySlottedLabel = new WeakMap() as SafeWeakMap<HTMLHeadingElement, Panel>
 
 	/** WeakMap from a shadow label to a panel. */
-	let panelByShadowLabel = new WeakMap as SafeWeakMap<HTMLDivElement, Panel>
+	let panelByShadowLabel = new WeakMap() as SafeWeakMap<HTMLDivElement, Panel>
 
 
 
@@ -316,7 +316,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 		setAttributes(shadowContainerElement, { part: 'container is-' + affordance })
 
 		// @ts-ignore update css `--affordance` property
-		shadowStyleElement.sheet.cssRules[0].style.setProperty('--affordance', affordance)
+		shadowStyleText.data = affordance
 
 		// reset any container children
 		if (affordance === 'tabset') {
@@ -455,9 +455,11 @@ let createInternals = (host: OUIPanelsetElement) => {
 			return affordance
 		},
 		setAffordance(value: string) {
+			shadowStyleText.data = 'content'
+
 			value = value.trim().toLowerCase()
 
-			if (affordances.has(value as Affordance)) {
+			if (allowedAffordances.has(value as Affordance)) {
 				if (value !== affordance) {
 					affordance = value as Affordance
 
@@ -569,7 +571,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 	newCSSValue = oldCSSValue = newCSSValue.trim().toLowerCase()
 
 	// conditionally update the affordance by the `--affordance` property value
-	if (affordances.has(newCSSValue as Affordance)) {
+	if (allowedAffordances.has(newCSSValue as Affordance)) {
 		affordance = newCSSValue as Affordance
 	}
 
@@ -587,7 +589,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 // Utilities
 // -----------------------------------------------------------------------------
 
-let affordances = new Set([ 'disclosure', 'tabset', 'content' ] as const)
+let allowedAffordances = new Set([ 'disclosure', 'tabset', 'content' ] as const)
 
 /** Assigns to the given slot the given nodes (using manual slot assignment when supported). */
 let assignSlot = (slot: HTMLSlotElement, ...nodes: (Element | Text)[]) => {
@@ -607,8 +609,8 @@ let supportsSlotAssignment = typeof HTMLSlotElement === 'function' && typeof HTM
 
 /** Returns a new element specified by the given tag name with the given attributes. */
 let createElement = <K extends string, N extends HTMLAttributes>(name: K, attrs: N = null as unknown as N) => {
-	let xmlns = attrs && attrs.xmlns || 'http://www.w3.org/1999/xhtml'
-	let element = document.createElementNS(attrs && delete attrs.xmlns && xmlns || 'http://www.w3.org/1999/xhtml', name) as N['xmlns'] extends 'http://www.w3.org/2000/svg' ? K extends keyof SVGElementTagNameMap ? SVGElementTagNameMap[K] : SVGElement : K extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[K] : HTMLElement
+	let xmlns = (attrs && attrs.xmlns) || 'http://www.w3.org/1999/xhtml'
+	let element = document.createElementNS((attrs && delete attrs.xmlns && xmlns) || 'http://www.w3.org/1999/xhtml', name) as N['xmlns'] extends 'http://www.w3.org/2000/svg' ? K extends keyof SVGElementTagNameMap ? SVGElementTagNameMap[K] : SVGElement : K extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[K] : HTMLElement
 
 	return setAttributes(element, attrs)
 }
@@ -635,7 +637,7 @@ let setProps = Object.assign as <O extends object>(o: O, ...p: object[]) => O
 // -----------------------------------------------------------------------------
 
 /** Available affordances. */
-type Affordance = IterableValue<typeof affordances>
+type Affordance = IterableValue<typeof allowedAffordances>
 
 type IterableValue<I> = I extends Iterable<infer T> ? T : never
 

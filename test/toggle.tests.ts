@@ -3,8 +3,6 @@ import * as $ from './testcafe'
 // Constants
 // -----------------------------------------------------------------------------
 
-const PAGE_URL = 'http://localhost:3000/demonstration/'
-
 const BREAKPOINTS = {
 	disclosure: [ 640 - 60, 520 ],
 	content: [ 800, 520 ],
@@ -14,7 +12,7 @@ const BREAKPOINTS = {
 // Fixture
 // -----------------------------------------------------------------------------
 
-fixture('Panelset Toggles').page(PAGE_URL)
+fixture('Panelset Toggles').page('http://localhost:3000/demonstration/default/')
 
 // Testing Setup
 // -----------------------------------------------------------------------------

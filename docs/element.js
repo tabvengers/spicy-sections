@@ -16,7 +16,8 @@ export class OUIPanelsetElement extends HTMLElement {
 // -----------------------------------------------------------------------------
 let createInternals = (host) => {
     /** Current affordance, which is 'content', 'disclosure', or 'tabset'. */
-    let affordance = 'content';
+    let affordance = (host.getAttribute('disclosure') || '').toLowerCase();
+    affordance = allowedAffordances.has(affordance) ? affordance : 'content';
     // LightDOM references
     // -------------------------------------------------------------------------
     /** Panelset LightDOM live child nodes. */
@@ -73,12 +74,13 @@ let createInternals = (host) => {
     let shadowLabelContainerElement = createElement('div', { part: 'label-container is-tabset', role: 'tablist' });
     /** Panelset ShadowDOM container of all panel contents. */
     let shadowContentContainerElement = createElement('div', { part: 'content-container is-tabset' });
+    let shadowStyleText = new Text(affordance);
     // ShadowDOM styles
     // -------------------------------------------------------------------------
     // include the following default syles
     shadowStyleElement.append(
     // default styles for all affordances
-    ':host{--affordance:content;--affordance:' + (host.getAttribute('affordance') || 'content') + '}', ':where(div){display:contents}', ':where(svg){display:none}', ':where([part~="content"]){outline:unset}', ':where([part~="content"]:not([part~="open"])){display:none}', 
+    ':host{--affordance:', shadowStyleText, '}', ':where(div){display:contents}', ':where(svg){display:none}', ':where([part~="content"]){outline:unset}', ':where([part~="content"]:not([part~="open"])){display:none}', 
     // default styles for the disclosure affordance
     ':where([part~="is-disclosure"][part~="section"]){display:flex;flex-direction:column}', ':where([part~="is-disclosure"][part~="label"]){align-items:center;display:flex;gap:.25em;padding-inline-end:1em}', ':where([part~="is-disclosure"][part~="marker"]){display:block;height:.75em;width:.75em;transform:rotate(90deg)}', ':where([part~="is-disclosure"][part~="marker"][part~="open"]){transform:rotate(180deg)}', 
     // default styles for the tabset affordance
@@ -94,9 +96,9 @@ let createInternals = (host) => {
     /** Panel that was most recently activated. */
     let mostRecentPanel;
     /** WeakMap from a slotted label to a panel. */
-    let panelBySlottedLabel = new WeakMap;
+    let panelBySlottedLabel = new WeakMap();
     /** WeakMap from a shadow label to a panel. */
-    let panelByShadowLabel = new WeakMap;
+    let panelByShadowLabel = new WeakMap();
     // ShadowDOM events
     // -------------------------------------------------------------------------
     /** Run whenever the shadow label is clicked. */
@@ -227,7 +229,7 @@ let createInternals = (host) => {
         // set the container affordance
         setAttributes(shadowContainerElement, { part: 'container is-' + affordance });
         // @ts-ignore update css `--affordance` property
-        shadowStyleElement.sheet.cssRules[0].style.setProperty('--affordance', affordance);
+        shadowStyleText.data = affordance;
         // reset any container children
         if (affordance === 'tabset') {
             shadowContainerElement.replaceChildren(shadowLabelContainerElement, shadowContentContainerElement);
@@ -334,8 +336,9 @@ let createInternals = (host) => {
             return affordance;
         },
         setAffordance(value) {
+            shadowStyleText.data = 'content';
             value = value.trim().toLowerCase();
-            if (affordances.has(value)) {
+            if (allowedAffordances.has(value)) {
                 if (value !== affordance) {
                     affordance = value;
                     affordanceChangedCallback();
@@ -412,7 +415,7 @@ let createInternals = (host) => {
     // format the initial --affordance property value
     newCSSValue = oldCSSValue = newCSSValue.trim().toLowerCase();
     // conditionally update the affordance by the `--affordance` property value
-    if (affordances.has(newCSSValue)) {
+    if (allowedAffordances.has(newCSSValue)) {
         affordance = newCSSValue;
     }
     // observe the host for changes
@@ -423,7 +426,7 @@ let createInternals = (host) => {
 };
 // Utilities
 // -----------------------------------------------------------------------------
-let affordances = new Set(['disclosure', 'tabset', 'content']);
+let allowedAffordances = new Set(['disclosure', 'tabset', 'content']);
 /** Assigns to the given slot the given nodes (using manual slot assignment when supported). */
 let assignSlot = (slot, ...nodes) => {
     if (supportsSlotAssignment) {

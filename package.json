@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "start": "tsc && serve docs",
+    "lint": "eslint src/element.ts",
+    "start": "npm run build && serve docs",
     "test": "npm run build && npm run test:cafe",
     "test:cafe": "testcafe firefox:headless --app \"serve docs\" test/*.tests.ts"
   },
@@ -20,9 +21,13 @@
   ],
   "license": "W3C",
   "devDependencies": {
-    "serve": "^13.0.2",
-    "testcafe": "^1.18.5",
-    "typescript": "^4.6.3"
+    "@typescript-eslint/eslint-plugin": "5.19.0",
+    "@typescript-eslint/parser": "5.19.0",
+    "eslint": "8.13.0",
+    "eslint-config-dev": "3.0.0",
+    "serve": "13.0.2",
+    "testcafe": "1.18.5",
+    "typescript": "4.6.3"
   },
   "prettier": {
     "overrides": [
