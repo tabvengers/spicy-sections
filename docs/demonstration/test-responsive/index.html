@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en-US">
+	<head>
+		<title>Panelset Element Demonstration</title>
+		<meta charset="utf-8" />
+		<meta http-equiv="last-modified" content="Thu, 24 Mar 2022 14:44:00 GMT" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="description" content="Panelset Element Demonstration" />
+		<meta property="og:type" content="website" />
+		<link rel="stylesheet" href="../../style.css" />
+		<link rel="icon" type="image/svg+xml" href="https://open-ui.org/favicon-32x32.png" />
+		<style>
+
+		/* use a disclosure interface on narrow width screens */
+		@media screen and (max-width: 480px) {
+			oui-panelset {
+				--affordance: disclosure;
+			}
+		}
+
+		/* use a tabset interface on wide width screens */
+		@media screen and (min-width: 760px) {
+			oui-panelset {
+				--affordance: tabset;
+			}
+		}
+
+		</style>
+		<script type="module" src="../../register.js"></script>
+	</head>
+	<body>
+		<h1>Panelset Element Demonstration: Plain</h1>
+		<oui-panelset>
+			<h3>Tabset</h3>
+			<p>
+				The <code>tabset</code> affordance
+				can use shadow-dom to establish
+				a styleable tabset and panels.
+				The required parts can be exposed for styling
+				with consistent pseudo-elements.
+			</p>
+			<p>
+				In a tab state, we likely want to style:
+			</p>
+			<ul id="tabset-state-list">
+				<li>The outer box</li>
+				<li>The tab bar</li>
+				<li>The tabs themselves</li>
+				<li>The selected tab</li>
+				<li>The tab panel area</li>
+			</ul>
+
+			<h3>Disclosure</h3>
+			<p>
+				The accordion-like <code>disclosure</code> affordance
+				also uses shadow-dom to establish
+				summary-details like behavior for each section,
+				with an option to make the toggle-states
+				<code>exclusive-disclosure</code>.
+			</p>
+			<p>
+				In an disclosure state, we likely want to style:
+			</p>
+			<ul id="disclosure-state-list">
+				<li>The outer box</li>
+				<li>The section headings/buttons</li>
+				<li>The open/closed marker</li>
+				<li>Open and closed heading styles</li>
+				<li>Open and closed content styles</li>
+			</ul>
+
+			<h3>Content</h3>
+			<p>
+				The fallback state is simply structured HTML,
+				without any show/hide affordances.
+				This does not require any special styling.
+			</p>
+		</oui-panelset>
+		<p>
+			Read the <a href="#tabset-state-list">tab state list</a>.
+		</p>
+		<p>
+			Read the <a href="#disclosure-state-list">disclosure state list</a>.
+		</p>
+		<footer>
+			<nav>
+				<ul>
+					<li>
+						<a href="../../">Documentation</a>
+					</li>
+					<li>
+						<a href="https://github.com/tabvengers/spicy-sections">GitHub</a>
+					</li>
+				</ul>
+			</nav>
+		</footer>
+	</body>
+</html>

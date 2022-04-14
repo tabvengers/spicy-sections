@@ -19,9 +19,6 @@ test(`By default, the affordance is set to "content"`, async t => {
 	// value of `affordance` DOM property is "content"
 	await t.expect(panelset.getProperty('affordance')).eql('content')
 
-	// value of `affordance` CSS property is "content"
-	await t.expect(panelset.getCSSProperty('--affordance')).eql('content')
-
 	// verify qualities of each shadow label
 	await utils.validateLabelInContentAffordance(t, shadowLabels.at(0))
 	await utils.validateLabelInContentAffordance(t, shadowLabels.at(1))
@@ -35,9 +32,6 @@ test(`Using the "affordance" DOM property, the affordance can be set to "disclos
 	// value of `affordance` DOM property is "content"
 	await t.expect(panelset.getProperty('affordance')).eql('content')
 
-	// value of `affordance` CSS property is "content"
-	await t.expect(panelset.getCSSProperty('--affordance')).eql('content')
-
 	// value of `affordance` DOM property is set to "disclosure"
 	await t.expect(panelset.setProperty('affordance', 'disclosure')).eql(true)
 
@@ -46,9 +40,6 @@ test(`Using the "affordance" DOM property, the affordance can be set to "disclos
 
 	// value of `affordance` DOM property is set to "disclosure"
 	await t.expect(panelset.getProperty('affordance')).eql('disclosure')
-
-	// value of `affordance` CSS property is set "disclosure"
-	await t.expect(panelset.getCSSProperty('--affordance')).eql('disclosure')
 
 	// verify qualities of each shadow label
 	await utils.validateLabelInDisclosureAffordance(t, shadowLabels.at(0), { isOpen: true })
@@ -66,9 +57,6 @@ test(`Using the "affordance" DOM property, the affordance can be set back to "co
 	// value of `affordance` DOM property is set to "content"
 	await t.expect(panelset.getProperty('affordance')).eql('content')
 
-	// value of `affordance` CSS property is set "content"
-	await t.expect(panelset.getCSSProperty('--affordance')).eql('content')
-
 	// verify qualities of each shadow label
 	await utils.validateLabelInContentAffordance(t, shadowLabels.at(0))
 	await utils.validateLabelInContentAffordance(t, shadowLabels.at(1))
@@ -79,14 +67,14 @@ test(`Using the "affordance" CSS property, the affordance can be set to "disclos
 	// value of `affordance` DOM property is set to "disclosure"
 	await t.expect(panelset.setCSSProperty('--affordance', 'disclosure')).eql(true)
 
+	// value of `affordance` DOM property is set to "disclosure"
+	await t.expect(panelset.getCSSProperty('--affordance')).eql('disclosure')
+
 	// attribute of `affordance` remains non-existant
 	await t.expect(panelset.hasAttribute('affordance')).eql(false)
 
 	// value of `affordance` DOM property is set to "disclosure"
 	await t.expect(panelset.getProperty('affordance')).eql('disclosure')
-
-	// value of `affordance` CSS property is set "disclosure"
-	await t.expect(panelset.getCSSProperty('--affordance')).eql('disclosure')
 
 	// verify qualities of each shadow label
 	await utils.validateLabelInDisclosureAffordance(t, shadowLabels.at(0), { isOpen: true })
@@ -95,17 +83,11 @@ test(`Using the "affordance" CSS property, the affordance can be set to "disclos
 })
 
 test(`Using the "affordance" DOM property, the affordance can be set back to "content"`, async t => {
-	// value of `affordance` CSS property is set to "content"
-	await t.expect(panelset.setCSSProperty('--affordance', 'content')).eql(true)
-
 	// attribute of `affordance` remains non-existant
 	await t.expect(panelset.hasAttribute('affordance')).eql(false)
 
 	// value of `affordance` DOM property is set to "content"
 	await t.expect(panelset.getProperty('affordance')).eql('content')
-
-	// value of `affordance` CSS property is set "content"
-	await t.expect(panelset.getCSSProperty('--affordance')).eql('content')
 
 	// verify qualities of each shadow label
 	await utils.validateLabelInContentAffordance(t, shadowLabels.at(0))
@@ -120,9 +102,6 @@ test(`Using the "affordance" attribute will not change the affordance`, async t 
 	// value of `affordance` DOM property remains "content"
 	await t.expect(panelset.getProperty('affordance')).eql('content')
 
-	// value of `affordance` CSS property remains "content"
-	await t.expect(panelset.getCSSProperty('--affordance')).eql('content')
-
 	// verify qualities of each shadow label
 	await utils.validateLabelInContentAffordance(t, shadowLabels.at(0))
 	await utils.validateLabelInContentAffordance(t, shadowLabels.at(1))
@@ -132,7 +111,7 @@ test(`Using the "affordance" attribute will not change the affordance`, async t 
 // Testing: Panelset Programatic Affordances (with affordance="disclosure")
 // -----------------------------------------------------------------------------
 
-fixture('Panelset Programatic Affordances (with affordance="disclosure")').page('http://localhost:3000/demonstration/disclosure/')
+fixture('Panelset Programatic Affordances (with affordance="disclosure")').page('http://localhost:3000/demonstration/test-attribute/')
 
 test(`When defined in HTML, the affordance can be set to "disclosure"`, async t => {
 	// attribute of `affordance` is "disclosure"
@@ -140,9 +119,6 @@ test(`When defined in HTML, the affordance can be set to "disclosure"`, async t 
 
 	// value of `affordance` DOM property is "disclosure"
 	await t.expect(panelset.getProperty('affordance')).eql('disclosure')
-
-	// value of `affordance` CSS property is "disclosure"
-	await t.expect(panelset.getCSSProperty('--affordance')).eql('disclosure')
 
 	// verify qualities of each shadow label
 	await utils.validateLabelInDisclosureAffordance(t, shadowLabels.at(0), { isOpen: true })
@@ -156,9 +132,6 @@ test(`Using the "affordance" DOM property, the affordance can be set to "tabset"
 
 	// value of `affordance` DOM property is set to "tabset"
 	await t.expect(panelset.getProperty('affordance')).eql('tabset')
-
-	// value of `affordance` CSS property is set "tabset"
-	await t.expect(panelset.getCSSProperty('--affordance')).eql('tabset')
 
 	// attribute of `affordance` remains "disclosure"
 	await t.expect(panelset.getAttribute('affordance')).eql('disclosure')
@@ -179,9 +152,6 @@ test(`Using the "affordance" DOM property, the affordance can be set to "content
 	// value of `affordance` DOM property is set to "content"
 	await t.expect(panelset.getProperty('affordance')).eql('content')
 
-	// value of `affordance` CSS property is set "content"
-	await t.expect(panelset.getCSSProperty('--affordance')).eql('content')
-
 	// verify qualities of each shadow label
 	await utils.validateLabelInContentAffordance(t, shadowLabels.at(0))
 	await utils.validateLabelInContentAffordance(t, shadowLabels.at(1))
@@ -197,9 +167,6 @@ test(`Using the "affordance" DOM property, the affordance can be set to "content
 
 	// value of `affordance` DOM property is set to "content"
 	await t.expect(panelset.getProperty('affordance')).eql('content')
-
-	// value of `affordance` CSS property is set "content"
-	await t.expect(panelset.getCSSProperty('--affordance')).eql('content')
 
 	// verify qualities of each shadow label
 	await utils.validateLabelInContentAffordance(t, shadowLabels.at(0))

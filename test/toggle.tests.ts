@@ -4,15 +4,15 @@ import * as $ from './testcafe'
 // -----------------------------------------------------------------------------
 
 const BREAKPOINTS = {
-	disclosure: [ 640 - 60, 520 ],
-	content: [ 800, 520 ],
-	tabset: [ 960 + 60, 520 ],
+	disclosure: [ 400, 400 ],
+	content: [ 600, 400 ],
+	tabset: [ 800, 400 ],
 } as const
 
 // Fixture
 // -----------------------------------------------------------------------------
 
-fixture('Panelset Toggles').page('http://localhost:3000/demonstration/default/')
+fixture('Panelset Toggles').page('http://localhost:3000/demonstration/test-responsive/')
 
 // Testing Setup
 // -----------------------------------------------------------------------------

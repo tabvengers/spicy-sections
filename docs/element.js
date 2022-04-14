@@ -16,7 +16,7 @@ export class OUIPanelsetElement extends HTMLElement {
 // -----------------------------------------------------------------------------
 let createInternals = (host) => {
     /** Current affordance, which is 'content', 'disclosure', or 'tabset'. */
-    let affordance = (host.getAttribute('disclosure') || '').toLowerCase();
+    let affordance = (host.getAttribute('affordance') || '').toLowerCase();
     affordance = allowedAffordances.has(affordance) ? affordance : 'content';
     // LightDOM references
     // -------------------------------------------------------------------------
@@ -155,6 +155,7 @@ let createInternals = (host) => {
     // -------------------------------------------------------------------------
     /** Run whenever nodes are added to or removed from the panelset host. */
     let childrenChangedCallback = () => {
+        // shadowStyleText.data = 'content'
         /** Panel extracted from the Panelset LightDOM child nodes. */
         let panel = Object({ slotted: { contents: [] } });
         /** Previously extracted Panel. */
@@ -229,7 +230,7 @@ let createInternals = (host) => {
         // set the container affordance
         setAttributes(shadowContainerElement, { part: 'container is-' + affordance });
         // @ts-ignore update css `--affordance` property
-        shadowStyleText.data = affordance;
+        // shadowStyleText.data = affordance
         // reset any container children
         if (affordance === 'tabset') {
             shadowContainerElement.replaceChildren(shadowLabelContainerElement, shadowContentContainerElement);
@@ -336,7 +337,7 @@ let createInternals = (host) => {
             return affordance;
         },
         setAffordance(value) {
-            shadowStyleText.data = 'content';
+            // shadowStyleText.data = 'content'
             value = value.trim().toLowerCase();
             if (allowedAffordances.has(value)) {
                 if (value !== affordance) {
@@ -444,8 +445,8 @@ let assignSlot = (slot, ...nodes) => {
 let supportsSlotAssignment = typeof HTMLSlotElement === 'function' && typeof HTMLSlotElement.prototype.assign === 'function';
 /** Returns a new element specified by the given tag name with the given attributes. */
 let createElement = (name, attrs = null) => {
-    let xmlns = attrs && attrs.xmlns || 'http://www.w3.org/1999/xhtml';
-    let element = document.createElementNS(attrs && delete attrs.xmlns && xmlns || 'http://www.w3.org/1999/xhtml', name);
+    let xmlns = (attrs && attrs.xmlns) || 'http://www.w3.org/1999/xhtml';
+    let element = document.createElementNS((attrs && delete attrs.xmlns && xmlns) || 'http://www.w3.org/1999/xhtml', name);
     return setAttributes(element, attrs);
 };
 /** Returns the given element with the given attributes set. */

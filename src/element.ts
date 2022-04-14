@@ -24,7 +24,7 @@ export class OUIPanelsetElement extends HTMLElement {
 
 let createInternals = (host: OUIPanelsetElement) => {
 	/** Current affordance, which is 'content', 'disclosure', or 'tabset'. */
-	let affordance: Affordance = (host.getAttribute('disclosure') || '').toLowerCase() as Affordance
+	let affordance: Affordance = (host.getAttribute('affordance') || '').toLowerCase() as Affordance
 
 	affordance = allowedAffordances.has(affordance) ? affordance : 'content'
 
@@ -221,6 +221,8 @@ let createInternals = (host: OUIPanelsetElement) => {
 
 	/** Run whenever nodes are added to or removed from the panelset host. */
 	let childrenChangedCallback = () => {
+		// shadowStyleText.data = 'content'
+
 		/** Panel extracted from the Panelset LightDOM child nodes. */
 		let panel: Panel = Object({ slotted: { contents: [] } })
 
@@ -316,7 +318,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 		setAttributes(shadowContainerElement, { part: 'container is-' + affordance })
 
 		// @ts-ignore update css `--affordance` property
-		shadowStyleText.data = affordance
+		// shadowStyleText.data = affordance
 
 		// reset any container children
 		if (affordance === 'tabset') {
@@ -455,7 +457,7 @@ let createInternals = (host: OUIPanelsetElement) => {
 			return affordance
 		},
 		setAffordance(value: string) {
-			shadowStyleText.data = 'content'
+			// shadowStyleText.data = 'content'
 
 			value = value.trim().toLowerCase()
 

@@ -5,22 +5,22 @@ import * as utils from './utils'
 // -----------------------------------------------------------------------------
 
 const BREAKPOINTS = {
-	disclosure: [ 640 - 60, 520 ],
-	content: [ 800, 520 ],
-	tabset: [ 960 + 60, 520 ],
+	disclosure: [ 400, 400 ],
+	content: [ 600, 400 ],
+	tabset: [ 800, 400 ],
 } as const
 
 // Fixture
 // -----------------------------------------------------------------------------
 
-fixture('Panelset Responsive Affordances').page('http://localhost:3000/demonstration/default/')
+fixture('Panelset Responsive Affordances').page('http://localhost:3000/demonstration/test-responsive/')
 
 // Testing Setup
 // -----------------------------------------------------------------------------
 
 const panelset = $.document().find('oui-panelset')
-const getScreenWidth = $.ClientFunction(() => window.screen.availWidth);
-const setScreenWidth = $.ClientFunction((size) => window.screen.availWidth);
+
+const getInnerWidth = $.ClientFunction(() => window.innerWidth)
 
 // Testing
 // -----------------------------------------------------------------------------
